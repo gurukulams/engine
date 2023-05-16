@@ -17,14 +17,10 @@ public class DemoApplication {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
-	@RequestMapping("/api/platform")
+	@RequestMapping("/api/me")
     String platform() {
         return System.getProperty("java.vendor") + " @ " + System.getProperty("java.version");
     }
 
-	@RequestMapping("/api/foundation")
-	String foundation() {
-		return "Spring Boot @ " + SpringBootVersion.getVersion();
-	}
 
 }
