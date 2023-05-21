@@ -107,21 +107,31 @@
 				<version>${jacoco.version}</version>
 				<configuration>
 					<includes>
-						<include>com/techatpark/*</include>
+						<include>com/techatpark/workout/service/*</include>
 					</includes>
 				</configuration>
 				<executions>
 					<execution>
-						<id>prepare-agent</id>
-						<goals><goal>prepare-agent</goal></goals>
-					</execution>
-					<execution>
-						<id>report</id>
+						<id>default-prepare-agent</id>
 						<phase>test</phase>
-						<goals><goal>report</goal></goals>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+							<!-- Sets the path to the file which contains the execution data. -->
+							<destFile>target/coverage-reports/jacoco-ut.exec</destFile>
+						</configuration>
 					</execution>
 					<execution>
-						<id>jacoco-check</id>
+						<id>default-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-check</id>
+						<phase>test</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
@@ -138,6 +148,17 @@
 									</limits>
 								</rule>
 							</rules>
+						</configuration>
+					</execution>
+					<execution>
+						<id>post-integration-test</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>target/coverage-reports/jacoco-it.exec</dataFile>
+							<outputDirectory>target/coverage-reports/jacoco-it</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
