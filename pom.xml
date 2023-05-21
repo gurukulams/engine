@@ -18,6 +18,13 @@
 
 		<maven.checkstyle.version>3.1.2</maven.checkstyle.version>
 		<checkstyle.version>10.3.2</checkstyle.version>
+
+
+		<surefire.version>3.0.0</surefire.version>
+		<jacoco.version>0.8.10</jacoco.version>
+		<maven.compiler.compilerArgument>-Xlint:-processing</maven.compiler.compilerArgument>
+		<maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
+
 	</properties>
 	<dependencies>
 
@@ -87,6 +94,34 @@
 					<execution>
 						<id>validate</id>
 						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<configuration>
+					<includes>
+						<include>com/techatpark/*</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals><goal>report</goal></goals>
+					</execution>
+					<execution>
+						<id>jacoco-check</id>
 						<goals>
 							<goal>check</goal>
 						</goals>
