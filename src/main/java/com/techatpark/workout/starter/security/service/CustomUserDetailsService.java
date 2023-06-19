@@ -44,7 +44,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @param profileService
      */
     public CustomUserDetailsService(final LearnerService alearnerService,
-                                    final LearnerProfileService profileService) {
+                                final LearnerProfileService profileService) {
         this.learnerProfileService = profileService;
         passwordEncoder = new BCryptPasswordEncoder();
         this.learnerService = alearnerService;

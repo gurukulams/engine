@@ -164,8 +164,7 @@ public class SecurityConfig {
                         .disable()
                         .exceptionHandling()
                         .authenticationEntryPoint(
-                                new RestAuthenticationEntryPoint())
-                        ;
+                                new RestAuthenticationEntryPoint());
 
                 // Add our custom Token based authentication filter
                 http.addFilterBefore(tokenAuthenticationFilter,
