@@ -36,7 +36,7 @@ import java.security.Principal;
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication",
         description = "Resource to manage authentication")
-class AuthenticationAPIController {
+public class AuthenticationAPIController {
 
 
     /**
@@ -57,14 +57,7 @@ class AuthenticationAPIController {
      */
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * constructs authenticationManager,userDetailsService,tokenUtil.
-     *
-     * @param anAuthenticationManager the authentication manager
-     * @param anUserDetailsService    the user details service
-     * @param apasswordEncoder        the apasswordEncoder
-     * @param aTokenUtil              a token util
-     */
+
     AuthenticationAPIController(final AuthenticationManager
                                         anAuthenticationManager,
                                 final LearnerService
@@ -77,10 +70,7 @@ class AuthenticationAPIController {
         this.passwordEncoder = apasswordEncoder;
     }
 
-    /**
-     * @param signUpRequest
-     * @return loginRequest
-     */
+
     @Operation(summary = "Signup the User")
     @PostMapping("/signup")
     public ResponseEntity<Void> signUp(
