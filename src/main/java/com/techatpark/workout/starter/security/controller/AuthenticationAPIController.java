@@ -71,9 +71,10 @@ public class AuthenticationAPIController {
     }
 
 
+
     @Operation(summary = "Signup the User")
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUp(
+    public final ResponseEntity<Void> signUp(
             final @RequestBody SignupRequest signUpRequest) {
         learnerService.signUp(signUpRequest,
                 s -> passwordEncoder.encode(s));

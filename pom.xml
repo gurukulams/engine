@@ -89,6 +89,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -121,8 +127,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
-					<suppressionsLocation>checkstyle-suppressions.xml
-					</suppressionsLocation>
+					<suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
 					<encoding>UTF-8</encoding>
 					<consoleOutput>true</consoleOutput>
 					<failsOnError>true</failsOnError>
