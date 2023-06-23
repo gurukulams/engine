@@ -28,6 +28,7 @@
 		<maven.compiler.compilerArgument>-Xlint:-processing</maven.compiler.compilerArgument>
 		<maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
 
+		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
 	</properties>
 	<dependencies>
 
@@ -203,6 +204,19 @@
 							<dataFile>target/coverage-reports/jacoco-it.exec</dataFile>
 							<outputDirectory>target/coverage-reports/jacoco-it</outputDirectory>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>${owasp-dependency-check-maven.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
