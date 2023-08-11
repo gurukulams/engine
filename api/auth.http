@@ -1,0 +1,38 @@
+@base = http://localhost:8080/api
+
+#### Sign Up
+POST {{base}}/auth/signup
+Content-Type: application/json
+
+{
+    "email": "tom@email.com",
+    "password": "password",
+    "imageUrl": "/images/tom.png"
+}
+
+#### Obtain Token
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+    "userName": "tom@email.com",
+    "password": "password"
+}
+
+#### Register
+# @name login
+POST {{base}}/auth/register
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.registrationToken}}
+
+{
+    "firstName": "tom",
+    "lastName": "rtom",
+    "dob": "0002-02-22"
+}
+
+#### Logout
+POST {{base}}/auth/logout
+Authorization: Bearer {{login.response.body.authToken}}
+Content-Type: application/json
