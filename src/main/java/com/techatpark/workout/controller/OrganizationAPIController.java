@@ -108,7 +108,7 @@ class OrganizationAPIController {
                                            Organization
                                               tag) {
         final Organization updatedTag =
-                organizationService.update(id, principal.getName(), locale, tag);
+            organizationService.update(id, principal.getName(), locale, tag);
         return ResponseEntity.ok(updatedTag);
     }
 
