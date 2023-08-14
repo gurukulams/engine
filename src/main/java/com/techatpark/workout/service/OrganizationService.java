@@ -1,7 +1,7 @@
 package com.techatpark.workout.service;
 
 
-import com.techatpark.workout.model.Category;
+import com.techatpark.workout.model.Organization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -20,16 +20,16 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * The type Category service.
+ * The type Organization service.
  */
 @Service
-public final class CategoryService {
+public final class OrganizationService {
 
     /**
      * Logger Facade.
      */
     private final Logger logger =
-            LoggerFactory.getLogger(CategoryService.class);
+            LoggerFactory.getLogger(OrganizationService.class);
 
     /**
      * this helps to execute sql queries.
@@ -47,7 +47,7 @@ public final class CategoryService {
      * @param anJdbcTemplate
      * @param aDataSource
      */
-    public CategoryService(
+    public OrganizationService(
             final JdbcTemplate anJdbcTemplate, final DataSource aDataSource) {
         this.jdbcTemplate = anJdbcTemplate;
         this.dataSource = aDataSource;
@@ -61,17 +61,17 @@ public final class CategoryService {
      * @return p
      * @throws SQLException
      */
-    private Category rowMapper(final ResultSet rs,
+    private Organization rowMapper(final ResultSet rs,
                                final Integer rowNum)
             throws SQLException {
-        Category category = new Category(
+        Organization organization = new Organization(
                 rs.getString("id"),
                 rs.getString("title"),
                 rs.getObject("created_at", LocalDateTime.class),
                 rs.getString("created_by"),
                 rs.getObject("modified_at", LocalDateTime.class),
                 rs.getString("modified_by"));
-        return category;
+        return organization;
     }
 
     /**
@@ -82,12 +82,12 @@ public final class CategoryService {
      * @param tag      the tag
      * @return question optional
      */
-    public Category create(final String userName,
+    public Organization create(final String userName,
                            final Locale locale,
-                           final Category tag) {
+                           final Organization tag) {
 
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("categories")
+                .withTableName("organizations")
                 .usingColumns("id", "title",
                         "created_by");
 
@@ -100,29 +100,29 @@ public final class CategoryService {
         insert.execute(valueMap);
 
         if (locale != null) {
-            valueMap.put("category_id", tag.id());
+            valueMap.put("organization_id", tag.id());
             valueMap.put("locale", locale.getLanguage());
             createLocalizedTag(valueMap);
         }
 
-        final Optional<Category> optionalCategory =
+        final Optional<Organization> optionalOrganization =
                 read(userName, tag.id(), locale);
 
-        logger.info("Created Category {}", tag.id());
+        logger.info("Created Organization {}", tag.id());
 
-        return optionalCategory.get();
+        return optionalOrganization.get();
     }
 
     /**
-     * Create Localized Category.
+     * Create Localized Organization.
      *
      * @param valueMap
-     * @return noOfCategories
+     * @return noOfOrganizations
      */
     private int createLocalizedTag(final Map<String, Object> valueMap) {
         return new SimpleJdbcInsert(dataSource)
-                .withTableName("categories_localized")
-                .usingColumns("category_id", "locale", "title")
+                .withTableName("organizations_localized")
+                .usingColumns("organization_id", "locale", "title")
                 .execute(valueMap);
     }
 
@@ -134,12 +134,12 @@ public final class CategoryService {
      * @param locale
      * @return question optional
      */
-    public Optional<Category> read(final String userName,
+    public Optional<Organization> read(final String userName,
                                    final String id,
                                    final Locale locale) {
         final String query = locale == null
                 ? "SELECT id,title,created_by,"
-                + "created_at, modified_at, modified_by FROM categories "
+                + "created_at, modified_at, modified_by FROM organizations "
                 + "WHERE id = ?"
                 : "SELECT DISTINCT b.ID, "
                 + "CASE WHEN bl.LOCALE = ? "
@@ -147,18 +147,18 @@ public final class CategoryService {
                 + "ELSE b.TITLE "
                 + "END AS TITLE, "
                 + "created_by,created_at, modified_at, modified_by "
-                + "FROM CATEGORIES b "
-                + "LEFT JOIN CATEGORIES_LOCALIZED bl "
-                + "ON b.ID = bl.category_id "
+                + "FROM organizations b "
+                + "LEFT JOIN organizations_localized bl "
+                + "ON b.ID = bl.organization_id "
                 + "WHERE b.ID = ? "
                 + "AND (bl.LOCALE IS NULL "
                 + "OR bl.LOCALE = ? OR "
                 + "b.ID NOT IN "
-                + "(SELECT category_id FROM CATEGORIES_LOCALIZED "
-                + "WHERE category_id=b.ID AND LOCALE = ?))";
+                + "(SELECT organization_id FROM organizations_localized "
+                + "WHERE organization_id=b.ID AND LOCALE = ?))";
 
         try {
-            final Category p = locale == null ? jdbcTemplate
+            final Organization p = locale == null ? jdbcTemplate
                     .queryForObject(query, this::rowMapper, id)
                     : jdbcTemplate
                     .queryForObject(query, this::rowMapper,
@@ -181,31 +181,31 @@ public final class CategoryService {
      * @param tag      the tag
      * @return question optional
      */
-    public Category update(final String id,
+    public Organization update(final String id,
                            final String userName,
                            final Locale locale,
-                           final Category tag) {
-        logger.debug("Entering update for Category {}", id);
+                           final Organization tag) {
+        logger.debug("Entering update for Organization {}", id);
         final String query = locale == null
-                ? "UPDATE categories SET title=?,"
+                ? "UPDATE organizations SET title=?,"
                 + "modified_by=? WHERE id=?"
-                : "UPDATE categories SET modified_by=? WHERE id=?";
+                : "UPDATE organizations SET modified_by=? WHERE id=?";
         Integer updatedRows = locale == null
                 ? jdbcTemplate.update(query, tag.title(),
                 userName, id)
                 : jdbcTemplate.update(query, userName, id);
         if (updatedRows == 0) {
             logger.error("Update not found", id);
-            throw new IllegalArgumentException("Category not found");
+            throw new IllegalArgumentException("Organization not found");
         } else if (locale != null) {
             updatedRows = jdbcTemplate.update(
-                    "UPDATE categories_localized SET title=?,locale=?"
-                            + " WHERE category_id=? AND locale=?",
+                    "UPDATE organizations_localized SET title=?,locale=?"
+                            + " WHERE organization_id=? AND locale=?",
                     tag.title(), locale.getLanguage(),
                     id, locale.getLanguage());
             if (updatedRows == 0) {
                 final Map<String, Object> valueMap = new HashMap<>(4);
-                valueMap.put("category_id", id);
+                valueMap.put("organization_id", id);
                 valueMap.put("locale", locale.getLanguage());
                 valueMap.put("title", tag.title());
                 createLocalizedTag(valueMap);
@@ -222,7 +222,7 @@ public final class CategoryService {
      * @return false
      */
     public Boolean delete(final String userName, final String id) {
-        String query = "DELETE FROM categories WHERE ID=?";
+        String query = "DELETE FROM organizations WHERE ID=?";
 
         final Integer updatedRows = jdbcTemplate.update(query, id);
         return !(updatedRows == 0);
@@ -230,31 +230,31 @@ public final class CategoryService {
 
 
     /**
-     * list of categories.
+     * list of organizations.
      *
      * @param userName the userName
      * @param locale
-     * @return categories list
+     * @return organizations list
      */
-    public List<Category> list(final String userName,
+    public List<Organization> list(final String userName,
                                final Locale locale) {
         final String query = locale == null
                 ? "SELECT id,title,created_by,"
-                + "created_at, modified_at, modified_by FROM categories"
+                + "created_at, modified_at, modified_by FROM organizations"
                 : "SELECT DISTINCT b.ID, "
                 + "CASE WHEN bl.LOCALE = ? "
                 + "THEN bl.TITLE "
                 + "ELSE b.TITLE "
                 + "END AS TITLE, "
                 + "created_by,created_at, modified_at, modified_by "
-                + "FROM CATEGORIES b "
-                + "LEFT JOIN CATEGORIES_LOCALIZED bl "
-                + "ON b.ID = bl.category_id "
+                + "FROM organizations b "
+                + "LEFT JOIN organizations_localized bl "
+                + "ON b.ID = bl.organization_id "
                 + "WHERE bl.LOCALE IS NULL "
                 + "OR bl.LOCALE = ? OR "
                 + "b.ID NOT IN "
-                + "(SELECT category_id FROM CATEGORIES_LOCALIZED "
-                + "WHERE category_id=b.ID AND LOCALE = ?)";
+                + "(SELECT organization_id FROM organizations_localized "
+                + "WHERE organization_id=b.ID AND LOCALE = ?)";
         return locale == null
                 ? jdbcTemplate.query(query, this::rowMapper)
                 : jdbcTemplate
@@ -265,13 +265,13 @@ public final class CategoryService {
     }
 
     /**
-     * Cleaning up all categories.
+     * Cleaning up all organizations.
      *
-     * @return no.of categories deleted
+     * @return no.of organizations deleted
      */
     public Integer deleteAll() {
-        jdbcTemplate.update("DELETE FROM categories_localized");
-        final String query = "DELETE FROM categories";
+        jdbcTemplate.update("DELETE FROM organizations_localized");
+        final String query = "DELETE FROM organizations";
         return jdbcTemplate.update(query);
     }
 }

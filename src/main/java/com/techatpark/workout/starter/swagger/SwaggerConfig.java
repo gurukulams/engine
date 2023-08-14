@@ -19,8 +19,8 @@ public class SwaggerConfig {
     public OpenAPI apiDocConfig() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("example API")
-                        .description("example API for routing ")
+                        .title("Organization API")
+                        .description("API for Organization")
                         .version("0.0.1")
                         .contact(new Contact()
                                 .name("example")

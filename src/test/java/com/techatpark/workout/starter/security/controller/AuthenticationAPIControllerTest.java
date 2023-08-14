@@ -1,7 +1,7 @@
 package com.techatpark.workout.starter.security.controller;
 
 
-import com.techatpark.workout.service.CategoryService;
+import com.techatpark.workout.service.OrganizationService;
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
@@ -43,7 +43,7 @@ class AuthenticationAPIControllerTest {
     private LearnerService learnerService;
 
     @Autowired
-    private CategoryService bategoryService;
+    private OrganizationService bategoryService;
 
     @Autowired
     private AppProperties appProperties;
@@ -94,11 +94,11 @@ class AuthenticationAPIControllerTest {
 
         AuthenticationResponse authenticationResponse = login(authenticationRequest);
 
-        getCategories(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
         authenticationResponse = register(authenticationRequest, authenticationResponse);
 
-        getCategories(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
+        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
 
         refresh(authenticationResponse.getAuthToken(),
                 authenticationResponse.getRefreshToken()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
@@ -113,13 +113,13 @@ class AuthenticationAPIControllerTest {
                 .expectBody(AuthenticationResponse.class)
                 .returnResult().getResponseBody();
 
-        getCategories(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
-        getCategories(refreshedResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
+        getOrganizations(refreshedResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
 
         logout(authenticationRequest, refreshedResponse).isEqualTo(HttpStatus.OK.value());
 
-        getCategories(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
     }
 
@@ -154,7 +154,7 @@ class AuthenticationAPIControllerTest {
 
         authenticationResponse = register(authenticationRequest, authenticationResponse);
 
-        getCategories(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
+        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
 
         // Wait for Token Expiry
         TimeUnit.MILLISECONDS.sleep(appProperties.getAuth().getTokenExpirationMsec());
@@ -241,10 +241,10 @@ class AuthenticationAPIControllerTest {
                 .expectStatus();
     }
 
-    private StatusAssertions getCategories(final AuthenticationResponse authenticationResponse) {
+    private StatusAssertions getOrganizations(final AuthenticationResponse authenticationResponse) {
         return this.webTestClient
                 .get()
-                .uri("/api/categories")
+                .uri("/api/organizations")
                 .header("Authorization", "Bearer " + authenticationResponse.getAuthToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()

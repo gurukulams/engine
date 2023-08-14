@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.techatpark.workout.model.Category;
-import com.techatpark.workout.service.CategoryService;
+import com.techatpark.workout.model.Organization;
+import com.techatpark.workout.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,21 +25,21 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The type Category api controller.
+ * The type Organization api controller.
  */
 @RestController
-@RequestMapping("/api/categories")
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Categories",
-        description = "Resource to manage Categories")
-class CategoryAPIController {
+@RequestMapping("/api/organizations")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Organization",
+        description = "Resource to manage Organizations")
+class OrganizationAPIController {
 
     /**
      * declare a tag service.
      */
-    private final CategoryService categoryService;
+    private final OrganizationService organizationService;
 
-    CategoryAPIController(final CategoryService anTagService) {
-        this.categoryService = anTagService;
+    OrganizationAPIController(final OrganizationService anTagService) {
+        this.organizationService = anTagService;
     }
 
     @Operation(summary = "Creates a new tag",
@@ -54,20 +54,20 @@ class CategoryAPIController {
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Category> create(final Principal principal,
+    public ResponseEntity<Organization> create(final Principal principal,
                                        @RequestHeader(name = "Accept-Language",
                                   required = false) final Locale locale,
                                        final @RequestBody
-                                               Category tag) {
-        Category createdTag =
-                categoryService.create(principal.getName(), locale, tag);
+                                       Organization tag) {
+        Organization createdTag =
+                organizationService.create(principal.getName(), locale, tag);
         return ResponseEntity.created(URI.create("/api/syllabus"
                         + createdTag.id()))
                 .body(createdTag);
 
     }
 
-    @Operation(summary = "Get the Category with given id",
+    @Operation(summary = "Get the Organization with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
             description = "getting tag successfully"),
@@ -76,12 +76,12 @@ class CategoryAPIController {
             @ApiResponse(responseCode = "404",
                     description = "tag not found")})
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<Category> read(final @PathVariable String id,
+    public ResponseEntity<Organization> read(final @PathVariable String id,
                                      @RequestHeader(name = "Accept-Language",
                             required = false) final Locale locale,
                                      final Principal principal) {
         return ResponseEntity.of(
-                categoryService.read(principal.getName(), id, locale));
+                organizationService.read(principal.getName(), id, locale));
     }
 
     @Operation(summary = "Updates the tag by given id",
@@ -98,17 +98,17 @@ class CategoryAPIController {
                     description = "tag not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public ResponseEntity<Category> update(final @PathVariable
+    public ResponseEntity<Organization> update(final @PathVariable
                                               String id,
                                            final Principal
                                               principal,
                                    @RequestHeader(name = "Accept-Language",
                               required = false) final Locale locale,
                                            final @RequestBody
-                                                   Category
+                                           Organization
                                               tag) {
-        final Category updatedTag =
-                categoryService.update(id, principal.getName(), locale, tag);
+        final Organization updatedTag =
+                organizationService.update(id, principal.getName(), locale, tag);
         return ResponseEntity.ok(updatedTag);
     }
 
@@ -125,7 +125,7 @@ class CategoryAPIController {
                                                String id,
                                        final Principal
                                                principal) {
-        return categoryService.delete(principal.getName(), id)
+        return organizationService.delete(principal.getName(), id)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();
     }
@@ -140,11 +140,11 @@ class CategoryAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public ResponseEntity<List<Category>> list(final Principal
+    public ResponseEntity<List<Organization>> list(final Principal
                                                   principal,
                                    @RequestHeader(name = "Accept-Language",
                               required = false) final Locale locale) {
-        final List<Category> tagList = categoryService.list(
+        final List<Organization> tagList = organizationService.list(
                 principal.getName(), locale);
         return tagList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(tagList);
