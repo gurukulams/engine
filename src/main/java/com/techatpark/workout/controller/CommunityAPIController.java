@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.techatpark.workout.model.Organization;
-import com.techatpark.workout.service.OrganizationService;
+import com.techatpark.workout.model.Community;
+import com.techatpark.workout.service.CommunityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,129 +25,129 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The type Organization api controller.
+ * The type community api controller.
  */
 @RestController
-@RequestMapping("/api/organizations")
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Organization",
-        description = "Resource to manage Organizations")
-class OrganizationAPIController {
+@RequestMapping("/api/communities")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Community",
+        description = "Resource to manage Communities")
+class CommunityAPIController {
 
     /**
-     * declare a tag service.
+     * declare a Community service.
      */
-    private final OrganizationService organizationService;
+    private final CommunityService communityService;
 
-    OrganizationAPIController(final OrganizationService anTagService) {
-        this.organizationService = anTagService;
+    CommunityAPIController(final CommunityService paramCommunityService) {
+        this.communityService = paramCommunityService;
     }
 
-    @Operation(summary = "Creates a new tag",
+    @Operation(summary = "Creates a new Community",
             description = "Can be called "
                     + "only by users with 'auth management' rights.",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "201",
-            description = "tag created successfully"),
+            description = "Community created successfully"),
             @ApiResponse(responseCode = "400",
-                    description = "tag is invalid"),
+                    description = "Community is invalid"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Organization> create(final Principal principal,
+    public ResponseEntity<Community> create(final Principal principal,
                                        @RequestHeader(name = "Accept-Language",
                                   required = false) final Locale locale,
                                        final @RequestBody
-                                       Organization tag) {
-        Organization createdTag =
-                organizationService.create(principal.getName(), locale, tag);
-        return ResponseEntity.created(URI.create("/api/syllabus"
-                        + createdTag.id()))
-                .body(createdTag);
+                                       Community community) {
+        Community createdCommunity =
+                communityService.create(principal.getName(), locale, community);
+        return ResponseEntity.created(URI.create("/api/communities/"
+                        + createdCommunity.id()))
+                .body(createdCommunity);
 
     }
 
-    @Operation(summary = "Get the Organization with given id",
+    @Operation(summary = "Get the community with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "getting tag successfully"),
+            description = "getting Community successfully"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
-                    description = "tag not found")})
+                    description = "Community not found")})
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<Organization> read(final @PathVariable String id,
+    public ResponseEntity<Community> read(final @PathVariable String id,
                                      @RequestHeader(name = "Accept-Language",
                             required = false) final Locale locale,
                                      final Principal principal) {
         return ResponseEntity.of(
-                organizationService.read(principal.getName(), id, locale));
+                communityService.read(principal.getName(), id, locale));
     }
 
-    @Operation(summary = "Updates the tag by given id",
+    @Operation(summary = "Updates the Community by given id",
             description = "Can be called only by users "
                     + "with 'auth management' rights.",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "tag updated successfully"),
+            description = "Community updated successfully"),
             @ApiResponse(responseCode = "400",
-                    description = "tag is invalid"),
+                    description = "Community is invalid"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
-                    description = "tag not found")})
+                    description = "Community not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public ResponseEntity<Organization> update(final @PathVariable
+    public ResponseEntity<Community> update(final @PathVariable
                                               String id,
                                            final Principal
                                               principal,
                                    @RequestHeader(name = "Accept-Language",
                               required = false) final Locale locale,
                                            final @RequestBody
-                                           Organization
-                                              tag) {
-        final Organization updatedTag =
-            organizationService.update(id, principal.getName(), locale, tag);
-        return ResponseEntity.ok(updatedTag);
+                                           Community
+                                              community) {
+        final Community updatedCommunity =
+            communityService.update(id, principal.getName(), locale, community);
+        return ResponseEntity.ok(updatedCommunity);
     }
 
-    @Operation(summary = "Deletes the tag by given id",
+    @Operation(summary = "Deletes the Community by given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "tag deleted successfully"),
+            description = "Community deleted successfully"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
-                    description = "tag not found")})
+                    description = "Community not found")})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(final @PathVariable
                                                String id,
                                        final Principal
                                                principal) {
-        return organizationService.delete(principal.getName(), id)
+        return communityService.delete(principal.getName(), id)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();
     }
 
-    @Operation(summary = "lists the tag",
-            description = " Can be invoked by auth users only",
+    @Operation(summary = "lists the Communities",
+            description = "Can be invoked by auth users only",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "Listing the tag"),
+            description = "Listing the communities successfully"),
             @ApiResponse(responseCode = "204",
-                    description = "syllabus are not available"),
+                    description = "Communities are not available"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public ResponseEntity<List<Organization>> list(final Principal
+    public ResponseEntity<List<Community>> list(final Principal
                                                   principal,
                                    @RequestHeader(name = "Accept-Language",
                               required = false) final Locale locale) {
-        final List<Organization> tagList = organizationService.list(
+        final List<Community> communities = communityService.list(
                 principal.getName(), locale);
-        return tagList.isEmpty() ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(tagList);
+        return communities.isEmpty() ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(communities);
     }
 
 

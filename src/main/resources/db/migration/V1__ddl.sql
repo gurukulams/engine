@@ -1,19 +1,19 @@
-CREATE TABLE organizations (
+CREATE TABLE communities (
     id VARCHAR(55) PRIMARY KEY,
     title TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(55) NOT NULL,
     modified_at TIMESTAMP,
     modified_by VARCHAR(200),
-    CONSTRAINT organizations_title_constraint UNIQUE (title)
+    CONSTRAINT communities_title_constraint UNIQUE (title)
 );
 
-CREATE TABLE organizations_localized (
-    organization_id VARCHAR(55),
+CREATE TABLE communities_localized (
+    community_id VARCHAR(55),
     locale VARCHAR(8) NOT NULL,
     title TEXT,
-    FOREIGN KEY (organization_id) REFERENCES organizations (id),
-    PRIMARY KEY(organization_id, locale)
+    FOREIGN KEY (community_id) REFERENCES communities (id),
+    PRIMARY KEY(community_id, locale)
 );
 
 CREATE TABLE handle (

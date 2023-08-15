@@ -1,7 +1,7 @@
 package com.techatpark.workout.starter.security.controller;
 
 
-import com.techatpark.workout.service.OrganizationService;
+import com.techatpark.workout.service.CommunityService;
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
@@ -43,7 +43,7 @@ class AuthenticationAPIControllerTest {
     private LearnerService learnerService;
 
     @Autowired
-    private OrganizationService bategoryService;
+    private CommunityService bategoryService;
 
     @Autowired
     private AppProperties appProperties;
@@ -94,11 +94,11 @@ class AuthenticationAPIControllerTest {
 
         AuthenticationResponse authenticationResponse = login(authenticationRequest);
 
-        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        getCommunities(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
         authenticationResponse = register(authenticationRequest, authenticationResponse);
 
-        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
+        getCommunities(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
 
         refresh(authenticationResponse.getAuthToken(),
                 authenticationResponse.getRefreshToken()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
@@ -113,13 +113,13 @@ class AuthenticationAPIControllerTest {
                 .expectBody(AuthenticationResponse.class)
                 .returnResult().getResponseBody();
 
-        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        getCommunities(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
-        getOrganizations(refreshedResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
+        getCommunities(refreshedResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
 
         logout(authenticationRequest, refreshedResponse).isEqualTo(HttpStatus.OK.value());
 
-        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        getCommunities(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
     }
 
@@ -154,7 +154,7 @@ class AuthenticationAPIControllerTest {
 
         authenticationResponse = register(authenticationRequest, authenticationResponse);
 
-        getOrganizations(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
+        getCommunities(authenticationResponse).isEqualTo(HttpStatus.NO_CONTENT.value());
 
         // Wait for Token Expiry
         TimeUnit.MILLISECONDS.sleep(appProperties.getAuth().getTokenExpirationMsec());
@@ -241,10 +241,10 @@ class AuthenticationAPIControllerTest {
                 .expectStatus();
     }
 
-    private StatusAssertions getOrganizations(final AuthenticationResponse authenticationResponse) {
+    private StatusAssertions getCommunities(final AuthenticationResponse authenticationResponse) {
         return this.webTestClient
                 .get()
-                .uri("/api/organizations")
+                .uri("/api/communities")
                 .header("Authorization", "Bearer " + authenticationResponse.getAuthToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
