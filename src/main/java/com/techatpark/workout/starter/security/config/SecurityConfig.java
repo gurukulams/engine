@@ -1,5 +1,5 @@
 package com.techatpark.workout.starter.security.config;
-
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techatpark.workout.starter.security.filter.TokenAuthenticationFilter;
 import com.techatpark.workout.starter.security.service.LearnerProfileService;
@@ -107,7 +107,7 @@ public class SecurityConfig {
         public WebSecurityCustomizer webSecurityCustomizer() {
                 return (web) -> web.ignoring()
                         .requestMatchers("/api/metrics/**",
-                                "/h2-console", "/h2-console/*",
+                                "/h2-console", "/h2-console/**",
                                 "/swagger-ui.html", "/swagger-ui/*",
                                 "/v3/api-docs", "/v3/api-docs/*",
                                 "/questions/**", "/ta/questions/*",
@@ -148,6 +148,7 @@ public class SecurityConfig {
                                 "/v3/api-docs",
                                 "/oauth2/*")
                         .permitAll()
+                        .requestMatchers(toH2Console()).permitAll()
                         .anyRequest()
                         .authenticated()
                         .and()
@@ -169,6 +170,8 @@ public class SecurityConfig {
                 // Add our custom Token based authentication filter
                 http.addFilterBefore(tokenAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
+
+                http.headers().frameOptions().disable();
                 return http.build();
         }
 
