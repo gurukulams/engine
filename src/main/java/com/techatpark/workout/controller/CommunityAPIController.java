@@ -3,9 +3,13 @@ package com.techatpark.workout.controller;
 import com.techatpark.workout.model.Community;
 import com.techatpark.workout.service.CommunityService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +35,13 @@ import java.util.Locale;
 @RequestMapping("/api/communities")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Community",
         description = "Resource to manage Communities")
+@SecurityScheme(
+    name = "bearerAuth",
+    scheme = "bearer",
+    bearerFormat = "JWT",
+    type = SecuritySchemeType.HTTP,
+    in = SecuritySchemeIn.HEADER
+)
 class CommunityAPIController {
 
     /**
