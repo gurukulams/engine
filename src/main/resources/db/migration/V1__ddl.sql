@@ -46,3 +46,25 @@ CREATE TABLE learner_profile (
     FOREIGN KEY (learner_id) REFERENCES learner (id),
     FOREIGN KEY (id) REFERENCES handle (id)
 );
+
+CREATE TABLE events (
+    id VARCHAR(20) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    location VARCHAR(200) NOT NULL,
+    starts_at TIMESTAMP,
+    ends_at TIMESTAMP,
+    description TEXT,
+    organizer VARCHAR(200),
+    max_attendees INT,
+    CONSTRAINT events_title_constraint UNIQUE (title)
+);
+
+CREATE TABLE events_localized (
+    event_id VARCHAR(55),
+    locale VARCHAR(8) NOT NULL,
+    title TEXT,
+    FOREIGN KEY (event_id) REFERENCES events (id),
+    PRIMARY KEY(event_id, locale)
+);
