@@ -2,6 +2,7 @@ package com.techatpark.workout.starter.security.service;
 
 
 import com.techatpark.workout.starter.security.payload.AuthProvider;
+import com.techatpark.workout.starter.security.payload.Handle;
 import com.techatpark.workout.starter.security.payload.Learner;
 import com.techatpark.workout.starter.security.payload.SignupRequest;
 import jakarta.validation.ConstraintViolation;
@@ -23,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The type Learner service.
@@ -80,16 +81,14 @@ public class LearnerService {
                               final Integer rowNum)
             throws SQLException {
 
-        Learner learner = new Learner((UUID)
-                rs.getObject("id"),
+        Learner learner = new Learner(
+                rs.getString("user_handle"),
                 rs.getString("email"),
                 rs.getString("password"),
                 rs.getString("image_url"),
                 AuthProvider.valueOf(rs.getString("provider")),
                 rs.getObject("created_at", LocalDateTime.class),
-                rs.getString("created_by"),
-                rs.getObject("modified_at", LocalDateTime.class),
-                rs.getString("modified_by")
+                rs.getObject("modified_at", LocalDateTime.class)
         );
         return learner;
     }
@@ -100,17 +99,21 @@ public class LearnerService {
      * @param signUpRequest
      * @param encoderFunction
      */
+    @Transactional
     public void signUp(final SignupRequest signUpRequest,
                        final Function<String, String> encoderFunction) {
         Set<ConstraintViolation<SignupRequest>> violations =
                 validator.validate(signUpRequest);
         if (violations.isEmpty()) {
-            create("System",
-                    new Learner(null, signUpRequest.getEmail(),
-                            encoderFunction.apply(signUpRequest.getPassword()),
-                            signUpRequest.getImageUrl(),
-                            AuthProvider.local, null, null,
-                            null, null));
+            String userHandle = signUpRequest.getEmail().split("@")[0];
+            Optional<Handle> handle = createHandle(userHandle, "Learner");
+            if (handle.isPresent()) {
+                create(
+                    new Learner(userHandle, signUpRequest.getEmail(),
+                        encoderFunction.apply(signUpRequest.getPassword()),
+                        signUpRequest.getImageUrl(),
+                        AuthProvider.local, null, null));
+            }
         } else {
             StringBuilder sb = new StringBuilder();
             for (ConstraintViolation<SignupRequest>
@@ -124,47 +127,42 @@ public class LearnerService {
     }
 
     /**
-     * @param userName
      * @param learner
      * @return learner
      */
-    public Learner create(final String userName,
-                          final Learner learner) {
+    public Learner create(final Learner learner) {
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
                 .withTableName("learner")
-                .usingColumns("id", "email",
+                .usingColumns("user_handle", "email",
                         "password",
-                        "provider", "image_url", "created_by");
+                        "provider", "image_url");
         final Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("email", learner.email());
         valueMap.put("password", learner.password());
         valueMap.put("image_url", learner.imageUrl());
         valueMap.put("provider", learner.provider().toString());
-        valueMap.put("created_by", userName);
-        final UUID learnerId = UUID.randomUUID();
-        valueMap.put("id", learnerId);
+        String userHandle = learner.userHandle();
+        valueMap.put("user_handle", userHandle);
         insert.execute(valueMap);
 
-        final Optional<Learner> createdLearner = read(userName,
-                learnerId);
-        logger.info("Created learner {}", learnerId);
+        final Optional<Learner> createdLearner = read(userHandle);
+        logger.info("Created learner {}", userHandle);
         return createdLearner.get();
     }
 
     /**
-     * @param userName
-     * @param id
+     * @param userHandle
      * @return learner
      */
-    public Optional<Learner> read(final String userName,
-                                  final UUID id) {
-        final String query = "SELECT id,email,password,image_url,provider"
-                + ",created_by,created_at, modified_at, modified_by"
-                + " FROM learner WHERE id = ?";
+    public Optional<Learner> read(final String userHandle) {
+        final String query =  "SELECT user_handle,email,password,image_url,"
+                + "provider"
+                + ",created_at, modified_at"
+                + " FROM learner WHERE user_handle = ?";
 
         try {
             final Learner p = jdbcTemplate.queryForObject(query,
-                     this::rowMapper, id);
+                     this::rowMapper, userHandle);
             return Optional.of(p);
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -172,14 +170,13 @@ public class LearnerService {
     }
 
     /**
-     * @param userName
      * @param email
      * @return learner
      */
-    public Optional<Learner> readByEmail(final String userName,
-                                         final String email) {
-        final String query = "SELECT id,email,password,image_url,provider"
-                + ",created_by,created_at, modified_at, modified_by"
+    public Optional<Learner> readByEmail(final String email) {
+        final String query =  "SELECT user_handle,email,password,image_url,"
+                + "provider"
+                + ",created_at, modified_at"
                 + " FROM learner WHERE email = ?";
 
         try {
@@ -192,47 +189,42 @@ public class LearnerService {
     }
 
     /**
-     * @param id
-     * @param userName
+     * @param userHandle
      * @param learner
      * @return learner
      */
-    public Learner update(final UUID id,
-                          final String userName,
+    public Learner update(final String userHandle,
                           final Learner learner) {
-        logger.debug("Entering updating from learner {}", id);
+        logger.debug("Entering updating from learner {}", userHandle);
         final String query = "UPDATE learner SET email=?,provider=?,"
-                + "password=?,image_url=?,modified_by=? WHERE id=?";
+                + "password=?,image_url=? WHERE user_handle=?";
         final Integer updatedRows = jdbcTemplate.update(query,
                 learner.email(), learner.provider().toString(),
                 learner.password(),
-                learner.imageUrl(), userName, id);
+                learner.imageUrl(), userHandle);
         if (updatedRows == 0) {
-            logger.error("update not found", id);
+            logger.error("update not found", userHandle);
             throw new IllegalArgumentException("Learner not found");
         }
-        return read(userName, id).get();
+        return read(userHandle).get();
     }
 
     /**
-     * @param id
-     * @param userName the userName
+     * @param userHandle the userHandle
      * @return learner
      */
-    public Boolean delete(final String userName,
-                          final UUID id) {
-        final String query = "DELETE FROM learner WHERE id = ?";
-        final Integer updatedRows = jdbcTemplate.update(query, id);
+    public Boolean delete(final String userHandle) {
+        final String query = "DELETE FROM learner WHERE user_handle = ?";
+        final Integer updatedRows = jdbcTemplate.update(query, userHandle);
         return !(updatedRows == 0);
     }
 
     /**
-     * @param userName
      * @return learner
      */
-    public List<Learner> list(final String userName) {
+    public List<Learner> list() {
         final String query = "SELECT id,email,password,image_url,provider,"
-                + "created_by,created_at,modified_by,modified_at FROM learner";
+                + "created_at,modified_at FROM learner";
         return jdbcTemplate.query(query, this::rowMapper);
     }
 
@@ -241,7 +233,47 @@ public class LearnerService {
      */
     public Integer deleteAll() {
         jdbcTemplate.update("DELETE FROM LEARNER_PROFILE");
-        jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
-        return jdbcTemplate.update("DELETE FROM learner");
+        jdbcTemplate.update("DELETE FROM learner");
+        return jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
+    }
+
+    private Optional<Handle> createHandle(final String userHandle,
+        final String type) {
+        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
+            .withTableName("handle")
+            .usingColumns("user_handle", "type");
+        final Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("user_handle", userHandle);
+        valueMap.put("type", type);
+
+        insert.execute(valueMap);
+
+        final Optional<Handle> createdHandle = readHandle(userHandle);
+        return createdHandle;
+    }
+
+    private Optional<Handle> readHandle(final String userHandle) {
+        final String query = "SELECT user_handle,type,created_at"
+            + " FROM handle WHERE user_handle = ?";
+
+        try {
+            final Handle p = jdbcTemplate.queryForObject(query,
+                this::rowMapperHandle, userHandle);
+            return Optional.of(p);
+        } catch (final EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    private Handle rowMapperHandle(final ResultSet resultSet,
+        final int i)
+        throws SQLException {
+
+
+        Handle handle = new Handle(resultSet.getString("user_handle"),
+            resultSet.getString("type"),
+            resultSet.getObject("created_at", LocalDateTime.class)
+        );
+        return handle;
     }
 }

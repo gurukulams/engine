@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 #### Register
-# @name login
+# @name register
 POST {{base}}/auth/register
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.registrationToken}}
@@ -34,5 +34,15 @@ Authorization: Bearer {{login.response.body.registrationToken}}
 
 #### Logout
 POST {{base}}/auth/logout
-Authorization: Bearer {{login.response.body.authToken}}
+Authorization: Bearer {{register.response.body.authToken}}
 Content-Type: application/json
+
+#### Refresh Token
+# @name refresh
+POST {{base}}/auth/refresh
+Authorization: Bearer {{register.response.body.authToken}}
+Content-Type: application/json
+
+{
+    "token": {{register.response.body.refreshToken}},
+}

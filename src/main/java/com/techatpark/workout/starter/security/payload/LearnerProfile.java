@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 
 public record LearnerProfile(@Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
-                             String id,
+                             String userHandle,
                              @Schema(accessMode = Schema.AccessMode.READ_ONLY)
                              String firstName,
                              @Schema(accessMode = Schema.AccessMode.READ_ONLY)

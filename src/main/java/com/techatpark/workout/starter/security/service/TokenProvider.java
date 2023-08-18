@@ -319,14 +319,14 @@ public class TokenProvider {
                               final RegistrationRequest registrationRequest) {
         String authToken = getBearer(authHeader);
         String[] parts = userName.split("@");
-        String userId = parts[0];
-        LearnerProfile learnerProfile = new LearnerProfile(userId,
+        String userHandle = parts[0];
+        LearnerProfile learnerProfile = new LearnerProfile(userHandle,
                 registrationRequest.getFirstName(),
                 registrationRequest.getLastName(),
                 registrationRequest.getDob());
 
 
-        learnerProfileService.create(userName, learnerProfile);
+        learnerProfileService.create(learnerProfile);
 
         authCache.evict(authToken);
         return getAuthenticationResponse(userName);
