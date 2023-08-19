@@ -5,7 +5,6 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techatpark.workout.starter.security.filter.TokenAuthenticationFilter;
 import com.techatpark.workout.starter.security.service.LearnerProfileService;
-import com.techatpark.workout.starter.security.service.LearnerService;
 import com.techatpark.workout.starter.security.service.TokenProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -38,10 +37,6 @@ import java.util.List;
 @EnableConfigurationProperties(AppProperties.class)
 public class SecurityConfig {
 
-    /**
-     * Learner Service.
-     */
-    private final LearnerService learnerService;
 
     /**
      * Learner Details Service.
@@ -67,20 +62,17 @@ public class SecurityConfig {
     /**
      * Creates Security Config.
      *
-     * @param alearnerService
      * @param alearnerProfileService
      * @param appProperties          properties
      * @param aCacheManager          aCacheManager
      * @param objectMapper
      * @param auserDetailsService
      */
-    public SecurityConfig(final LearnerService alearnerService,
-                          final LearnerProfileService alearnerProfileService,
+    public SecurityConfig(final LearnerProfileService alearnerProfileService,
                           final AppProperties appProperties,
                           final CacheManager aCacheManager,
                           final ObjectMapper objectMapper,
                           final UserDetailsService auserDetailsService) {
-        this.learnerService = alearnerService;
         this.learnerProfileService = alearnerProfileService;
 
         userDetailsService = auserDetailsService;

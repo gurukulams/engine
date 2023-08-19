@@ -36,7 +36,7 @@ import java.security.Principal;
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication",
         description = "Resource to manage authentication")
-public class AuthenticationAPIController {
+class AuthenticationAPIController {
 
 
     /**
@@ -89,7 +89,7 @@ public class AuthenticationAPIController {
      */
     @Operation(summary = "Register the User")
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public final ResponseEntity<AuthenticationResponse> register(
             final Principal principal,
             @RequestHeader(name = "Authorization") final String authHeader,
             final @RequestBody RegistrationRequest registrationRequest) {
@@ -108,7 +108,7 @@ public class AuthenticationAPIController {
      */
     @Operation(summary = "Login with credentials")
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(
+    public final ResponseEntity<AuthenticationResponse> login(
             final @RequestBody
             AuthenticationRequest
                     authenticationRequest) {
@@ -135,7 +135,7 @@ public class AuthenticationAPIController {
      */
     @Operation(summary = "Refresh the credentials")
     @PostMapping("/refresh")
-    public ResponseEntity<AuthenticationResponse> refresh(
+    public final ResponseEntity<AuthenticationResponse> refresh(
             final Principal principal,
             @RequestHeader(name = "Authorization") final String authHeader,
             final @RequestBody
@@ -155,7 +155,7 @@ public class AuthenticationAPIController {
     @Operation(summary = "logout current user",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(
+    public final ResponseEntity<Void> logout(
             @RequestHeader(name = "Authorization") final String authHeader) {
         tokenProvider.logout(authHeader);
         return ResponseEntity.ok().build();
@@ -176,7 +176,7 @@ public class AuthenticationAPIController {
             @ApiResponse(responseCode = "404",
                     description = "practice not found")})
     @GetMapping("/me")
-    public ResponseEntity<AuthenticationResponse> me(
+    public final ResponseEntity<AuthenticationResponse> me(
             @RequestHeader(name = "Authorization") final String authHeader) {
         return ResponseEntity.ok().body(
                 tokenProvider.getWelcomeResponse(authHeader));

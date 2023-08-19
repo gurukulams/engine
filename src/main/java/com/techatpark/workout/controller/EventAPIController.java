@@ -35,11 +35,11 @@ import java.util.Locale;
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Event",
         description = "Resource to manage Events")
 @SecurityScheme(
-    name = "bearerAuth",
-    scheme = "bearer",
-    bearerFormat = "JWT",
-    type = SecuritySchemeType.HTTP,
-    in = SecuritySchemeIn.HEADER
+        name = "bearerAuth",
+        scheme = "bearer",
+        bearerFormat = "JWT",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER
 )
 class EventAPIController {
 
@@ -64,11 +64,13 @@ class EventAPIController {
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Event> create(final Principal principal,
-                                       @RequestHeader(name = "Accept-Language",
-                                  required = false) final Locale locale,
-                                       final @RequestBody
-                                       Event event) {
+    public final ResponseEntity<Event> create(final Principal principal,
+                                              @RequestHeader(name = "Accept"
+                                                      + "-Language",
+                                                      required = false)
+                                              final Locale locale,
+                                              final @RequestBody
+                                              Event event) {
         Event createdEvent =
                 eventService.create(principal.getName(), locale, event);
         return ResponseEntity.created(URI.create("/api/events/"
@@ -86,10 +88,12 @@ class EventAPIController {
             @ApiResponse(responseCode = "404",
                     description = "Event not found")})
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<Event> read(final @PathVariable String id,
-                                     @RequestHeader(name = "Accept-Language",
-                            required = false) final Locale locale,
-                                     final Principal principal) {
+    public final ResponseEntity<Event> read(final @PathVariable String id,
+                                            @RequestHeader(name = "Accept"
+                                                    + "-Language",
+                                                    required = false)
+                                            final Locale locale,
+                                            final Principal principal) {
         return ResponseEntity.of(
                 eventService.read(principal.getName(), id, locale));
     }
@@ -108,17 +112,19 @@ class EventAPIController {
                     description = "Event not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public ResponseEntity<Event> update(final @PathVariable
+    public final ResponseEntity<Event> update(final @PathVariable
                                               String id,
-                                           final Principal
-                                              principal,
-                                   @RequestHeader(name = "Accept-Language",
-                              required = false) final Locale locale,
-                                           final @RequestBody
-                                           Event
-                                              event) {
+                                              final Principal
+                                                      principal,
+                                              @RequestHeader(name = "Accept"
+                                                      + "-Language",
+                                                      required = false)
+                                                  final Locale locale,
+                                              final @RequestBody
+                                              Event
+                                                      event) {
         final Event updatedEvent =
-            eventService.update(id, principal.getName(), locale, event);
+                eventService.update(id, principal.getName(), locale, event);
         return ResponseEntity.ok(updatedEvent);
     }
 
@@ -131,10 +137,10 @@ class EventAPIController {
             @ApiResponse(responseCode = "404",
                     description = "Event not found")})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(final @PathVariable
-                                               String id,
-                                       final Principal
-                                               principal) {
+    public final ResponseEntity<Void> delete(final @PathVariable
+                                             String id,
+                                             final Principal
+                                                     principal) {
         return eventService.delete(principal.getName(), id)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();
@@ -150,10 +156,12 @@ class EventAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public ResponseEntity<List<Event>> list(final Principal
-                                                  principal,
-                                   @RequestHeader(name = "Accept-Language",
-                              required = false) final Locale locale) {
+    public final ResponseEntity<List<Event>> list(final Principal
+                                                          principal,
+                                                  @RequestHeader(name =
+                                                          "Accept-Language",
+                                                          required = false)
+                                                  final Locale locale) {
         final List<Event> events = eventService.list(
                 principal.getName(), locale);
         return events.isEmpty() ? ResponseEntity.noContent().build()

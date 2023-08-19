@@ -52,6 +52,11 @@ class CommunityAPIController {
         this.communityService = paramCommunityService;
     }
 
+    // Hide by defalut -> Security
+    // All public facing methods should be annotated with @operation
+    // All the instance variables in controller should be final
+    // All the public methods should be final
+    // Controller should not be a public class
     @Operation(summary = "Creates a new Community",
             description = "Can be called "
                     + "only by users with 'auth management' rights.",
@@ -64,7 +69,7 @@ class CommunityAPIController {
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Community> create(final Principal principal,
+    public final ResponseEntity<Community> create(final Principal principal,
                                        @RequestHeader(name = "Accept-Language",
                                   required = false) final Locale locale,
                                        final @RequestBody
@@ -86,7 +91,7 @@ class CommunityAPIController {
             @ApiResponse(responseCode = "404",
                     description = "Community not found")})
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<Community> read(final @PathVariable String id,
+    public final ResponseEntity<Community> read(final @PathVariable String id,
                                      @RequestHeader(name = "Accept-Language",
                             required = false) final Locale locale,
                                      final Principal principal) {
@@ -108,7 +113,7 @@ class CommunityAPIController {
                     description = "Community not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public ResponseEntity<Community> update(final @PathVariable
+    public final ResponseEntity<Community> update(final @PathVariable
                                               String id,
                                            final Principal
                                               principal,
@@ -131,7 +136,7 @@ class CommunityAPIController {
             @ApiResponse(responseCode = "404",
                     description = "Community not found")})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(final @PathVariable
+    public final ResponseEntity<Void> delete(final @PathVariable
                                                String id,
                                        final Principal
                                                principal) {
@@ -150,7 +155,7 @@ class CommunityAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public ResponseEntity<List<Community>> list(final Principal
+    public final ResponseEntity<List<Community>> list(final Principal
                                                   principal,
                                    @RequestHeader(name = "Accept-Language",
                               required = false) final Locale locale) {
