@@ -1,4 +1,4 @@
-package com.techatpark.workout.starter.security.util;
+package com.techatpark.workout.starter.security.oauth2.util;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

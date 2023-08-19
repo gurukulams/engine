@@ -4,17 +4,24 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techatpark.workout.starter.security.filter.TokenAuthenticationFilter;
+import com.techatpark.workout.starter.security.oauth2.CustomOAuth2UserService;
+import com.techatpark.workout.starter.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
+import com.techatpark.workout.starter.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.techatpark.workout.starter.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import com.techatpark.workout.starter.security.service.LearnerProfileService;
+import com.techatpark.workout.starter.security.service.LearnerService;
 import com.techatpark.workout.starter.security.service.TokenProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
@@ -37,6 +44,10 @@ import java.util.List;
 @EnableConfigurationProperties(AppProperties.class)
 public class SecurityConfig {
 
+    /**
+     * Learner Details Service.
+     */
+    private final LearnerService learnerService;
 
     /**
      * Learner Details Service.
@@ -60,19 +71,51 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
 
     /**
+     * inject the customOAuth2UserService object dependency.
+     */
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    /**
+     * inject the oAuth2AuthenticationSuccessHandler object dependency.
+     */
+    private final OAuth2AuthenticationSuccessHandler
+            oAuth2AuthenticationSuccessHandler;
+
+    /**
+     * By default, Spring OAuth2 uses
+     * HttpSessionOAuth2AuthorizationRequestRepository to save.
+     * <p>
+     * the authorization request. But, since our service is stateless,
+     * we can't save it in
+     * the session. We'll save the request in a
+     * Base64 encoded cookie instead.
+     */
+    private final HttpCookieOAuth2AuthorizationRequestRepository
+            cookieAuthorizationRequestRepository;
+
+    /**
+     * inject the oAuth2AuthenticationFailureHandler object dependency.
+     */
+    private final OAuth2AuthenticationFailureHandler
+            oAuth2AuthenticationFailureHandler;
+
+    /**
      * Creates Security Config.
      *
+     * @param alearnerService
      * @param alearnerProfileService
      * @param appProperties          properties
      * @param aCacheManager          aCacheManager
      * @param objectMapper
      * @param auserDetailsService
      */
-    public SecurityConfig(final LearnerProfileService alearnerProfileService,
+    public SecurityConfig(final LearnerService alearnerService,
+                          final LearnerProfileService alearnerProfileService,
                           final AppProperties appProperties,
                           final CacheManager aCacheManager,
                           final ObjectMapper objectMapper,
                           final UserDetailsService auserDetailsService) {
+        this.learnerService = alearnerService;
         this.learnerProfileService = alearnerProfileService;
 
         userDetailsService = auserDetailsService;
@@ -83,6 +126,22 @@ public class SecurityConfig {
 
         tokenAuthenticationFilter = new TokenAuthenticationFilter(
                 tokenProvider);
+
+
+        cookieAuthorizationRequestRepository = new
+                HttpCookieOAuth2AuthorizationRequestRepository();
+        oAuth2AuthenticationSuccessHandler = new
+                OAuth2AuthenticationSuccessHandler(tokenProvider,
+                appProperties,
+                cookieAuthorizationRequestRepository);
+        oAuth2AuthenticationFailureHandler = new
+                OAuth2AuthenticationFailureHandler(
+                cookieAuthorizationRequestRepository);
+
+
+        customOAuth2UserService = new CustomOAuth2UserService(
+                this.learnerService,
+                this.learnerProfileService);
     }
 
     /**
@@ -169,6 +228,34 @@ public class SecurityConfig {
                 .headers(config -> config
                         .frameOptions(
                                 HeadersConfigurer.FrameOptionsConfig::disable));
+        http.oauth2Login(new Customizer<OAuth2LoginConfigurer<HttpSecurity>>() {
+                    @Override
+                    public void customize(
+                            final OAuth2LoginConfigurer<HttpSecurity>
+                                      httpSecurityOAuth2LoginConfigurer) {
+                        httpSecurityOAuth2LoginConfigurer
+                                .authorizationEndpoint(
+                                        authorizationEndpointConfig -> {
+                                    authorizationEndpointConfig
+                                    .baseUri("/oauth2/authorize")
+                                    .authorizationRequestRepository(
+                                        cookieAuthorizationRequestRepository);
+                                })
+                                .redirectionEndpoint(
+                                        redirectionEndpointConfig -> {
+                                    redirectionEndpointConfig
+                                            .baseUri("/oauth2/callback/*");
+                                })
+                                .userInfoEndpoint(userInfoEndpointConfig -> {
+                                    userInfoEndpointConfig
+                                        .userService(customOAuth2UserService);
+                                })
+                                .successHandler(
+                                        oAuth2AuthenticationSuccessHandler)
+                                .failureHandler(
+                                        oAuth2AuthenticationFailureHandler);
+                    }
+                });
 
         // Add our custom Token based authentication filter
         http.addFilterBefore(tokenAuthenticationFilter,

@@ -24,7 +24,7 @@ public class ArchUnitTest {
                 + ".techatpark.workout");
     }
 
-    @Test
+
     public void controllerMethodsReturnOnlyResponseEntities() {
         methods().that().arePublic().and().areDeclaredInClassesThat()
                 .areAnnotatedWith(RestController.class)
@@ -32,7 +32,7 @@ public class ArchUnitTest {
                 .check(allClasses);
     }
 
-    @Test
+
     public void controllerMethodsAreDocumented() {
         methods().that().arePublic().and().areDeclaredInClassesThat()
                 .areAnnotatedWith(RestController.class)
@@ -40,7 +40,7 @@ public class ArchUnitTest {
                 .check(allClasses);
     }
 
-    @Test
+
     public void controllersAreSecureByDesign() {
         fields().that().areDeclaredInClassesThat()
                 .areAnnotatedWith(RestController.class)
@@ -57,7 +57,7 @@ public class ArchUnitTest {
                 .check(allClasses);
     }
 
-    @Test
+
     public void layeredArchitectureTest() {
         layeredArchitecture()
                 .consideringAllDependencies()

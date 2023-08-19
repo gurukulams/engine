@@ -130,7 +130,7 @@ public class LearnerService {
      * @param learner
      * @return learner
      */
-    public Learner create(final Learner learner) {
+    private Learner create(final Learner learner) {
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
                 .withTableName("learner")
                 .usingColumns("user_handle", "email",

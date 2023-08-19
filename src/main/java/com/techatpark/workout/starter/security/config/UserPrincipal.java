@@ -5,6 +5,7 @@ import com.techatpark.workout.starter.security.payload.LearnerProfile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +16,7 @@ import java.util.Optional;
 /**
  * The type User principal.
  */
-public class UserPrincipal implements  UserDetails {
+public class UserPrincipal implements OAuth2User, UserDetails {
 
     /**
      * declares variable name.
@@ -203,4 +204,22 @@ public class UserPrincipal implements  UserDetails {
         this.attributes = theAttributes;
     }
 
+    /**
+     * gets the getAttributes().
+     *
+     * @return map of attributes
+     */
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+    /**
+     * gets the name.
+     *
+     * @return name
+     */
+    @Override
+    public String getName() {
+        return name;
+    }
 }
