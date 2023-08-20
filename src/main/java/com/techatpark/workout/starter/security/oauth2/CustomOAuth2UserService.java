@@ -126,8 +126,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return learnerService.readByEmail(oAuth2UserInfo.getEmail()).get();
     }
 
-    private static AuthProvider getAuthProvider
-            (OAuth2UserRequest oAuth2UserRequest) {
+    private static AuthProvider getAuthProvider(
+            final OAuth2UserRequest oAuth2UserRequest) {
         return AuthProvider.valueOf(
                 oAuth2UserRequest.getClientRegistration()
                         .getRegistrationId());
