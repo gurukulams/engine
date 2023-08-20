@@ -112,7 +112,7 @@ public class LearnerService {
                     new Learner(userHandle, signUpRequest.getEmail(),
                         encoderFunction.apply(signUpRequest.getPassword()),
                         signUpRequest.getImageUrl(),
-                        AuthProvider.local, null, null));
+                        signUpRequest.getAuthProvider(), null, null));
             }
         } else {
             StringBuilder sb = new StringBuilder();

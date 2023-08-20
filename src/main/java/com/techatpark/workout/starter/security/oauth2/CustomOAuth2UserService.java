@@ -88,9 +88,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Learner user;
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            if (!user.provider().equals(AuthProvider.valueOf(
-                    oAuth2UserRequest.getClientRegistration()
-                            .getRegistrationId()))) {
+            if (!user.provider().equals(getAuthProvider(oAuth2UserRequest))) {
                 throw new OAuth2AuthenticationProcessingException(
                         "Looks like you're signed up with "
                                 + user.provider()
@@ -114,17 +112,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .substring(0, oAuth2UserInfo.getEmail().indexOf('@')),
                 oAuth2UserInfo.getEmail(),
                 null,
-                oAuth2UserInfo.getImageUrl(), AuthProvider.valueOf(
-                oAuth2UserRequest.getClientRegistration()
-                        .getRegistrationId()), null, null);
+                oAuth2UserInfo.getImageUrl(),
+                getAuthProvider(oAuth2UserRequest),
+                null, null);
         SignupRequest signupRequest = new SignupRequest();
         signupRequest.setEmail(oAuth2UserInfo.getEmail());
         signupRequest.setPassword(oAuth2UserInfo.getEmail());
         signupRequest.setImageUrl(oAuth2UserInfo.getImageUrl());
+        signupRequest.setAuthProvider(getAuthProvider(oAuth2UserRequest));
         learnerService.signUp(signupRequest, s -> {
             return s;
         });
         return learnerService.readByEmail(oAuth2UserInfo.getEmail()).get();
+    }
+
+    private static AuthProvider getAuthProvider
+            (OAuth2UserRequest oAuth2UserRequest) {
+        return AuthProvider.valueOf(
+                oAuth2UserRequest.getClientRegistration()
+                        .getRegistrationId());
     }
 
     private Learner updateExistingUser(final Learner existingUser,

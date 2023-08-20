@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 /**
  * SignupRequest.
  */
-
 public class SignupRequest {
 
     /**
@@ -28,11 +27,15 @@ public class SignupRequest {
      */
     @NotBlank
     private String imageUrl;
+    /**
+     * authProvider.
+     */
+    private AuthProvider authProvider = AuthProvider.local;
 
     /**
      * getEmail.
      *
-     * @return email
+     * @return email email
      */
     public String getEmail() {
         return email;
@@ -41,7 +44,7 @@ public class SignupRequest {
     /**
      * setEmail.
      *
-     * @param theemail
+     * @param theemail the theemail
      */
     public void setEmail(final String theemail) {
         this.email = theemail;
@@ -50,7 +53,7 @@ public class SignupRequest {
     /**
      * getPassword.
      *
-     * @return password
+     * @return password password
      */
     public String getPassword() {
         return password;
@@ -59,7 +62,7 @@ public class SignupRequest {
     /**
      * setPassword.
      *
-     * @param thepassword
+     * @param thepassword the thepassword
      */
     public void setPassword(final String thepassword) {
         this.password = thepassword;
@@ -68,7 +71,7 @@ public class SignupRequest {
     /**
      * get Image Url.
      *
-     * @return imageUrl
+     * @return imageUrl image url
      */
     public String getImageUrl() {
         return imageUrl;
@@ -77,9 +80,27 @@ public class SignupRequest {
     /**
      * Sets Image Url.
      *
-     * @param aimageUrl
+     * @param aimageUrl the aimage url
      */
     public void setImageUrl(final String aimageUrl) {
         this.imageUrl = aimageUrl;
+    }
+
+    /**
+     * Gets auth provider.
+     *
+     * @return the auth provider
+     */
+    public AuthProvider getAuthProvider() {
+        return authProvider;
+    }
+
+    /**
+     * Sets auth provider.
+     *
+     * @param paramaAuthProvider the auth provider
+     */
+    public void setAuthProvider(final AuthProvider paramaAuthProvider) {
+        this.authProvider = paramaAuthProvider;
     }
 }
