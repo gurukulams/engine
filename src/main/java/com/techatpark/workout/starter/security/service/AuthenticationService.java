@@ -1,6 +1,11 @@
 package com.techatpark.workout.starter.security.service;
 
-import com.techatpark.workout.starter.security.payload.*;
+
+import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
+import com.techatpark.workout.starter.security.payload.RefreshToken;
+import com.techatpark.workout.starter.security.payload.RegistrationRequest;
+import com.techatpark.workout.starter.security.payload.SignupRequest;
+import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,10 +26,19 @@ public class AuthenticationService {
      */
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * instance of LearnerService.
+     */
     private final LearnerService learnerService;
 
+    /**
+     * instance of TokenProvider.
+     */
     private final TokenProvider tokenProvider;
 
+    /**
+     * instance of AuthenticationManager.
+     */
     private final AuthenticationManager authenticationManager;
 
 
@@ -36,10 +50,10 @@ public class AuthenticationService {
      * @param paramTokenProvider         the param token provider
      * @param paramAuthenticationManager the param authentication manager
      */
-    public AuthenticationService(PasswordEncoder paramPasswordEncoder,
-                                 LearnerService paramLearnerService,
-                                 TokenProvider paramTokenProvider,
-                                 AuthenticationManager
+    public AuthenticationService(final PasswordEncoder paramPasswordEncoder,
+                                 final LearnerService paramLearnerService,
+                                 final TokenProvider paramTokenProvider,
+                                 final AuthenticationManager
                                          paramAuthenticationManager) {
         this.passwordEncoder = paramPasswordEncoder;
         this.learnerService = paramLearnerService;
@@ -52,7 +66,7 @@ public class AuthenticationService {
      *
      * @param signUpRequest the sign up request
      */
-    public void signUp(SignupRequest signUpRequest) {
+    public void signUp(final SignupRequest signUpRequest) {
         learnerService.signUp(signUpRequest,
                 passwordEncoder::encode);
     }
@@ -62,7 +76,7 @@ public class AuthenticationService {
      *
      * @param authHeader the auth header
      */
-    public void logout(String authHeader) {
+    public void logout(final String authHeader) {
         tokenProvider.logout(authHeader);
     }
 
@@ -72,7 +86,7 @@ public class AuthenticationService {
      * @param authHeader the auth header
      * @return the welcome response
      */
-    public AuthenticationResponse getWelcomeResponse(String authHeader) {
+    public AuthenticationResponse getWelcomeResponse(final String authHeader) {
         return tokenProvider.getWelcomeResponse(authHeader);
     }
 
@@ -84,9 +98,9 @@ public class AuthenticationService {
      * @param principal    the principal
      * @return the authentication response
      */
-    public AuthenticationResponse refresh(String authHeader,
-                                          RefreshToken refreshToken,
-                                          Principal principal) {
+    public AuthenticationResponse refresh(final String authHeader,
+                                          final RefreshToken refreshToken,
+                                          final Principal principal) {
         return tokenProvider.refresh(authHeader, principal.getName(),
                 refreshToken);
     }
@@ -99,9 +113,9 @@ public class AuthenticationService {
      * @param registrationRequest the registration request
      * @return the authentication response
      */
-    public AuthenticationResponse register(String authHeader,
-                                           Principal principal,
-                                           RegistrationRequest
+    public AuthenticationResponse register(final String authHeader,
+                                           final Principal principal,
+                                           final RegistrationRequest
                                                    registrationRequest) {
         return tokenProvider.register(authHeader,
                 principal.getName(), registrationRequest);
@@ -113,7 +127,7 @@ public class AuthenticationService {
      * @param authenticationRequest the authentication request
      * @return the authentication response
      */
-    public AuthenticationResponse login(AuthenticationRequest
+    public AuthenticationResponse login(final AuthenticationRequest
                                                 authenticationRequest) {
         final Authentication authResult = this.authenticationManager
                 .authenticate(
