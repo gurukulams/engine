@@ -1,8 +1,9 @@
-package com.techatpark.workout.starter.security.oauth2;
+package com.techatpark.workout.starter.security.oauth2.service;
 
 
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.exception.BadRequestException;
+import com.techatpark.workout.starter.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.techatpark.workout.starter.security.oauth2.util.CookieUtils;
 import com.techatpark.workout.starter.security.service.TokenProvider;
 import jakarta.servlet.http.Cookie;

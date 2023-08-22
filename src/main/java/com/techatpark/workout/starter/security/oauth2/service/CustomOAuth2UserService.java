@@ -1,4 +1,4 @@
-package com.techatpark.workout.starter.security.oauth2;
+package com.techatpark.workout.starter.security.oauth2.service;
 
 
 import com.techatpark.workout.starter.security.config.UserPrincipal;

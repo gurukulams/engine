@@ -5,6 +5,7 @@ import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
 import com.techatpark.workout.starter.security.payload.SignupRequest;
+import com.techatpark.workout.starter.security.service.AuthenticationService;
 import com.techatpark.workout.starter.security.service.LearnerService;
 import com.techatpark.workout.starter.security.service.TokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +19,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,46 +38,23 @@ import java.security.Principal;
         description = "Resource to manage authentication")
 class AuthenticationAPIController {
 
-
     /**
-     * instance of authenticationManager.
+     * instance of AuthenticationService.
      */
-    private final AuthenticationManager authenticationManager;
-    /**
-     * instance of userDetailsService.
-     */
-    private final LearnerService learnerService;
-    /**
-     * instance of tokenUtil.
-     */
-    private final TokenProvider tokenProvider;
-
-    /**
-     * instance of PasswordEncoder.
-     */
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationService authenticationService;
 
 
-    AuthenticationAPIController(final AuthenticationManager
-                                        anAuthenticationManager,
-                                final LearnerService
-                                        anUserDetailsService,
-                                final PasswordEncoder apasswordEncoder,
-                                final TokenProvider aTokenUtil) {
-        this.authenticationManager = anAuthenticationManager;
-        this.learnerService = anUserDetailsService;
-        this.tokenProvider = aTokenUtil;
-        this.passwordEncoder = apasswordEncoder;
+    AuthenticationAPIController(final AuthenticationService
+                                        paramAuthenticationService) {
+        this.authenticationService = paramAuthenticationService;
     }
-
 
 
     @Operation(summary = "Signup the User")
     @PostMapping("/signup")
     public final ResponseEntity<Void> signUp(
             final @RequestBody SignupRequest signUpRequest) {
-        learnerService.signUp(signUpRequest,
-                s -> passwordEncoder.encode(s));
+        authenticationService.signUp(signUpRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -95,8 +72,7 @@ class AuthenticationAPIController {
             final @RequestBody RegistrationRequest registrationRequest) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                tokenProvider.register(authHeader,
-                        principal.getName(),
+                authenticationService.register(authHeader, principal,
                         registrationRequest));
     }
 
@@ -113,21 +89,13 @@ class AuthenticationAPIController {
             AuthenticationRequest
                     authenticationRequest) {
 
-        final Authentication authResult = this.authenticationManager
-                .authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                authenticationRequest.getUserName(),
-                                authenticationRequest.getPassword()));
-        if (authResult == null) {
-            throw new BadCredentialsException("Invalid Login Credentials");
-        }
-
         return ResponseEntity.ok().body(
-                tokenProvider.getAuthenticationResponse(authResult));
+                authenticationService.login(authenticationRequest));
     }
 
     /**
      * performs the login function.
+     *
      * @param authHeader
      * @param refreshToken the authentication request
      * @param principal
@@ -141,9 +109,8 @@ class AuthenticationAPIController {
             final @RequestBody
             RefreshToken
                     refreshToken) {
-        return ResponseEntity.ok().body(tokenProvider
-                .refresh(authHeader,
-                        principal.getName(), refreshToken));
+        return ResponseEntity.ok().body(authenticationService.refresh(
+                authHeader, refreshToken, principal));
     }
 
     /**
@@ -157,7 +124,7 @@ class AuthenticationAPIController {
     @PostMapping("/logout")
     public final ResponseEntity<Void> logout(
             @RequestHeader(name = "Authorization") final String authHeader) {
-        tokenProvider.logout(authHeader);
+        authenticationService.logout(authHeader);
         return ResponseEntity.ok().build();
     }
 
@@ -178,7 +145,7 @@ class AuthenticationAPIController {
     @GetMapping("/me")
     public final ResponseEntity<AuthenticationResponse> me(
             @RequestHeader(name = "Authorization") final String authHeader) {
-        return ResponseEntity.ok().body(
-                tokenProvider.getWelcomeResponse(authHeader));
+        return ResponseEntity.ok().body(authenticationService
+                .getWelcomeResponse(authHeader));
     }
 }

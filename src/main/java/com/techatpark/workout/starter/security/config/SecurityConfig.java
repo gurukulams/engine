@@ -4,10 +4,10 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techatpark.workout.starter.security.filter.TokenAuthenticationFilter;
-import com.techatpark.workout.starter.security.oauth2.CustomOAuth2UserService;
+import com.techatpark.workout.starter.security.oauth2.service.CustomOAuth2UserService;
 import com.techatpark.workout.starter.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
-import com.techatpark.workout.starter.security.oauth2.OAuth2AuthenticationFailureHandler;
-import com.techatpark.workout.starter.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.techatpark.workout.starter.security.oauth2.service.OAuth2AuthenticationFailureHandler;
+import com.techatpark.workout.starter.security.oauth2.service.OAuth2AuthenticationSuccessHandler;
 import com.techatpark.workout.starter.security.service.LearnerProfileService;
 import com.techatpark.workout.starter.security.service.LearnerService;
 import com.techatpark.workout.starter.security.service.TokenProvider;

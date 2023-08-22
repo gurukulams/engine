@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
@@ -25,6 +26,7 @@ public class ArchUnitTest {
     }
 
 
+    @Test
     public void controllerMethodsReturnOnlyResponseEntities() {
         methods().that().arePublic().and().areDeclaredInClassesThat()
                 .areAnnotatedWith(RestController.class)
@@ -33,6 +35,7 @@ public class ArchUnitTest {
     }
 
 
+    @Test
     public void controllerMethodsAreDocumented() {
         methods().that().arePublic().and().areDeclaredInClassesThat()
                 .areAnnotatedWith(RestController.class)
@@ -41,6 +44,7 @@ public class ArchUnitTest {
     }
 
 
+    @Test
     public void controllersAreSecureByDesign() {
         fields().that().areDeclaredInClassesThat()
                 .areAnnotatedWith(RestController.class)
@@ -58,6 +62,7 @@ public class ArchUnitTest {
     }
 
 
+    @Test
     public void layeredArchitectureTest() {
         layeredArchitecture()
                 .consideringAllDependencies()
@@ -70,6 +75,10 @@ public class ArchUnitTest {
                 .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller"
                         , "Security")
                 .check(allClasses);
+
+        fields().that().areDeclaredInClassesThat().areAnnotatedWith(RestController.class)
+                .should().haveNameEndingWith("Service");
+
 
     }
 }
