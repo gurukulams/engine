@@ -176,7 +176,6 @@ public class SecurityConfig {
                         antMatcher("/chat/*"),
                         antMatcher("/chat/*/*"),
                         antMatcher("/chat/*/*/*"),
-                        antMatcher("/api/auth/me"),
                         antMatcher("/api/auth/login")
                 );
     }

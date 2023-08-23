@@ -114,7 +114,7 @@ public class TokenProvider {
                 userDetailsService.loadUserByUsername(userName);
         final UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
-                        userDetails, null,
+                        userDetails, userDetails.getPassword(),
                         userDetails.getAuthorities());
 
         return authentication;
