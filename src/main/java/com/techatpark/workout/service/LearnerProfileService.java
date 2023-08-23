@@ -1,6 +1,6 @@
-package com.techatpark.workout.starter.security.service;
+package com.techatpark.workout.service;
 
-import com.techatpark.workout.starter.security.payload.LearnerProfile;
+import com.techatpark.workout.model.LearnerProfile;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;

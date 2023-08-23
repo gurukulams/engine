@@ -1,10 +1,11 @@
-package com.techatpark.workout.starter.security.service;
+package com.techatpark.workout.starter.security.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.techatpark.workout.service.LearnerProfileService;
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
-import com.techatpark.workout.starter.security.payload.LearnerProfile;
+import com.techatpark.workout.model.LearnerProfile;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;

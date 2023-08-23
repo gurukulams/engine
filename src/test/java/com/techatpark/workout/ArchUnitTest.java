@@ -1,15 +1,11 @@
 package com.techatpark.workout;
 
-import com.techatpark.workout.starter.security.config.SecurityConfig;
-import com.techatpark.workout.starter.security.service.LearnerProfileService;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import io.swagger.v3.oas.annotations.Operation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;

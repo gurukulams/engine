@@ -1,7 +1,7 @@
 package com.techatpark.workout.starter.security.config;
 
-import com.techatpark.workout.starter.security.payload.Learner;
-import com.techatpark.workout.starter.security.payload.LearnerProfile;
+import com.techatpark.workout.model.Learner;
+import com.techatpark.workout.model.LearnerProfile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

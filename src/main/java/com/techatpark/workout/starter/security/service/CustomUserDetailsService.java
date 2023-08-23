@@ -1,8 +1,10 @@
 package com.techatpark.workout.starter.security.service;
 
 
+import com.techatpark.workout.service.LearnerProfileService;
+import com.techatpark.workout.service.LearnerService;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
-import com.techatpark.workout.starter.security.payload.Learner;
+import com.techatpark.workout.model.Learner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;

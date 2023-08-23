@@ -1,4 +1,4 @@
-package com.techatpark.workout.starter.swagger;
+package com.techatpark.workout.starter.openapi;
 
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SwaggerConfig {
+public class OpenAPIConfig {
 
     /**
      * Open API Configuration.

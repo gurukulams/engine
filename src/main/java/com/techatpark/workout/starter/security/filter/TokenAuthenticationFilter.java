@@ -1,6 +1,6 @@
 package com.techatpark.workout.starter.security.filter;
 
-import com.techatpark.workout.starter.security.service.TokenProvider;
+import com.techatpark.workout.starter.security.util.TokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

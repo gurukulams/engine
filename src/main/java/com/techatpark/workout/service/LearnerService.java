@@ -1,9 +1,9 @@
-package com.techatpark.workout.starter.security.service;
+package com.techatpark.workout.service;
 
 
-import com.techatpark.workout.starter.security.payload.AuthProvider;
-import com.techatpark.workout.starter.security.payload.Handle;
-import com.techatpark.workout.starter.security.payload.Learner;
+import com.techatpark.workout.model.AuthProvider;
+import com.techatpark.workout.model.Handle;
+import com.techatpark.workout.model.Learner;
 import com.techatpark.workout.starter.security.payload.SignupRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

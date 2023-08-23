@@ -1,6 +1,7 @@
 package com.techatpark.workout.starter.security.payload;
 
 
+import com.techatpark.workout.model.AuthProvider;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

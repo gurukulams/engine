@@ -2,7 +2,7 @@ package com.techatpark.workout.starter.security.oauth2.user;
 
 
 import com.techatpark.workout.starter.security.exception.OAuth2AuthenticationProcessingException;
-import com.techatpark.workout.starter.security.payload.AuthProvider;
+import com.techatpark.workout.model.AuthProvider;
 
 import java.util.Map;
 

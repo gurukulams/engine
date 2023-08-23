@@ -1,4 +1,4 @@
-package com.techatpark.workout.starter.security.payload;
+package com.techatpark.workout.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

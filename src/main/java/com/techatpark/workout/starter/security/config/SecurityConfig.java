@@ -8,9 +8,9 @@ import com.techatpark.workout.starter.security.oauth2.service.CustomOAuth2UserSe
 import com.techatpark.workout.starter.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.techatpark.workout.starter.security.oauth2.service.OAuth2AuthenticationFailureHandler;
 import com.techatpark.workout.starter.security.oauth2.service.OAuth2AuthenticationSuccessHandler;
-import com.techatpark.workout.starter.security.service.LearnerProfileService;
-import com.techatpark.workout.starter.security.service.LearnerService;
-import com.techatpark.workout.starter.security.service.TokenProvider;
+import com.techatpark.workout.service.LearnerProfileService;
+import com.techatpark.workout.service.LearnerService;
+import com.techatpark.workout.starter.security.util.TokenProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
