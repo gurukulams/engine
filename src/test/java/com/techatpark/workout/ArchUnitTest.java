@@ -64,12 +64,13 @@ public class ArchUnitTest {
                 .consideringAllDependencies()
                 .layer("Controller").definedBy("..controller..")
                 .layer("Service").definedBy("..service..")
+                .layer("Util").definedBy("..util..")
                 .layer("Security").definedBy("..security.config..", "." +
                         ".security.filter..")
 
                 .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
                 .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller"
-                        , "Security")
+                        , "Security", "Util")
                 .check(allClasses);
 
         fields().that().areDeclaredInClassesThat().areAnnotatedWith(RestController.class)
