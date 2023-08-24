@@ -1,10 +1,8 @@
 package com.techatpark.workout.starter.security.controller;
 
-import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
-import com.techatpark.workout.starter.security.payload.SignupRequest;
 import com.techatpark.workout.starter.security.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,14 +42,6 @@ class AuthenticationAPIController {
     }
 
 
-    @Operation(summary = "Signup the User")
-    @PostMapping("/signup")
-    public final ResponseEntity<Void> signUp(
-            final @RequestBody SignupRequest signUpRequest) {
-        authenticationService.signUp(signUpRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
     /**
      * @param registrationRequest
      * @param authHeader
@@ -70,22 +60,6 @@ class AuthenticationAPIController {
                         registrationRequest));
     }
 
-    /**
-     * performs the login function.
-     *
-     * @param authenticationRequest the authentication request
-     * @return authentication response
-     */
-    @Operation(summary = "Login with credentials")
-    @PostMapping("/login")
-    public final ResponseEntity<AuthenticationResponse> login(
-            final @RequestBody
-            AuthenticationRequest
-                    authenticationRequest) {
-
-        return ResponseEntity.ok().body(
-                authenticationService.login(authenticationRequest));
-    }
 
     /**
      * performs the login function.
@@ -124,6 +98,7 @@ class AuthenticationAPIController {
 
     /**
      * get the user details from the principal.
+     *
      * @param principal
      * @return AuthenticationResponse response entity
      */

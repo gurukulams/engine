@@ -5,13 +5,8 @@ import com.techatpark.workout.service.LearnerService;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
-import com.techatpark.workout.starter.security.payload.SignupRequest;
-import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.util.TokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -63,15 +58,6 @@ public class AuthenticationService {
         this.authenticationManager = paramAuthenticationManager;
     }
 
-    /**
-     * Sign up.
-     *
-     * @param signUpRequest the sign up request
-     */
-    public void signUp(final SignupRequest signUpRequest) {
-        learnerService.signUp(signUpRequest,
-                passwordEncoder::encode);
-    }
 
     /**
      * Logout.
@@ -123,23 +109,5 @@ public class AuthenticationService {
                 principal.getName(), registrationRequest);
     }
 
-    /**
-     * Login authentication response.
-     *
-     * @param authenticationRequest the authentication request
-     * @return the authentication response
-     */
-    public AuthenticationResponse login(final AuthenticationRequest
-                                                authenticationRequest) {
-        final Authentication authResult = this.authenticationManager
-                .authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                authenticationRequest.getUserName(),
-                                authenticationRequest.getPassword()));
-        if (authResult == null) {
-            throw new BadCredentialsException("Invalid Login Credentials");
-        }
 
-        return tokenProvider.getAuthenticationResponse(authResult);
-    }
 }
