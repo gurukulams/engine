@@ -116,4 +116,25 @@ class AuthenticationAPIController {
         return ResponseEntity.ok().body("Hello "
                 + principal.getName());
     }
+
+    /**
+     * get the user details from the principal.
+     *
+     * @param authHeader
+     * @return AuthenticationResponse response entity
+     */
+    @Operation(summary = "Get logged in user profile",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+            description = "practice"),
+            @ApiResponse(responseCode = "401",
+                    description = "invalid credentials"),
+            @ApiResponse(responseCode = "404",
+                    description = "practice not found")})
+    @GetMapping("/welcome")
+    public final ResponseEntity<AuthenticationResponse> me(
+            @RequestHeader(name = "Authorization") final String authHeader) {
+        return ResponseEntity.ok().body(
+                authenticationService.getWelcomeResponse(authHeader));
+    }
 }

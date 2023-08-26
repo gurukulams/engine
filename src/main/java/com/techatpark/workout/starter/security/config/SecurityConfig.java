@@ -26,7 +26,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -91,7 +93,7 @@ public class SecurityConfig {
      * Base64 encoded cookie instead.
      */
     private final HttpCookieOAuth2AuthorizationRequestRepository
-            cookieAuthorizationRequestRepository;
+            cookieAuthRepo;
 
     /**
      * inject the oAuth2AuthenticationFailureHandler object dependency.
@@ -128,15 +130,15 @@ public class SecurityConfig {
                 tokenProvider);
 
 
-        cookieAuthorizationRequestRepository = new
+        cookieAuthRepo = new
                 HttpCookieOAuth2AuthorizationRequestRepository();
         oAuth2AuthenticationSuccessHandler = new
                 OAuth2AuthenticationSuccessHandler(tokenProvider,
                 appProperties,
-                cookieAuthorizationRequestRepository);
+                cookieAuthRepo);
         oAuth2AuthenticationFailureHandler = new
                 OAuth2AuthenticationFailureHandler(
-                cookieAuthorizationRequestRepository);
+                cookieAuthRepo);
 
 
         customOAuth2UserService = new CustomOAuth2UserService(
@@ -194,6 +196,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(antMatcher("/api/auth/login"),
                                 antMatcher("/api/auth/signup"),
+                                antMatcher("/api/auth/welcome"),
                                 antMatcher("/practices/basic/index.html"),
                                 antMatcher("/ta/practices/basic/index.html"),
                                 antMatcher("/favicon.ico"),
@@ -228,33 +231,33 @@ public class SecurityConfig {
                         .frameOptions(
                                 HeadersConfigurer.FrameOptionsConfig::disable));
         http.oauth2Login(new Customizer<OAuth2LoginConfigurer<HttpSecurity>>() {
-                    @Override
-                    public void customize(
-                            final OAuth2LoginConfigurer<HttpSecurity>
-                                      httpSecurityOAuth2LoginConfigurer) {
-                        httpSecurityOAuth2LoginConfigurer
-                                .authorizationEndpoint(
-                                        authorizationEndpointConfig -> {
+            @Override
+            public void customize(
+                    final OAuth2LoginConfigurer<HttpSecurity>
+                            httpSecurityOAuth2LoginConfigurer) {
+                httpSecurityOAuth2LoginConfigurer
+                        .authorizationEndpoint(
+                                authorizationEndpointConfig -> {
                                     authorizationEndpointConfig
-                                    .baseUri("/oauth2/authorize")
-                                    .authorizationRequestRepository(
-                                        cookieAuthorizationRequestRepository);
+                                            .baseUri("/oauth2/authorize")
+                                            .authorizationRequestRepository(
+                                                    cookieAuthRepo);
                                 })
-                                .redirectionEndpoint(
-                                        redirectionEndpointConfig -> {
+                        .redirectionEndpoint(
+                                redirectionEndpointConfig -> {
                                     redirectionEndpointConfig
                                             .baseUri("/oauth2/callback/*");
                                 })
-                                .userInfoEndpoint(userInfoEndpointConfig -> {
-                                    userInfoEndpointConfig
-                                        .userService(customOAuth2UserService);
-                                })
-                                .successHandler(
-                                        oAuth2AuthenticationSuccessHandler)
-                                .failureHandler(
-                                        oAuth2AuthenticationFailureHandler);
-                    }
-                });
+                        .userInfoEndpoint(userInfoEndpointConfig -> {
+                            userInfoEndpointConfig
+                                    .userService(customOAuth2UserService);
+                        })
+                        .successHandler(
+                                oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(
+                                oAuth2AuthenticationFailureHandler);
+            }
+        });
 
         // Add our custom Token based authentication filter
         http.addFilterBefore(tokenAuthenticationFilter,
