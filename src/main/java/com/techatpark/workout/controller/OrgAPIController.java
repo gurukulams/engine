@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.techatpark.workout.model.Community;
-import com.techatpark.workout.service.CommunityService;
+import com.gurukulams.core.model.Org;
+import com.gurukulams.core.service.OrgService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -24,16 +24,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * The type community api controller.
+ * The type org api controller.
  */
 @RestController
-@RequestMapping("/api/communities")
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Community",
-        description = "Resource to manage Communities")
+@RequestMapping("/api/orgs")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Org",
+        description = "Resource to manage Orgs")
 @SecurityScheme(
     name = "bearerAuth",
     scheme = "bearer",
@@ -41,15 +42,15 @@ import java.util.Locale;
     type = SecuritySchemeType.HTTP,
     in = SecuritySchemeIn.HEADER
 )
-class CommunityAPIController {
+class OrgAPIController {
 
     /**
-     * declare a Community service.
+     * declare a Org service.
      */
-    private final CommunityService communityService;
+    private final OrgService orgService;
 
-    CommunityAPIController(final CommunityService paramCommunityService) {
-        this.communityService = paramCommunityService;
+    OrgAPIController(final OrgService paramOrgService) {
+        this.orgService = paramOrgService;
     }
 
     // Hide by defalut -> Security
@@ -57,112 +58,112 @@ class CommunityAPIController {
     // All the instance variables in controller should be final
     // All the public methods should be final
     // Controller should not be a public class
-    @Operation(summary = "Creates a new Community",
+    @Operation(summary = "Creates a new Org",
             description = "Can be called "
                     + "only by users with 'auth management' rights.",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "201",
-            description = "Community created successfully"),
+            description = "Org created successfully"),
             @ApiResponse(responseCode = "400",
-                    description = "Community is invalid"),
+                    description = "Org is invalid"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public final ResponseEntity<Community> create(final Principal principal,
+    public final ResponseEntity<Org> create(final Principal principal,
                                        @RequestHeader(name = "Accept-Language",
                                   required = false) final Locale locale,
                                        final @RequestBody
-                                       Community community) {
-        Community createdCommunity =
-                communityService.create(principal.getName(), locale, community);
-        return ResponseEntity.created(URI.create("/api/communities/"
-                        + createdCommunity.id()))
-                .body(createdCommunity);
+                                       Org org) throws SQLException {
+        Org createdOrg =
+                orgService.create(principal.getName(), org);
+        return ResponseEntity.created(URI.create("/api/orgs/"
+                        + createdOrg.getId()))
+                .body(createdOrg);
 
     }
 
-    @Operation(summary = "Get the community with given id",
+    @Operation(summary = "Get the org with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "getting Community successfully"),
+            description = "getting Org successfully"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
-                    description = "Community not found")})
+                    description = "Org not found")})
     @GetMapping(value = "/{id}", produces = "application/json")
-    public final ResponseEntity<Community> read(final @PathVariable String id,
-                                     @RequestHeader(name = "Accept-Language",
+    public final ResponseEntity<Org> read(final @PathVariable String id,
+                              @RequestHeader(name = "Accept-Language",
                             required = false) final Locale locale,
-                                     final Principal principal) {
+                             final Principal principal) throws SQLException {
         return ResponseEntity.of(
-                communityService.read(principal.getName(), id, locale));
+                orgService.read(principal.getName(), id));
     }
 
-    @Operation(summary = "Updates the Community by given id",
+    @Operation(summary = "Updates the Org by given id",
             description = "Can be called only by users "
                     + "with 'auth management' rights.",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "Community updated successfully"),
+            description = "Org updated successfully"),
             @ApiResponse(responseCode = "400",
-                    description = "Community is invalid"),
+                    description = "Org is invalid"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
-                    description = "Community not found")})
+                    description = "Org not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public final ResponseEntity<Community> update(final @PathVariable
+    public final ResponseEntity<Org> update(final @PathVariable
                                               String id,
                                            final Principal
                                               principal,
                                    @RequestHeader(name = "Accept-Language",
                               required = false) final Locale locale,
                                            final @RequestBody
-                                           Community
-                                              community) {
-        final Community updatedCommunity =
-            communityService.update(id, principal.getName(), locale, community);
-        return ResponseEntity.ok(updatedCommunity);
+                                           Org
+                                              org) throws SQLException {
+        final Org updatedOrg =
+            orgService.update(id, principal.getName(), org);
+        return ResponseEntity.ok(updatedOrg);
     }
 
-    @Operation(summary = "Deletes the Community by given id",
+    @Operation(summary = "Deletes the Org by given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "Community deleted successfully"),
+            description = "Org deleted successfully"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
-                    description = "Community not found")})
+                    description = "Org not found")})
     @DeleteMapping("/{id}")
     public final ResponseEntity<Void> delete(final @PathVariable
                                                String id,
                                        final Principal
-                                               principal) {
-        return communityService.delete(principal.getName(), id)
+                                               principal) throws SQLException {
+        return orgService.delete(principal.getName(), id)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();
     }
 
-    @Operation(summary = "lists the Communities",
+    @Operation(summary = "lists the Orgs",
             description = "Can be invoked by auth users only",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
-            description = "Listing the communities successfully"),
+            description = "Listing the orgs successfully"),
             @ApiResponse(responseCode = "204",
-                    description = "Communities are not available"),
+                    description = "Orgs are not available"),
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public final ResponseEntity<List<Community>> list(final Principal
+    public final ResponseEntity<List<Org>> list(final Principal
                                                   principal,
-                                   @RequestHeader(name = "Accept-Language",
-                              required = false) final Locale locale) {
-        final List<Community> communities = communityService.list(
-                principal.getName(), locale);
-        return communities.isEmpty() ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(communities);
+                    @RequestHeader(name = "Accept-Language",
+                  required = false) final Locale locale) throws SQLException {
+        final List<Org> orgs = orgService.list(
+                principal.getName());
+        return orgs.isEmpty() ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(orgs);
     }
 
 
