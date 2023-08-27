@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
           java-version: 20
       - name: Build
-        run: mvn package --file pom.xml
+        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B package --file pom.xml
       - name: Copy Artifacts
         uses: appleboy/scp-action@master
         with:
