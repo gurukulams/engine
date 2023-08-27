@@ -21,6 +21,9 @@ jobs:
           java-version: 20
       - name: Build
         run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B package --file pom.xml
+        env:
+          USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
+          ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
       - name: Copy Artifacts
         uses: appleboy/scp-action@master
         with:
