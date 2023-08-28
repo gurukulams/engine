@@ -212,7 +212,8 @@ public class SecurityConfig {
                                 antMatcher("/ta/questions/biology/botany"),
                                 antMatcher("/v3/api-docs"),
                                 antMatcher("/welcome"),
-                                antMatcher("/oauth2/**")
+                                antMatcher("/oauth2/**"),
+                                antMatcher("/oauth2/**/**")
                         )
                         .permitAll()
                         .requestMatchers(toH2Console()).permitAll()
