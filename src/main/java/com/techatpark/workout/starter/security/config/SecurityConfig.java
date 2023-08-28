@@ -178,7 +178,8 @@ public class SecurityConfig {
                         antMatcher("/chat/*"),
                         antMatcher("/chat/*/*"),
                         antMatcher("/chat/*/*/*"),
-                        antMatcher("/api/auth/login")
+                        antMatcher("/api/auth/login"),
+                        antMatcher("/welcome")
                 );
     }
 
@@ -210,6 +211,7 @@ public class SecurityConfig {
                                 antMatcher("/questions/biology/botany"),
                                 antMatcher("/ta/questions/biology/botany"),
                                 antMatcher("/v3/api-docs"),
+                                antMatcher("/welcome"),
                                 antMatcher("/oauth2/**")
                         )
                         .permitAll()
