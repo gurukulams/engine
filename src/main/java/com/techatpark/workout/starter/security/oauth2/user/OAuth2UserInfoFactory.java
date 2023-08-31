@@ -1,8 +1,9 @@
 package com.techatpark.workout.starter.security.oauth2.user;
 
-
 import com.techatpark.workout.starter.security.exception.OAuth2AuthenticationProcessingException;
 import com.techatpark.workout.model.AuthProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -10,6 +11,11 @@ import java.util.Map;
  * The type O auth 2 user info factory.
  */
 public final class OAuth2UserInfoFactory {
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(OAuth2UserInfoFactory.class);
     /**
      * hides the constructor.
      */
@@ -26,6 +32,8 @@ public final class OAuth2UserInfoFactory {
     public static OAuth2UserInfo getOAuth2UserInfo(final String registrationId,
                                                    final Map<String, Object>
                                                            attributes) {
+        LOGGER.info("User Logged in from {} with {}",
+                registrationId, attributes);
         if (registrationId.equalsIgnoreCase(AuthProvider.google.toString())) {
             return new GoogleOAuth2UserInfo(attributes);
         } else if (registrationId
