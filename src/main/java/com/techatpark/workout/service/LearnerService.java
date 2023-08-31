@@ -20,7 +20,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -80,8 +79,7 @@ public class LearnerService {
     private Learner rowMapper(final ResultSet rs,
                               final Integer rowNum)
             throws SQLException {
-
-        Learner learner = new Learner(
+        return new Learner(
                 rs.getString("user_handle"),
                 rs.getString("email"),
                 rs.getString("password"),
@@ -90,7 +88,6 @@ public class LearnerService {
                 rs.getObject("created_at", LocalDateTime.class),
                 rs.getObject("modified_at", LocalDateTime.class)
         );
-        return learner;
     }
 
     /**
@@ -106,7 +103,7 @@ public class LearnerService {
                 validator.validate(signUpRequest);
         if (violations.isEmpty()) {
             String userHandle = signUpRequest.getEmail().split("@")[0];
-            Optional<Handle> handle = createHandle(userHandle, "Learner");
+            Optional<Handle> handle = createHandle(userHandle);
             if (handle.isPresent()) {
                 create(
                     new Learner(userHandle, signUpRequest.getEmail(),
@@ -198,58 +195,37 @@ public class LearnerService {
         logger.debug("Entering updating from learner {}", userHandle);
         final String query = "UPDATE learner SET email=?,provider=?,"
                 + "password=?,image_url=? WHERE user_handle=?";
-        final Integer updatedRows = jdbcTemplate.update(query,
+        final int updatedRows = jdbcTemplate.update(query,
                 learner.email(), learner.provider().toString(),
                 learner.password(),
                 learner.imageUrl(), userHandle);
         if (updatedRows == 0) {
-            logger.error("update not found", userHandle);
+            logger.error("Learner not found to update {}", userHandle);
             throw new IllegalArgumentException("Learner not found");
         }
         return read(userHandle).get();
     }
 
     /**
-     * @param userHandle the userHandle
-     * @return learner
+     * Deletes all the learners.
      */
-    public Boolean delete(final String userHandle) {
-        final String query = "DELETE FROM learner WHERE user_handle = ?";
-        final Integer updatedRows = jdbcTemplate.update(query, userHandle);
-        return !(updatedRows == 0);
-    }
-
-    /**
-     * @return learner
-     */
-    public List<Learner> list() {
-        final String query = "SELECT id,email,password,image_url,provider,"
-                + "created_at,modified_at FROM learner";
-        return jdbcTemplate.query(query, this::rowMapper);
-    }
-
-    /**
-     * @return learner
-     */
-    public Integer deleteAll() {
+    public void delete() {
         jdbcTemplate.update("DELETE FROM LEARNER_PROFILE");
         jdbcTemplate.update("DELETE FROM learner");
-        return jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
+        jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
     }
 
-    private Optional<Handle> createHandle(final String userHandle,
-        final String type) {
+    private Optional<Handle> createHandle(final String userHandle) {
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
             .withTableName("handle")
             .usingColumns("user_handle", "type");
         final Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("user_handle", userHandle);
-        valueMap.put("type", type);
+        valueMap.put("type", "Learner");
 
         insert.execute(valueMap);
 
-        final Optional<Handle> createdHandle = readHandle(userHandle);
-        return createdHandle;
+        return readHandle(userHandle);
     }
 
     private Optional<Handle> readHandle(final String userHandle) {
@@ -268,12 +244,9 @@ public class LearnerService {
     private Handle rowMapperHandle(final ResultSet resultSet,
         final int i)
         throws SQLException {
-
-
-        Handle handle = new Handle(resultSet.getString("user_handle"),
+        return new Handle(resultSet.getString("user_handle"),
             resultSet.getString("type"),
             resultSet.getObject("created_at", LocalDateTime.class)
         );
-        return handle;
     }
 }

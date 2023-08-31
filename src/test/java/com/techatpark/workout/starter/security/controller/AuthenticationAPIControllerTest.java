@@ -69,7 +69,7 @@ class AuthenticationAPIControllerTest {
     }
 
     void cleanup() {
-        learnerService.deleteAll();
+        learnerService.delete();
         this.webTestClient
                 .post()
                 .uri("/api/auth/signup")

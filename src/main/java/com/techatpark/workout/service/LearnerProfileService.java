@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,13 +51,12 @@ public class LearnerProfileService {
                                      final Integer rowNum)
             throws SQLException {
 
-        LearnerProfile learnerProfile = new LearnerProfile(rs.getString(
+        return new LearnerProfile(rs.getString(
                 "user_handle"),
                 rs.getString("first_name"),
                 rs.getString("last_name"),
                 rs.getObject("dob", LocalDate.class)
         );
-        return learnerProfile;
     }
 
 
@@ -104,75 +102,4 @@ public class LearnerProfileService {
         }
     }
 
-    /**
-     * @param userHandle
-     * @param learnerProfile
-     * @return LearnerProfile
-     */
-    public LearnerProfile update(final String userHandle,
-                                 final LearnerProfile learnerProfile) {
-
-        final String query = "UPDATE learner_profile SET first_name=?,"
-                + "last_name=? WHERE user_handle=?";
-        final Integer updatedRows = jdbcTemplate.update(query,
-                learnerProfile.firstName(),
-                learnerProfile.lastName(), userHandle);
-        if (updatedRows == 0) {
-            throw new IllegalArgumentException("LearnerProfile not found");
-        }
-        return read(userHandle).get();
-    }
-
-    /**
-     * @param userHandle the userHandle
-     * @return LearnerProfile
-     */
-    public Boolean delete(final String userHandle) {
-        final String query =  "DELETE FROM learner_profile WHERE user_handle "
-                + "= ?";
-        final Integer updatedRows = jdbcTemplate.update(query, userHandle);
-        return !(updatedRows == 0);
-    }
-
-    /**
-     * @param userHandle
-     * @return LearnerProfile
-     */
-    public List<LearnerProfile> list(final String userHandle) {
-        final String query = "SELECT user_handle,"
-                + "first_name,last_name, dob FROM learner_profile";
-        return jdbcTemplate.query(query, this::rowMapper);
-    }
-
-    /**
-     * @return learner_profile
-     */
-    public Integer deleteAll() {
-        final String query = "DELETE FROM learner_profile";
-        return jdbcTemplate.update(query);
-    }
-
-    /**
-     * @return handle
-     */
-    public Integer deleteAllHandle() {
-        final String query = "DELETE FROM handle";
-        return jdbcTemplate.update(query);
-    }
-
-    /**
-     * @param email
-     * @return learner
-     */
-    private Optional<String> getLearnerUserHandle(final String email) {
-        final String query = "SELECT user_handle FROM learner WHERE email = ?";
-
-        try {
-            final String userHandle = jdbcTemplate.queryForObject(query,
-                    String.class, email);
-            return Optional.of(userHandle);
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
 }

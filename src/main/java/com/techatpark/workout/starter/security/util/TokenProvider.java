@@ -247,8 +247,7 @@ public class TokenProvider {
         Base64.Decoder decoder = Base64.getUrlDecoder();
         // Splitting header, payload and signature
         String[] parts = token.split("\\.");
-        String headers =
-                new String(decoder.decode(parts[0])); // Header
+        // String headers = new String(decoder.decode(parts[0]));
         String payload =
                 new String(decoder.decode(parts[1])); // Payload
         String userName;
