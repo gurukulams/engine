@@ -1,13 +1,9 @@
 package com.techatpark.workout.starter.security.service;
 
-
-import com.techatpark.workout.service.LearnerService;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
 import com.techatpark.workout.starter.security.util.TokenProvider;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -19,43 +15,18 @@ import java.security.Principal;
 public class AuthenticationService {
 
     /**
-     * instance of PasswordEncoder.
-     */
-    private final PasswordEncoder passwordEncoder;
-
-    /**
-     * instance of LearnerService.
-     */
-    private final LearnerService learnerService;
-
-    /**
      * instance of TokenProvider.
      */
     private final TokenProvider tokenProvider;
-
-    /**
-     * instance of AuthenticationManager.
-     */
-    private final AuthenticationManager authenticationManager;
 
 
     /**
      * Instantiates a new Authentication service.
      *
-     * @param paramPasswordEncoder       the param password encoder
-     * @param paramLearnerService        the param learner service
      * @param paramTokenProvider         the param token provider
-     * @param paramAuthenticationManager the param authentication manager
      */
-    public AuthenticationService(final PasswordEncoder paramPasswordEncoder,
-                                 final LearnerService paramLearnerService,
-                                 final TokenProvider paramTokenProvider,
-                                 final AuthenticationManager
-                                         paramAuthenticationManager) {
-        this.passwordEncoder = paramPasswordEncoder;
-        this.learnerService = paramLearnerService;
+    public AuthenticationService(final TokenProvider paramTokenProvider) {
         this.tokenProvider = paramTokenProvider;
-        this.authenticationManager = paramAuthenticationManager;
     }
 
 
