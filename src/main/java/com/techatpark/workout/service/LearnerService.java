@@ -206,14 +206,6 @@ public class LearnerService {
         return read(userHandle).get();
     }
 
-    /**
-     * Deletes all the learners.
-     */
-    public void delete() {
-        jdbcTemplate.update("DELETE FROM LEARNER_PROFILE");
-        jdbcTemplate.update("DELETE FROM learner");
-        jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
-    }
 
     private Optional<Handle> createHandle(final String userHandle) {
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
@@ -239,6 +231,16 @@ public class LearnerService {
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+    }
+
+    /**
+     * Deletes Learners.
+     */
+    public void delete() {
+        jdbcTemplate.update("DELETE FROM LEARNER_PROFILE");
+        jdbcTemplate.update("DELETE FROM learner");
+        jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
+
     }
 
     private Handle rowMapperHandle(final ResultSet resultSet,

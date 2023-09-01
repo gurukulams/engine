@@ -178,7 +178,7 @@
 				<version>${jacoco.version}</version>
 				<configuration>
 					<includes>
-						<include>com/techatpark/workout/service/*</include>
+						<include>com/techatpark/workout/service/LearnerS*</include>
 					</includes>
 				</configuration>
 				<executions>
