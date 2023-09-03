@@ -71,9 +71,9 @@ class OrgAPIController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
     public final ResponseEntity<Org> create(final Principal principal,
-                                       @RequestHeader(name = "Accept-Language",
+                                    @RequestHeader(name = "Accept-Language",
                                   required = false) final Locale locale,
-                                       final @RequestBody
+                                            final @RequestBody
                                        Org org) throws SQLException {
         Org createdOrg =
                 orgService.create(principal.getName(), org);
