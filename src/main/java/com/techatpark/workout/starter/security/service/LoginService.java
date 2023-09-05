@@ -1,5 +1,6 @@
 package com.techatpark.workout.starter.security.service;
 
+import com.techatpark.workout.model.AuthProvider;
 import com.techatpark.workout.service.LearnerService;
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
@@ -8,7 +9,6 @@ import com.techatpark.workout.starter.security.util.TokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -59,10 +59,19 @@ public class LoginService {
     /**
      * Sign up.
      *
-     * @param signUpRequest the sign up request
+     * @param authenticationRequest authenticationRequest
      */
-    public void signUp(final SignupRequest signUpRequest) {
-        learnerService.signUp(signUpRequest,
+    private void signUp(final AuthenticationRequest
+                                authenticationRequest) {
+        // Then Sign Up
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail(authenticationRequest.getUserName());
+        signupRequest.setPassword(authenticationRequest.getPassword());
+        signupRequest.setAuthProvider(AuthProvider.local);
+        signupRequest.setImageUrl("/images/"
+                + authenticationRequest.getUserName().split("@")[0]
+                + ".png");
+        learnerService.signUp(signupRequest,
                 passwordEncoder::encode);
     }
 
@@ -74,15 +83,22 @@ public class LoginService {
      */
     public AuthenticationResponse login(final AuthenticationRequest
                                                 authenticationRequest) {
-        final Authentication authResult = this.authenticationManager
-                .authenticate(
+        try {
+            return tokenProvider.getAuthenticationResponse(
+                    this.authenticationManager
+                    .authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 authenticationRequest.getUserName(),
-                                authenticationRequest.getPassword()));
-        if (authResult == null) {
+                                authenticationRequest.getPassword())));
+        } catch (final BadCredentialsException credentialsException) {
+            // If New User
+            if (learnerService.readByEmail(
+                    authenticationRequest.getUserName()).isEmpty()) {
+                // Then Sign Up
+                signUp(authenticationRequest);
+                return login(authenticationRequest);
+            }
             throw new BadCredentialsException("Invalid Login Credentials");
         }
-
-        return tokenProvider.getAuthenticationResponse(authResult);
     }
 }

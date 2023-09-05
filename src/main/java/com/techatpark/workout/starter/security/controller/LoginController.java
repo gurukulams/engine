@@ -2,11 +2,9 @@ package com.techatpark.workout.starter.security.controller;
 
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
-import com.techatpark.workout.starter.security.payload.SignupRequest;
 import com.techatpark.workout.starter.security.service.LoginService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,20 +32,6 @@ class LoginController {
      */
     LoginController(final LoginService aLoginService) {
         this.loginService = aLoginService;
-    }
-
-    /**
-     * Endpoint to signup.
-     *
-     * @param signUpRequest
-     * @return void
-     */
-    @Operation(summary = "Signup the User")
-    @PostMapping("/signup")
-    final ResponseEntity<Void> signUp(
-            final @RequestBody SignupRequest signUpRequest) {
-        loginService.signUp(signUpRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**

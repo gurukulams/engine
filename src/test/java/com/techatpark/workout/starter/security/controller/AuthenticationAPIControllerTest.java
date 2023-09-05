@@ -33,7 +33,7 @@ class AuthenticationAPIControllerTest {
     @Value(value="${local.server.port}")
     private int port;
 
-    private final SignupRequest signupRequest;
+    private final AuthenticationRequest signupRequest;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -45,12 +45,9 @@ class AuthenticationAPIControllerTest {
     private AppProperties appProperties;
 
     AuthenticationAPIControllerTest() {
-        this.signupRequest = new SignupRequest();
-        this.signupRequest.setEmail("email@email.com");
-        this.signupRequest.setPassword("password");
-        this.signupRequest.setImageUrl("image_url");
-
-
+        this.signupRequest = new AuthenticationRequest(
+                "tom@email.com",
+                "password");
     }
 
     @DynamicPropertySource
@@ -72,19 +69,19 @@ class AuthenticationAPIControllerTest {
         learnerService.delete();
         this.webTestClient
                 .post()
-                .uri("/api/auth/signup")
-                .body(Mono.just(signupRequest), SignupRequest.class)
+                .uri("/api/auth/login")
+                .body(Mono.just(signupRequest), AuthenticationRequest.class)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
-                .isEqualTo(HttpStatus.CREATED.value());
+                .isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
     public void basicLogin() throws Exception {
 
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getEmail(),
+                this.signupRequest.getUserName(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse authenticationResponse = login(authenticationRequest);
@@ -121,7 +118,7 @@ class AuthenticationAPIControllerTest {
     @Test
     void testSwapping() throws InterruptedException {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getEmail(),
+                this.signupRequest.getUserName(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse originalAuth = login(authenticationRequest);
@@ -142,7 +139,7 @@ class AuthenticationAPIControllerTest {
     @Test
     void testExpiredLogout() throws InterruptedException {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getEmail(),
+                this.signupRequest.getUserName(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse authenticationResponse = login(authenticationRequest);
@@ -161,7 +158,7 @@ class AuthenticationAPIControllerTest {
     @Test
     void testMultiRegistration() throws InterruptedException {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getEmail(),
+                this.signupRequest.getUserName(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse authenticationResponse = login(authenticationRequest);
