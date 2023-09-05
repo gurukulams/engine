@@ -1,6 +1,5 @@
 package com.techatpark.workout.service;
 
-
 import com.techatpark.workout.model.AuthProvider;
 import com.techatpark.workout.model.Handle;
 import com.techatpark.workout.model.Learner;
@@ -224,13 +223,10 @@ public class LearnerService {
         final String query = "SELECT user_handle,type,created_at"
             + " FROM handle WHERE user_handle = ?";
 
-        try {
             final Handle p = jdbcTemplate.queryForObject(query,
                 this::rowMapperHandle, userHandle);
             return Optional.of(p);
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**

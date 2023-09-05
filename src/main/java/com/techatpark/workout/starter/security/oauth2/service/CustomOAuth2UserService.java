@@ -108,21 +108,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private Learner registerNewUser(final OAuth2UserRequest oAuth2UserRequest,
                                     final OAuth2UserInfo oAuth2UserInfo) {
-        final Learner user = new Learner(oAuth2UserInfo.getEmail()
-                .substring(0, oAuth2UserInfo.getEmail().indexOf('@')),
-                oAuth2UserInfo.getEmail(),
-                null,
-                oAuth2UserInfo.getImageUrl(),
-                getAuthProvider(oAuth2UserRequest),
-                null, null);
         SignupRequest signupRequest = new SignupRequest();
         signupRequest.setEmail(oAuth2UserInfo.getEmail());
         signupRequest.setPassword(oAuth2UserInfo.getEmail());
         signupRequest.setImageUrl(oAuth2UserInfo.getImageUrl());
         signupRequest.setAuthProvider(getAuthProvider(oAuth2UserRequest));
-        learnerService.signUp(signupRequest, s -> {
-            return s;
-        });
+        learnerService.signUp(signupRequest, s -> s);
         return learnerService.readByEmail(oAuth2UserInfo.getEmail()).get();
     }
 
