@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
@@ -32,6 +33,11 @@ public class BoardService {
     /**
      * this helps to execute sql queries.
      */
+    private final JdbcClient jdbcClient;
+
+    /**
+     * this helps to execute sql queries.
+     */
     private final JdbcTemplate jdbcTemplate;
 
     /**
@@ -43,12 +49,15 @@ public class BoardService {
      * this is the constructor.
      *
      * @param ajdbcTemplate a jdbcTemplate
+     * @param ajdbcClient jdbcClient
      * @param adataSource   a dataSource
      */
     public BoardService(final JdbcTemplate ajdbcTemplate,
+                        final JdbcClient ajdbcClient,
                         final DataSource adataSource) {
         this.jdbcTemplate = ajdbcTemplate;
         this.dataSource = adataSource;
+        this.jdbcClient = ajdbcClient;
     }
 
     /**
