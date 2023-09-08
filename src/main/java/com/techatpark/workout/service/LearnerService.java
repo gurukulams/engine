@@ -81,7 +81,7 @@ public class LearnerService {
         return new Learner(
                 rs.getString("user_handle"),
                 rs.getString("email"),
-                rs.getString("password"),
+                rs.getString("pword"),
                 rs.getString("image_url"),
                 AuthProvider.valueOf(rs.getString("provider")),
                 rs.getObject("created_at", LocalDateTime.class),
@@ -130,11 +130,11 @@ public class LearnerService {
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
                 .withTableName("learner")
                 .usingColumns("user_handle", "email",
-                        "password",
+                        "pword",
                         "provider", "image_url");
         final Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("email", learner.email());
-        valueMap.put("password", learner.password());
+        valueMap.put("pword", learner.password());
         valueMap.put("image_url", learner.imageUrl());
         valueMap.put("provider", learner.provider().toString());
         String userHandle = learner.userHandle();
@@ -151,7 +151,7 @@ public class LearnerService {
      * @return learner
      */
     public Optional<Learner> read(final String userHandle) {
-        final String query =  "SELECT user_handle,email,password,image_url,"
+        final String query =  "SELECT user_handle,email,pword,image_url,"
                 + "provider"
                 + ",created_at, modified_at"
                 + " FROM learner WHERE user_handle = ?";
@@ -170,7 +170,7 @@ public class LearnerService {
      * @return learner
      */
     public Optional<Learner> readByEmail(final String email) {
-        final String query =  "SELECT user_handle,email,password,image_url,"
+        final String query =  "SELECT user_handle,email,pword,image_url,"
                 + "provider"
                 + ",created_at, modified_at"
                 + " FROM learner WHERE email = ?";
@@ -193,7 +193,7 @@ public class LearnerService {
                           final Learner learner) {
         logger.debug("Entering updating from learner {}", userHandle);
         final String query = "UPDATE learner SET email=?,provider=?,"
-                + "password=?,image_url=? WHERE user_handle=?";
+                + "pword=?,image_url=? WHERE user_handle=?";
         final int updatedRows = jdbcTemplate.update(query,
                 learner.email(), learner.provider().toString(),
                 learner.password(),
