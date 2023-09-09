@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import java.security.Principal;
+import java.sql.SQLException;
 
 /**
  * The type Learner api controller.
@@ -50,7 +51,8 @@ class LearnerAPIController {
                     description = "learner not found")})
     @GetMapping(value = "/{id}", produces = "application/json")
     public final ResponseEntity<Learner> read(final Principal principal,
-                                        final @PathVariable String id) {
+                                        final @PathVariable String id)
+            throws SQLException {
         return ResponseEntity.of(learnerService.read(
                 id));
     }
@@ -72,7 +74,7 @@ class LearnerAPIController {
     public final ResponseEntity<Learner> update(final @PathVariable String id,
                                           final Principal principal,
                                           final @RequestBody Learner learner)
-            throws JsonProcessingException {
+            throws JsonProcessingException, SQLException {
         final Learner updatedLearner = learnerService.update(id,
                 learner);
         return ResponseEntity.ok(updatedLearner);

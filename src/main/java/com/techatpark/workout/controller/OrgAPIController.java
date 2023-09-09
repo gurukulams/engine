@@ -1,5 +1,6 @@
 package com.techatpark.workout.controller;
 
+import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.model.Org;
 import com.gurukulams.core.service.OrgService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,8 +50,8 @@ class OrgAPIController {
      */
     private final OrgService orgService;
 
-    OrgAPIController(final OrgService paramOrgService) {
-        this.orgService = paramOrgService;
+    OrgAPIController(final GurukulamsManager gurukulamsManager) {
+        this.orgService = new OrgService(gurukulamsManager);
     }
 
     // Hide by defalut -> Security

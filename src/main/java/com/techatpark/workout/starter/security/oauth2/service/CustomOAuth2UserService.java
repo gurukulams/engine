@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -73,8 +74,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private OAuth2User processOAuth2User(final
-                                         OAuth2UserRequest oAuth2UserRequest,
-                                         final OAuth2User oAuth2User) {
+                         OAuth2UserRequest oAuth2UserRequest,
+                         final OAuth2User oAuth2User) throws SQLException {
         final OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory
                 .getOAuth2UserInfo(oAuth2UserRequest.getClientRegistration()
                         .getRegistrationId(), oAuth2User.getAttributes());
@@ -107,7 +108,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private Learner registerNewUser(final OAuth2UserRequest oAuth2UserRequest,
-                                    final OAuth2UserInfo oAuth2UserInfo) {
+                                    final OAuth2UserInfo oAuth2UserInfo)
+            throws SQLException {
         SignupRequest signupRequest = new SignupRequest();
         signupRequest.setEmail(oAuth2UserInfo.getEmail());
         signupRequest.setPassword(oAuth2UserInfo.getEmail());
@@ -125,7 +127,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private Learner updateExistingUser(final Learner existingUser,
-                                       final OAuth2UserInfo oAuth2UserInfo) {
+                                       final OAuth2UserInfo oAuth2UserInfo)
+                                throws SQLException {
         return learnerService.update(existingUser.userHandle(),
                 new Learner(null, oAuth2UserInfo.getEmail(),
                         null,

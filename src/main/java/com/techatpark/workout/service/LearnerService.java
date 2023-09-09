@@ -1,5 +1,7 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.GurukulamsManager;
+import com.gurukulams.core.store.LearnerStore;
 import com.techatpark.workout.model.AuthProvider;
 import com.techatpark.workout.model.Handle;
 import com.techatpark.workout.model.Learner;
@@ -38,6 +40,11 @@ public class LearnerService {
             LoggerFactory.getLogger(LearnerService.class);
 
     /**
+     * learnerStore.
+     */
+    private final LearnerStore learnerStore;
+
+    /**
      * this is the connection for the database.
      */
     private final DataSource dataSource;
@@ -56,15 +63,18 @@ public class LearnerService {
      *
      * @param anDataSource
      * @param anJdbcTemplate
+     * @param gurukulamsManager
      * @param pValidator
      */
     public LearnerService(final DataSource anDataSource,
                           final JdbcTemplate anJdbcTemplate,
+                          final GurukulamsManager gurukulamsManager,
                           final Validator
                                   pValidator) {
         this.dataSource = anDataSource;
         this.jdbcTemplate = anJdbcTemplate;
         this.validator = pValidator;
+        this.learnerStore = gurukulamsManager.getLearnerStore();
     }
 
     /**
@@ -97,7 +107,8 @@ public class LearnerService {
      */
     @Transactional
     public void signUp(final SignupRequest signUpRequest,
-                       final Function<String, String> encoderFunction) {
+                       final Function<String, String> encoderFunction)
+            throws SQLException {
         Set<ConstraintViolation<SignupRequest>> violations =
                 validator.validate(signUpRequest);
         if (violations.isEmpty()) {
@@ -126,7 +137,7 @@ public class LearnerService {
      * @param learner
      * @return learner
      */
-    private Learner create(final Learner learner) {
+    private Learner create(final Learner learner) throws SQLException {
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
                 .withTableName("learner")
                 .usingColumns("user_handle", "email",
@@ -150,19 +161,8 @@ public class LearnerService {
      * @param userHandle
      * @return learner
      */
-    public Optional<Learner> read(final String userHandle) {
-        final String query =  "SELECT user_handle,email,pword,image_url,"
-                + "provider"
-                + ",created_at, modified_at"
-                + " FROM learner WHERE user_handle = ?";
-
-        try {
-            final Learner p = jdbcTemplate.queryForObject(query,
-                     this::rowMapper, userHandle);
-            return Optional.of(p);
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+    public Optional<Learner> read(final String userHandle) throws SQLException {
+        return getLearner(this.learnerStore.select(userHandle));
     }
 
     /**
@@ -190,7 +190,7 @@ public class LearnerService {
      * @return learner
      */
     public Learner update(final String userHandle,
-                          final Learner learner) {
+                          final Learner learner) throws SQLException {
         logger.debug("Entering updating from learner {}", userHandle);
         final String query = "UPDATE learner SET email=?,provider=?,"
                 + "pword=?,image_url=? WHERE user_handle=?";
@@ -245,6 +245,25 @@ public class LearnerService {
         return new Handle(resultSet.getString("user_handle"),
             resultSet.getString("type"),
             resultSet.getObject("created_at", LocalDateTime.class)
+        );
+    }
+
+    private Optional<Learner> getLearner(
+            final Optional<com.gurukulams.core.model.Learner> learner) {
+        return learner.isEmpty() ? Optional.empty()
+                : Optional.of(getLearner(learner.get()));
+    }
+
+    private Learner getLearner(
+            final com.gurukulams.core.model.Learner learner) {
+        return new Learner(
+                learner.getUserHandle(),
+                learner.getEmail(),
+                learner.getPword(),
+                learner.getImageUrl(),
+                AuthProvider.valueOf(learner.getProvider()),
+                learner.getCreatedAt(),
+                learner.getModifiedAt()
         );
     }
 }

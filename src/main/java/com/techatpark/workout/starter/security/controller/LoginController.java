@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
+
 /**
  * The type Authentication api controller.
  */
@@ -45,7 +47,7 @@ class LoginController {
     final ResponseEntity<AuthenticationResponse> login(
             final @RequestBody
             AuthenticationRequest
-                    authenticationRequest) {
+                    authenticationRequest) throws SQLException {
 
         return ResponseEntity.ok().body(
                 loginService.login(authenticationRequest));

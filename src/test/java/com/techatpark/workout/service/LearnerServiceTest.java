@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.sql.SQLException;
+
 @SpringBootTest
 class LearnerServiceTest {
     private static final String HANDLE = "tom";
@@ -31,7 +33,7 @@ class LearnerServiceTest {
         learnerService.delete();
     }
     @Test
-    void testSignUp() {
+    void testSignUp() throws SQLException {
         learnerService.signUp(aSignupRequest(),
                 s -> String.valueOf(new StringBuilder(s).reverse()));
 
@@ -40,7 +42,7 @@ class LearnerServiceTest {
     }
 
     @Test
-    void testEmptyReads() {
+    void testEmptyReads() throws SQLException {
         Assertions.assertFalse(learnerService.read(HANDLE).isPresent());
         Assertions.assertFalse(learnerService.readByEmail(EMAIL).isPresent());
     }
@@ -59,7 +61,7 @@ class LearnerServiceTest {
     }
 
     @Test
-    void testUpdate() {
+    void testUpdate() throws SQLException {
         learnerService.signUp(aSignupRequest(),
                 s -> String.valueOf(new StringBuilder(s).reverse()));
 
@@ -75,7 +77,7 @@ class LearnerServiceTest {
     }
 
     @Test
-    void testInvalidUpdate() {
+    void testInvalidUpdate() throws SQLException {
         learnerService.signUp(aSignupRequest(),
                 s -> String.valueOf(new StringBuilder(s).reverse()));
 

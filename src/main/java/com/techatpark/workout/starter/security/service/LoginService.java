@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+
 /**
  * The type Login service.
  */
@@ -62,7 +64,7 @@ public class LoginService {
      * @param authenticationRequest authenticationRequest
      */
     private void signUp(final AuthenticationRequest
-                                authenticationRequest) {
+                                authenticationRequest) throws SQLException {
         // Then Sign Up
         SignupRequest signupRequest = new SignupRequest();
         signupRequest.setEmail(authenticationRequest.getUserName());
@@ -82,7 +84,7 @@ public class LoginService {
      * @return the authentication response
      */
     public AuthenticationResponse login(final AuthenticationRequest
-                                                authenticationRequest) {
+                                    authenticationRequest) throws SQLException {
         try {
             return tokenProvider.getAuthenticationResponse(
                     this.authenticationManager
