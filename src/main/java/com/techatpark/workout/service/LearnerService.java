@@ -1,9 +1,10 @@
 package com.techatpark.workout.service;
 
 import com.gurukulams.core.GurukulamsManager;
+import com.gurukulams.core.model.Handle;
+import com.gurukulams.core.store.HandleStore;
 import com.gurukulams.core.store.LearnerStore;
 import com.techatpark.workout.model.AuthProvider;
-import com.techatpark.workout.model.Handle;
 import com.techatpark.workout.model.Learner;
 import com.techatpark.workout.starter.security.payload.SignupRequest;
 import jakarta.validation.ConstraintViolation;
@@ -13,15 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -43,6 +41,11 @@ public class LearnerService {
      * learnerStore.
      */
     private final LearnerStore learnerStore;
+
+    /**
+     * handleStore.
+     */
+    private final HandleStore handleStore;
 
     /**
      * this is the connection for the database.
@@ -75,6 +78,7 @@ public class LearnerService {
         this.jdbcTemplate = anJdbcTemplate;
         this.validator = pValidator;
         this.learnerStore = gurukulamsManager.getLearnerStore();
+        this.handleStore = gurukulamsManager.getHandleStore();
     }
 
     /**
@@ -138,23 +142,9 @@ public class LearnerService {
      * @return learner
      */
     private Learner create(final Learner learner) throws SQLException {
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("learner")
-                .usingColumns("user_handle", "email",
-                        "pword",
-                        "provider", "image_url");
-        final Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("email", learner.email());
-        valueMap.put("pword", learner.password());
-        valueMap.put("image_url", learner.imageUrl());
-        valueMap.put("provider", learner.provider().toString());
-        String userHandle = learner.userHandle();
-        valueMap.put("user_handle", userHandle);
-        insert.execute(valueMap);
-
-        final Optional<Learner> createdLearner = read(userHandle);
-        logger.info("Created learner {}", userHandle);
-        return createdLearner.get();
+        return getLearner(this.learnerStore
+                .insert()
+                .values(getLearner(learner)).returning());
     }
 
     /**
@@ -206,27 +196,19 @@ public class LearnerService {
     }
 
 
-    private Optional<Handle> createHandle(final String userHandle) {
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-            .withTableName("handle")
-            .usingColumns("user_handle", "type");
-        final Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("user_handle", userHandle);
-        valueMap.put("type", "Learner");
-
-        insert.execute(valueMap);
-
-        return readHandle(userHandle);
+    private Optional<Handle> createHandle(final String userHandle)
+            throws SQLException {
+        Handle handle = new Handle();
+        handle.setUserHandle(userHandle);
+        handle.setType("Learner");
+        return Optional.of(this.handleStore.insert()
+                .values(handle).returning());
     }
 
-    private Optional<Handle> readHandle(final String userHandle) {
-        final String query = "SELECT user_handle,type,created_at"
-            + " FROM handle WHERE user_handle = ?";
-
-            final Handle p = jdbcTemplate.queryForObject(query,
-                this::rowMapperHandle, userHandle);
-            return Optional.of(p);
-
+    private Optional<Handle> readHandle(
+            final String userHandle)
+            throws SQLException {
+        return this.handleStore.select(userHandle);
     }
 
     /**
@@ -237,15 +219,6 @@ public class LearnerService {
         jdbcTemplate.update("DELETE FROM learner");
         jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
 
-    }
-
-    private Handle rowMapperHandle(final ResultSet resultSet,
-        final int i)
-        throws SQLException {
-        return new Handle(resultSet.getString("user_handle"),
-            resultSet.getString("type"),
-            resultSet.getObject("created_at", LocalDateTime.class)
-        );
     }
 
     private Optional<Learner> getLearner(
@@ -265,5 +238,19 @@ public class LearnerService {
                 learner.getCreatedAt(),
                 learner.getModifiedAt()
         );
+    }
+
+    private com.gurukulams.core.model.Learner getLearner(
+            final Learner learner) {
+        com.gurukulams.core.model.Learner l =
+                new com.gurukulams.core.model.Learner();
+        l.setEmail(learner.email());
+        l.setImageUrl(learner.imageUrl());
+        l.setProvider(learner.provider().toString());
+        l.setPword(learner.password());
+        l.setCreatedAt(learner.createdAt());
+        l.setModifiedAt(learner.modifiedAt());
+        l.setUserHandle(learner.userHandle());
+        return l;
     }
 }
