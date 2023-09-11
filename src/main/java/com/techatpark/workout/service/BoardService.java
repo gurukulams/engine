@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -74,24 +72,21 @@ public class BoardService {
     public Board create(final String userName,
                         final Locale locale,
                         final Board board) {
-        final Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("title", board.title());
-        valueMap.put("description", board.description());
-        valueMap.put("created_by", userName);
-        final UUID boardId = UUID.randomUUID();
-        valueMap.put("id", boardId);
 
+        final UUID boardId = UUID.randomUUID();
 
         String sql =
                 "INSERT INTO boards(id, title, description, "
-                        + "created_by) values(:id, :title, :description, "
-                        + ":created_by)";
-        jdbcClient.sql(sql).params(valueMap).update();
+                        + "created_by) values(?,?,?,?)";
+        jdbcClient.sql(sql)
+                .param(1, boardId)
+                .param(2, board.title())
+                .param(3, board.description())
+                .param(4, userName)
+                .update();
 
         if (locale != null) {
-            valueMap.put("board_id", boardId);
-            valueMap.put("locale", locale.getLanguage());
-            createLocalizedBoard(valueMap);
+            createLocalizedBoard(boardId, board, locale);
         }
 
         final Optional<Board> createdBoard =
@@ -105,15 +100,23 @@ public class BoardService {
     /**
      * Create Localized Board.
      *
-     * @param valueMap
+     * @param board
+     * @param locale
+     * @param boardId
      * @return noOfBoards
      */
-    private int createLocalizedBoard(final Map<String, Object> valueMap) {
+    private int createLocalizedBoard(final UUID boardId,
+                                     final Board board,
+                                     final Locale locale) {
         String sql =
                 "INSERT INTO boards_localized(board_id, locale, title, "
-                        + "description) values(:board_id, :locale, :title, "
-                        + ":description)";
-        return jdbcClient.sql(sql).params(valueMap).update();
+                        + "description) values(?, ?, ?, ?)";
+        return jdbcClient.sql(sql)
+                .param(1, boardId)
+                .param(2, locale.getLanguage())
+                .param(3, board.title())
+                .param(4, board.description())
+                .update();
     }
 
     /**
@@ -198,12 +201,7 @@ public class BoardService {
                             board.description(), id, locale.getLanguage()))
                     .update();
             if (updatedRows == 0) {
-                final Map<String, Object> valueMap = new HashMap<>(4);
-                valueMap.put("board_id", id);
-                valueMap.put("locale", locale.getLanguage());
-                valueMap.put("title", board.title());
-                valueMap.put("description", board.description());
-                createLocalizedBoard(valueMap);
+                createLocalizedBoard(id, board, locale);
             }
         }
         return read(userName, locale, id).get();
