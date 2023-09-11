@@ -54,13 +54,13 @@ public class BoardService {
                             final Integer rowNum)
             throws SQLException {
         return new Board((UUID)
-                rs.getObject("id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getObject("created_at", LocalDateTime.class),
-                rs.getString("created_by"),
-                rs.getObject("modified_at", LocalDateTime.class),
-                rs.getString("modified_by"));
+                rs.getObject(1),
+                rs.getString(2),
+                rs.getString(3),
+                rs.getObject(4, LocalDateTime.class),
+                rs.getString(5),
+                rs.getObject(6, LocalDateTime.class),
+                rs.getString(7));
     }
 
     /**
@@ -97,7 +97,7 @@ public class BoardService {
         final Optional<Board> createdBoard =
                 read(userName, locale, boardId);
 
-        logger.info("Syllabus Created {}", boardId);
+        logger.info("Board Created {}", boardId);
 
         return createdBoard.get();
     }
@@ -128,8 +128,8 @@ public class BoardService {
                                 final Locale locale, final UUID id) {
 
         final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM boards "
+                ? "SELECT id,title,description,created_at,"
+                + "created_by, modified_at, modified_by FROM boards "
                 + "WHERE id = ?"
                 : """
                 SELECT
@@ -185,9 +185,9 @@ public class BoardService {
         List params = locale == null ? List.of(
                 board.title(), board.description(), userName, id)
                 : List.of(userName, id);
-        Integer updatedRows = jdbcClient.sql(query).params(params).update();
+        int updatedRows = jdbcClient.sql(query).params(params).update();
         if (updatedRows == 0) {
-            logger.error("Update not found", id);
+            logger.error("Update not found {}", id);
             throw new IllegalArgumentException("Board not found");
         } else if (locale != null) {
             updatedRows = jdbcClient.sql(
@@ -231,8 +231,8 @@ public class BoardService {
     public List<Board> list(final String userName,
                             final Locale locale) {
         final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM boards "
+                ? "SELECT id,title,description,created_at,"
+                + "created_by, modified_at, modified_by FROM boards "
                 : """
                  SELECT
                     b.id,
@@ -291,19 +291,15 @@ public class BoardService {
                                  final UUID boardId,
                                  final UUID gradeId,
                                  final UUID subjectId) {
-        // Fill the values
-        final Map<String, Object> valueMap = new HashMap<>();
-
-        valueMap.put("board_id", boardId);
-        valueMap.put("grade_id", gradeId);
-        valueMap.put("subject_id", subjectId);
-
         String sql =
                 "INSERT INTO boards_grades_subjects(board_id, grade_id,"
-                        + " subject_id) values(:board_id, :grade_id, "
-                        + ":subject_id)";
+                        + " subject_id) values(?,?,?)";
 
-        return jdbcClient.sql(sql).params(valueMap).update() == 1;
+        return jdbcClient.sql(sql)
+                .param(1, boardId)
+                .param(2, gradeId)
+                .param(3, subjectId)
+                .update() == 1;
     }
 
     /**
@@ -321,21 +317,17 @@ public class BoardService {
                               final UUID gradeId,
                               final UUID subjectId,
                               final UUID bookId) {
-        // Fill the values
-        final Map<String, Object> valueMap = new HashMap<>();
-
-        valueMap.put("board_id", boardId);
-        valueMap.put("grade_id", gradeId);
-        valueMap.put("subject_id", subjectId);
-        valueMap.put("book_id", bookId);
-
         String sql =
                 "INSERT INTO boards_grades_subjects_books(board_id, grade_id,"
                         + " subject_id, "
-                        + "book_id) values(:board_id, :grade_id, :subject_id, "
-                        + ":book_id)";
+                        + "book_id) values(?,?,?,?)";
 
-        return jdbcClient.sql(sql).params(valueMap).update() == 1;
+        return jdbcClient.sql(sql)
+                .param(1, boardId)
+                .param(2, gradeId)
+                .param(3, subjectId)
+                .param(4, bookId)
+                .update() == 1;
     }
 
     /**
