@@ -53,7 +53,7 @@ public class BoardService {
     private Board rowMapper(final ResultSet rs,
                             final Integer rowNum)
             throws SQLException {
-        Board board = new Board((UUID)
+        return new Board((UUID)
                 rs.getObject("id"),
                 rs.getString("title"),
                 rs.getString("description"),
@@ -61,8 +61,6 @@ public class BoardService {
                 rs.getString("created_by"),
                 rs.getObject("modified_at", LocalDateTime.class),
                 rs.getString("modified_by"));
-
-        return board;
     }
 
     /**
@@ -133,24 +131,25 @@ public class BoardService {
                 ? "SELECT id,title,description,created_by,"
                 + "created_at, modified_at, modified_by FROM boards "
                 + "WHERE id = ?"
-                : "SELECT\n"
-                + "    b.id,\n"
-                + "    COALESCE(bl.title, b.title) AS title,\n"
-                + "    COALESCE(bl.description, b.description) AS description,"
-                + "\n"
-                + "    b.created_at,\n"
-                + "    b.created_by,\n"
-                + "    b.modified_at,\n"
-                + "    b.modified_by\n"
-                + "FROM\n"
-                + "    boards b\n"
-                + "LEFT JOIN\n"
-                + "    boards_localized bl\n"
-                + "ON\n"
-                + "    b.id = bl.board_id\n"
-                + "    AND bl.locale = ?\n"
-                + "WHERE\n"
-                + "    b.id = ?";
+                : """
+                SELECT
+                    b.id,
+                    COALESCE(bl.title, b.title) AS title,
+                    COALESCE(bl.description, b.description) AS description,
+                    b.created_at,
+                    b.created_by,
+                    b.modified_at,
+                    b.modified_by
+                 FROM
+                    boards b
+                 LEFT JOIN
+                    boards_localized bl
+                 ON
+                    b.id = bl.board_id
+                    AND bl.locale = ?
+                WHERE
+                    b.id = ?
+                 """;
 
         try {
             return locale == null
@@ -218,9 +217,8 @@ public class BoardService {
      * @return board optional
      */
     public Boolean delete(final String userName, final UUID id) {
-        final String query = "DELETE FROM boards WHERE id = ?";
-        int updatedRows = jdbcClient.sql(query).param(1, id).update();
-        return !(updatedRows == 0);
+        return jdbcClient.sql("DELETE FROM boards WHERE id = ?")
+                .param(1, id).update() != 0;
     }
 
     /**
@@ -235,24 +233,25 @@ public class BoardService {
         final String query = locale == null
                 ? "SELECT id,title,description,created_by,"
                 + "created_at, modified_at, modified_by FROM boards "
-                : "SELECT\n"
-                + "    b.id,\n"
-                + "    COALESCE(bl.title, b.title) AS title,\n"
-                + "    COALESCE(bl.description, b.description) AS description,"
-                + "\n"
-                + "    b.created_at,\n"
-                + "    b.created_by,\n"
-                + "    b.modified_at,\n"
-                + "    b.modified_by\n"
-                + "FROM\n"
-                + "    boards b\n"
-                + "LEFT JOIN\n"
-                + "    boards_localized bl\n"
-                + "ON\n"
-                + "    b.id = bl.board_id\n"
-                + "    AND bl.locale = ?\n";
+                : """
+                 SELECT
+                    b.id,
+                    COALESCE(bl.title, b.title) AS title,
+                    COALESCE(bl.description, b.description) AS description,
+                    b.created_at,
+                    b.created_by,
+                    b.modified_at,
+                    b.modified_by
+                 FROM
+                    boards b
+                 LEFT JOIN
+                    boards_localized bl
+                 ON
+                    b.id = bl.board_id
+                    AND bl.locale = ?
+                    """;
         return locale == null
-                ? jdbcClient.sql(query).query(Board.class).list()
+                ? jdbcClient.sql(query).query(this::rowMapper).list()
                 : jdbcClient.sql(query)
                 .param(1, locale.getLanguage())
                 .query(Board.class).list();
@@ -269,17 +268,14 @@ public class BoardService {
      */
     public boolean attachGrade(final String userName, final UUID boardId,
                                final UUID gradeId) {
-        // Fill the values
-        final Map<String, Object> valueMap = new HashMap<>();
-
-        valueMap.put("board_id", boardId);
-        valueMap.put("grade_id", gradeId);
-
         String sql =
                 "INSERT INTO boards_grades(board_id, grade_id)"
-                        + "values(:board_id, :grade_id)";
+                        + "values(?, ?)";
 
-        return jdbcClient.sql(sql).params(valueMap).update() == 1;
+        return jdbcClient.sql(sql)
+                .param(1, boardId)
+                .param(2, gradeId)
+                .update() == 1;
     }
 
     /**
