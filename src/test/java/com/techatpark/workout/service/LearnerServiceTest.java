@@ -20,18 +20,19 @@ class LearnerServiceTest {
     private LearnerService learnerService;
 
     @BeforeEach
-    void before() {
+    void before() throws SQLException {
         cleanup();
     }
 
     @AfterEach
-    void after() {
+    void after() throws SQLException {
         cleanup();
     }
 
-    private void cleanup() {
+    private void cleanup() throws SQLException {
         learnerService.delete();
     }
+
     @Test
     void testSignUp() throws SQLException {
         learnerService.signUp(aSignupRequest(),
@@ -85,7 +86,7 @@ class LearnerServiceTest {
                 learnerService.readByEmail(EMAIL).get());
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            learnerService.update(HANDLE+"INVALID", learner);
+            learnerService.update(HANDLE + "INVALID", learner);
         });
     }
 

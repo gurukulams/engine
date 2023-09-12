@@ -4,274 +4,319 @@ import com.techatpark.workout.model.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The type Category service.
  */
 @Service
-public final class CategoryService {
+public class CategoryService {
 
     /**
-     * Logger Facade.
+     * Index.
      */
-    private final Logger logger =
-            LoggerFactory.getLogger(CategoryService.class);
-
+    private static final int INDEX_1 = 1;
     /**
-     * this helps to execute sql queries.
+     * Index.
      */
-    private final JdbcTemplate jdbcTemplate;
-
+    private static final int INDEX_2 = 2;
     /**
-     * this is the connection for the database.
+     * Index.
      */
-    private final DataSource dataSource;
+    private static final int INDEX_3 = 3;
+    /**
+     * Index.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index.
+     */
+    private static final int INDEX_6 = 6;
+    /**
+     * Logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(
+            CategoryService.class);
+    /**
+     * JdbcClient.
+     */
+    private final JdbcClient jdbcClient;
+    /**
+     * categories table.
+     */
+    private static final String CATEGORIES_TABLE = "categories";
+    /**
+     * categories_localized table.
+     */
+    private static final String CATEGORIES_LOCALIZED_TABLE =
+            "categories_localized";
 
     /**
-     * this is the constructor.
+     * Instantiates a new Category service.
      *
-     * @param anJdbcTemplate
-     * @param aDataSource
+     * @param aJdbcClient the jdbc client
      */
-    public CategoryService(
-            final JdbcTemplate anJdbcTemplate, final DataSource aDataSource) {
-        this.jdbcTemplate = anJdbcTemplate;
-        this.dataSource = aDataSource;
+    public CategoryService(final JdbcClient aJdbcClient) {
+        this.jdbcClient = aJdbcClient;
     }
 
-    /**
-     * Maps the data from and to the database.
-     *
-     * @param rs
-     * @param rowNum
-     * @return p
-     * @throws SQLException
-     */
-    private Category rowMapper(final ResultSet rs,
-                               final Integer rowNum)
+    private Category rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Category tag = new Category(
-                rs.getString("id"),
-                rs.getString("title"),
-                rs.getObject("created_at", LocalDateTime.class),
-                rs.getString("created_by"),
-                rs.getObject("modified_at", LocalDateTime.class),
-                rs.getString("modified_by"));
-        return tag;
+        Category category = new Category(
+                rs.getString(INDEX_1),
+                rs.getString(INDEX_2),
+                rs.getObject(INDEX_3, LocalDateTime.class),
+                rs.getString(INDEX_4),
+                rs.getObject(INDEX_5, LocalDateTime.class),
+                rs.getString(INDEX_6));
+
+        return category;
     }
 
     /**
-     * inserts data.
+     * Create category.
      *
-     * @param userName the userName
-     * @param locale
-     * @param tag      the tag
-     * @return question optional
+     * @param userName the user name
+     * @param locale   the locale
+     * @param category the category
+     * @return the category
      */
     public Category create(final String userName,
                            final Locale locale,
-                           final Category tag) {
+                           final Category category) {
+        final String insertCategoryQuery = """
+                INSERT INTO %s(id, title, created_by)
+                VALUES (?, ?, ?)
+                """.formatted(CATEGORIES_TABLE);
 
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("categories")
-                .usingColumns("id", "title",
-                        "created_by");
-
-        final Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("id", tag.id());
-        valueMap.put("title",
-                tag.title());
-        valueMap.put("created_by", userName);
-
-        insert.execute(valueMap);
+        final String categoryId = UUID.randomUUID().toString();
+        jdbcClient.sql(insertCategoryQuery)
+                .param(INDEX_1, categoryId)
+                .param(INDEX_2, category.title())
+                .param(INDEX_3, userName)
+                .update();
 
         if (locale != null) {
-            valueMap.put("category_id", tag.id());
-            valueMap.put("locale", locale.getLanguage());
-            createLocalizedTag(valueMap);
+            createLocalizedCategory(categoryId, category, locale);
         }
 
-        final Optional<Category> optionalCategory =
-                read(userName, tag.id(), locale);
+        return read(userName, locale, categoryId).get();
+    }
 
-        logger.info("Created Category {}", tag.id());
+    private int createLocalizedCategory(final String categoryId,
+                                        final Category category,
+                                        final Locale locale) {
+        final String insertLocalizedCategoryQuery = """
+                INSERT INTO %s(category_id, locale, title)
+                VALUES (?, ?, ?)
+                """.formatted(CATEGORIES_LOCALIZED_TABLE);
 
-        return optionalCategory.get();
+        return jdbcClient.sql(insertLocalizedCategoryQuery)
+                .param(INDEX_1, categoryId)
+                .param(INDEX_2, locale.getLanguage())
+                .param(INDEX_3, category.title())
+                .update();
     }
 
     /**
-     * Create Localized Category.
+     * Read optional.
      *
-     * @param valueMap
-     * @return noOfCategories
-     */
-    private int createLocalizedTag(final Map<String, Object> valueMap) {
-        return new SimpleJdbcInsert(dataSource)
-                .withTableName("categories_localized")
-                .usingColumns("category_id", "locale", "title")
-                .execute(valueMap);
-    }
-
-    /**
-     * reads from tag.
-     *
+     * @param userName the user name
+     * @param locale   the locale
      * @param id       the id
-     * @param userName the userName
-     * @param locale
-     * @return question optional
+     * @return the optional
      */
     public Optional<Category> read(final String userName,
-                                   final String id,
-                                   final Locale locale) {
-        final String query = locale == null
-                ? "SELECT id,title,created_by,"
-                + "created_at, modified_at, modified_by FROM categories "
-                + "WHERE id = ?"
-                : "SELECT DISTINCT b.ID, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.TITLE "
-                + "ELSE b.TITLE "
-                + "END AS TITLE, "
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM CATEGORIES b "
-                + "LEFT JOIN CATEGORIES_LOCALIZED bl "
-                + "ON b.ID = bl.category_id "
-                + "WHERE b.ID = ? "
-                + "AND (bl.LOCALE IS NULL "
-                + "OR bl.LOCALE = ? OR "
-                + "b.ID NOT IN "
-                + "(SELECT category_id FROM CATEGORIES_LOCALIZED "
-                + "WHERE category_id=b.ID AND LOCALE = ?))";
+                                   final Locale locale,
+                                   final String id) {
+        final String selectCategoryQuery = locale == null
+                ?
+                """
+                        SELECT id, title, created_at, created_by,
+                        modified_at, modified_by
+                        FROM %s
+                        WHERE id = ?
+                        """.formatted(CATEGORIES_TABLE)
+                :
+                """
+                        SELECT DISTINCT c.id,
+                            CASE WHEN cl.LOCALE = ?
+                                THEN cl.TITLE
+                                ELSE c.TITLE
+                            END AS TITLE,
+                            created_at, created_by, modified_at, modified_by
+                        FROM %s c
+                        LEFT JOIN %s cl ON c.ID = cl.CATEGORY_ID
+                        WHERE c.ID = ?
+                            AND (cl.LOCALE IS NULL
+                            OR cl.LOCALE = ?
+                            OR c.ID NOT IN (
+                                SELECT CATEGORY_ID
+                                FROM %s
+                                WHERE CATEGORY_ID = c.ID
+                                    AND LOCALE = ?
+                            ))
+                        """.formatted(CATEGORIES_TABLE,
+                        CATEGORIES_LOCALIZED_TABLE,
+                        CATEGORIES_LOCALIZED_TABLE);
 
         try {
-            final Category p = locale == null ? jdbcTemplate
-                    .queryForObject(query, this::rowMapper, id)
-                    : jdbcTemplate
-                    .queryForObject(query, this::rowMapper,
-                                    locale.getLanguage(),
-                                    id,
-                                    locale.getLanguage(),
-                                    locale.getLanguage());
-            return Optional.of(p);
+            return locale == null
+                    ?
+                    jdbcClient.sql(selectCategoryQuery)
+                            .param(INDEX_1, id)
+                            .query(this::rowMapper)
+                            .optional()
+                    :
+                    jdbcClient.sql(selectCategoryQuery)
+                            .param(INDEX_1, locale.getLanguage())
+                            .param(INDEX_2, id)
+                            .param(INDEX_3, locale.getLanguage())
+                            .param(INDEX_4, locale.getLanguage())
+                            .query(this::rowMapper)
+                            .optional();
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     /**
-     * update the tag.
+     * Update category.
      *
      * @param id       the id
-     * @param userName the userName
-     * @param locale
-     * @param tag      the tag
-     * @return question optional
+     * @param userName the user name
+     * @param locale   the locale
+     * @param category the category
+     * @return the category
      */
     public Category update(final String id,
                            final String userName,
                            final Locale locale,
-                           final Category tag) {
+                           final Category category) {
         logger.debug("Entering update for Category {}", id);
-        final String query = locale == null
-                ? "UPDATE categories SET title=?,"
-                + "modified_by=? WHERE id=?"
-                : "UPDATE categories SET modified_by=? WHERE id=?";
+        final String updateCategoryQuery = locale == null
+                ?
+                """
+                        UPDATE %s
+                        SET title = ?, modified_by = ?
+                        WHERE id = ?
+                        """.formatted(CATEGORIES_TABLE)
+                :
+                "UPDATE %s SET modified_by = ? WHERE id = ?"
+                        .formatted(CATEGORIES_TABLE);
+
         Integer updatedRows = locale == null
-                ? jdbcTemplate.update(query, tag.title(),
-                userName, id)
-                : jdbcTemplate.update(query, userName, id);
+                ?
+                jdbcClient.sql(updateCategoryQuery)
+                        .param(INDEX_1, category.title())
+                        .param(INDEX_2, userName)
+                        .param(INDEX_3, id)
+                        .update()
+                :
+                jdbcClient.sql(updateCategoryQuery)
+                        .param(INDEX_1, userName)
+                        .param(INDEX_2, id)
+                        .update();
+
         if (updatedRows == 0) {
             logger.error("Update not found", id);
             throw new IllegalArgumentException("Category not found");
         } else if (locale != null) {
-            updatedRows = jdbcTemplate.update(
-                    "UPDATE categories_localized SET title=?,locale=?"
-                            + " WHERE category_id=? AND locale=?",
-                    tag.title(), locale.getLanguage(),
-                    id, locale.getLanguage());
+            updatedRows = jdbcClient.sql("""
+                            UPDATE %s
+                            SET title = ?, locale = ?
+                            WHERE category_id = ?
+                            AND locale = ?
+                            """.formatted(CATEGORIES_LOCALIZED_TABLE))
+                    .param(INDEX_1, category.title())
+                    .param(INDEX_2, locale.getLanguage())
+                    .param(INDEX_3, id)
+                    .param(INDEX_4, locale.getLanguage())
+                    .update();
             if (updatedRows == 0) {
-                final Map<String, Object> valueMap = new HashMap<>(4);
-                valueMap.put("category_id", id);
-                valueMap.put("locale", locale.getLanguage());
-                valueMap.put("title", tag.title());
-                createLocalizedTag(valueMap);
+                createLocalizedCategory(id, category, locale);
             }
         }
-        return read(userName, id, locale).get();
+
+        return read(userName, locale, id).get();
     }
 
     /**
-     * delete the tag.
+     * Delete boolean.
      *
+     * @param userName the user name
      * @param id       the id
-     * @param userName the userName
-     * @return false
+     * @return the boolean
      */
     public Boolean delete(final String userName, final String id) {
-        String query = "DELETE FROM categories WHERE ID=?";
-
-        final Integer updatedRows = jdbcTemplate.update(query, id);
-        return !(updatedRows == 0);
+        final String deleteCategoryQuery =
+                "DELETE FROM %s WHERE id = ?".formatted(CATEGORIES_TABLE);
+        return jdbcClient.sql(deleteCategoryQuery)
+                .param(INDEX_1, id)
+                .update() != 0;
     }
 
-
     /**
-     * list of categories.
+     * List list.
      *
-     * @param userName the userName
-     * @param locale
-     * @return categories list
+     * @param userName the user name
+     * @param locale   the locale
+     * @return the list
      */
     public List<Category> list(final String userName,
                                final Locale locale) {
-        final String query = locale == null
-                ? "SELECT id,title,created_by,"
-                + "created_at, modified_at, modified_by FROM categories"
-                : "SELECT DISTINCT b.ID, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.TITLE "
-                + "ELSE b.TITLE "
-                + "END AS TITLE, "
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM CATEGORIES b "
-                + "LEFT JOIN CATEGORIES_LOCALIZED bl "
-                + "ON b.ID = bl.category_id "
-                + "WHERE bl.LOCALE IS NULL "
-                + "OR bl.LOCALE = ? OR "
-                + "b.ID NOT IN "
-                + "(SELECT category_id FROM CATEGORIES_LOCALIZED "
-                + "WHERE category_id=b.ID AND LOCALE = ?)";
+        final String listCategoryQuery = locale == null
+                ?
+                """
+                        SELECT id, title, created_at, created_by,
+                        modified_at, modified_by FROM %s
+                        """.formatted(CATEGORIES_TABLE)
+                :
+                """
+                        SELECT DISTINCT c.id,
+                            CASE WHEN cl.LOCALE = ?
+                                THEN cl.TITLE
+                                ELSE c.TITLE
+                            END AS TITLE,
+                            created_at, created_by, modified_at, modified_by
+                        FROM %s c
+                        LEFT JOIN %s cl ON c.ID = cl.CATEGORY_ID
+                        WHERE cl.LOCALE IS NULL
+                            OR cl.LOCALE = ?
+                        """.formatted(CATEGORIES_TABLE,
+                        CATEGORIES_LOCALIZED_TABLE);
+
         return locale == null
-                ? jdbcTemplate.query(query, this::rowMapper)
-                : jdbcTemplate
-                .query(query, this::rowMapper,
-                                locale.getLanguage(),
-                                locale.getLanguage(),
-                                locale.getLanguage());
+                ?
+                jdbcClient.sql(listCategoryQuery)
+                        .query(this::rowMapper)
+                        .list()
+                :
+                jdbcClient.sql(listCategoryQuery)
+                        .param(INDEX_1, locale.getLanguage())
+                        .query(this::rowMapper)
+                        .list();
     }
 
     /**
      * Cleaning up all categories.
-     *
-     * @return no.of categories deleted
      */
-    public Integer deleteAll() {
-        jdbcTemplate.update("DELETE FROM questions_categories");
-        jdbcTemplate.update("DELETE FROM categories_localized");
-        final String query = "DELETE FROM categories";
-        return jdbcTemplate.update(query);
+    public void deleteAll() {
+        jdbcClient.sql("DELETE FROM questions_categories").update();
+        jdbcClient.sql("DELETE FROM categories_localized").update();
+        jdbcClient.sql("DELETE FROM categories").update();
     }
 }

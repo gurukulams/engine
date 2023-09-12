@@ -4,336 +4,397 @@ import com.techatpark.workout.model.Grade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-
+/**
+ * The type Grade service.
+ */
 @Service
 public class GradeService {
 
     /**
-     * Logger Facade.
+     * Index.
      */
-    private final Logger logger =
-            LoggerFactory.getLogger(GradeService.class);
+    private static final int INDEX_1 = 1;
+    /**
+     * Index.
+     */
+    private static final int INDEX_2 = 2;
+    /**
+     * Index.
+     */
+    private static final int INDEX_3 = 3;
+    /**
+     * Index.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index.
+     */
+    private static final int INDEX_6 = 6;
+    /**
+     * Index.
+     */
+    private static final int INDEX_7 = 7;
+    /**
+     * grades table.
+     */
+    private static final String GRADES_TABLE = "grades";
+    /**
+     * grades_localized table.
+     */
+    private static final String GRADES_LOCALIZED_TABLE = "grades_localized";
+    /**
+     * Logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(GradeService.class);
+    /**
+     * JdbcClient.
+     */
+    private final JdbcClient jdbcClient;
 
     /**
-     * this helps to execute sql queries.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * this is the connection for the database.
-     */
-    private final DataSource dataSource;
-
-    /**
-     * this is the constructor.
+     * Instantiates a new Grade service.
      *
-     * @param ajdbcTemplate a jdbcTemplate
-     * @param adataSource   a dataSource
+     * @param aJdbcClient the jdbc client
      */
-    public GradeService(final JdbcTemplate ajdbcTemplate,
-                        final DataSource adataSource) {
-        this.jdbcTemplate = ajdbcTemplate;
-        this.dataSource = adataSource;
+    public GradeService(final JdbcClient aJdbcClient) {
+        this.jdbcClient = aJdbcClient;
     }
 
-    /**
-     * Maps the data from and to the database.
-     *
-     * @param rs
-     * @param rowNum
-     * @return p
-     * @throws SQLException
-     */
-    private Grade rowMapper(final ResultSet rs,
-                            final Integer rowNum)
+    private Grade rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Grade grade = new Grade((UUID)
-                rs.getObject("id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getObject("created_at", LocalDateTime.class),
-                rs.getString("created_by"),
-                rs.getObject("modified_at", LocalDateTime.class),
-                rs.getString("modified_by"));
+        Grade grade = new Grade((UUID) rs.getObject(INDEX_1),
+                rs.getString(INDEX_2),
+                rs.getString(INDEX_3),
+                rs.getObject(INDEX_4, LocalDateTime.class),
+                rs.getString(INDEX_5),
+                rs.getObject(INDEX_6, LocalDateTime.class),
+                rs.getString(INDEX_7));
 
         return grade;
     }
 
     /**
-     * creates new grade.
+     * Create grade.
      *
-     * @param userName the userName
-     * @param grade    the grade
+     * @param userName the user name
      * @param locale   the locale
-     * @return grade optional
+     * @param grade    the grade
+     * @return the grade
      */
     public Grade create(final String userName,
                         final Locale locale,
                         final Grade grade) {
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("grades")
-                .usingColumns("id", "title",
-                        "description", "created_by");
-
-        final Map<String, Object> valueMap = new HashMap<>();
-
-
-        valueMap.put("title", grade.title());
-        valueMap.put("description", grade.description());
-        valueMap.put("created_by", userName);
+        final String insertGradeQuery = """
+                INSERT INTO %s(id, title, description, created_by)
+                VALUES (?, ?, ?, ?)
+                """.formatted(GRADES_TABLE);
 
         final UUID gradeId = UUID.randomUUID();
-        valueMap.put("id", gradeId);
-        insert.execute(valueMap);
-
+        jdbcClient.sql(insertGradeQuery)
+                .param(INDEX_1, gradeId)
+                .param(INDEX_2, grade.title())
+                .param(INDEX_3, grade.description())
+                .param(INDEX_4, userName)
+                .update();
 
         if (locale != null) {
-            valueMap.put("grade_id", gradeId);
-            valueMap.put("locale", locale.getLanguage());
-            createLocalizedGrade(valueMap);
+            createLocalizedGrade(gradeId, grade, locale);
         }
 
-        final Optional<Grade> createdGrade =
-                read(userName, null, gradeId);
-
-        logger.info("grade Created {}", gradeId);
-
-        return createdGrade.get();
+        return read(userName, null, gradeId).get();
     }
 
+    private int createLocalizedGrade(final UUID gradeId,
+                                     final Grade grade,
+                                     final Locale locale) {
+        final String insertLocalizedGradeQuery = """
+                INSERT INTO %s(grade_id, locale, title, description)
+                VALUES (?, ?, ?, ?)
+                """.formatted(GRADES_LOCALIZED_TABLE);
 
-    /**
-     * Create Localized Grade.
-     *
-     * @param valueMap
-     * @return noOfGrades
-     */
-    private int createLocalizedGrade(final Map<String, Object> valueMap) {
-        return new SimpleJdbcInsert(dataSource)
-                .withTableName("grades_localized")
-                .usingColumns("grade_id", "locale", "title", "description")
-                .execute(valueMap);
+        return jdbcClient.sql(insertLocalizedGradeQuery)
+                .param(INDEX_1, gradeId)
+                .param(INDEX_2, locale.getLanguage())
+                .param(INDEX_3, grade.title())
+                .param(INDEX_4, grade.description())
+                .update();
     }
 
-
     /**
-     * reads from grade.
+     * Read optional.
      *
+     * @param userName the user name
+     * @param locale   the locale
      * @param id       the id
-     * @param userName the userName
-     * @param locale
-     * @return gread optional
+     * @return the optional
      */
     public Optional<Grade> read(final String userName,
                                 final Locale locale,
                                 final UUID id) {
-        final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM grades "
-                + "WHERE id = ?"
-                : "SELECT DISTINCT b.ID, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.TITLE "
-                + "ELSE b.TITLE "
-                + "END AS TITLE, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.DESCRIPTION "
-                + "ELSE b.DESCRIPTION "
-                + "END AS DESCRIPTION,"
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM GRADES b "
-                + "LEFT JOIN GRADES_LOCALIZED bl "
-                + "ON b.ID = bl.GRADE_ID "
-                + "WHERE b.ID = ? "
-                + "AND (bl.LOCALE IS NULL "
-                + "OR bl.LOCALE = ? OR "
-                + "b.ID NOT IN "
-                + "(SELECT GRADE_ID FROM GRADES_LOCALIZED "
-                + "WHERE GRADE_ID=b.ID AND LOCALE = ?))";
-
+        final String selectGradeQuery = locale == null
+                ?
+                """
+                        SELECT id, title, description, created_at, created_by,
+                        modified_at, modified_by
+                        FROM %s
+                        WHERE id = ?
+                        """.formatted(GRADES_TABLE)
+                :
+                """
+                        SELECT DISTINCT g.ID,
+                            CASE WHEN gl.LOCALE = ?
+                                THEN gl.TITLE
+                                ELSE g.TITLE
+                            END AS TITLE,
+                            CASE WHEN gl.LOCALE = ?
+                                THEN gl.DESCRIPTION
+                                ELSE g.DESCRIPTION
+                            END AS DESCRIPTION,
+                            created_at, created_by, modified_at, modified_by
+                        FROM %s g
+                        LEFT JOIN %s gl ON g.ID = gl.GRADE_ID
+                        WHERE g.ID = ?
+                            AND (gl.LOCALE IS NULL
+                            OR gl.LOCALE = ?
+                            OR g.ID NOT IN (
+                                SELECT GRADE_ID
+                                FROM %s
+                                WHERE GRADE_ID = g.ID
+                                    AND LOCALE = ?
+                            ))
+                        """.formatted(GRADES_TABLE, GRADES_LOCALIZED_TABLE,
+                        GRADES_LOCALIZED_TABLE);
 
         try {
-            final Grade p = locale == null ? jdbcTemplate
-                    .queryForObject(query, this::rowMapper, id)
-                    : jdbcTemplate
-                    .queryForObject(query, this::rowMapper,
-                                    locale.getLanguage(),
-                                    locale.getLanguage(),
-                                    id,
-                                    locale.getLanguage(),
-                                    locale.getLanguage());
-            return Optional.of(p);
+            return locale == null
+                    ?
+                    jdbcClient.sql(selectGradeQuery)
+                            .param(INDEX_1, id)
+                            .query(this::rowMapper)
+                            .optional()
+                    :
+                    jdbcClient.sql(selectGradeQuery)
+                            .param(INDEX_1, locale.getLanguage())
+                            .param(INDEX_2, locale.getLanguage())
+                            .param(INDEX_3, id)
+                            .param(INDEX_4, locale.getLanguage())
+                            .param(INDEX_5, locale.getLanguage())
+                            .query(this::rowMapper)
+                            .optional();
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
-
     }
 
     /**
-     * update the grade.
+     * Update grade.
      *
      * @param id       the id
-     * @param userName the userName
+     * @param userName the user name
+     * @param locale   the locale
      * @param grade    the grade
-     * @param locale
-     * @return grade optional
+     * @return the grade
      */
     public Grade update(final UUID id,
                         final String userName,
                         final Locale locale,
                         final Grade grade) {
         logger.debug("Entering update for Grade {}", id);
-        final String query = locale == null
-                ? "UPDATE grades SET title=?,"
-                + "description=?,modified_by=? WHERE id=?"
-                : "UPDATE grades SET modified_by=? WHERE id=?";
+        final String updateGradeQuery = locale == null
+                ?
+                """
+                        UPDATE %s
+                        SET title = ?, description = ?, modified_by = ?
+                        WHERE id = ?
+                        """.formatted(GRADES_TABLE)
+                :
+                "UPDATE %s SET modified_by = ? WHERE id = ?"
+                        .formatted(GRADES_TABLE);
+
         Integer updatedRows = locale == null
-                ? jdbcTemplate.update(query, grade.title(),
-                grade.description(), userName, id)
-                : jdbcTemplate.update(query, userName, id);
+                ?
+                jdbcClient.sql(updateGradeQuery)
+                        .param(INDEX_1, grade.title())
+                        .param(INDEX_2, grade.description())
+                        .param(INDEX_3, userName)
+                        .param(INDEX_4, id)
+                        .update()
+                :
+                jdbcClient.sql(updateGradeQuery)
+                        .param(INDEX_1, userName)
+                        .param(INDEX_2, id)
+                        .update();
+
         if (updatedRows == 0) {
             logger.error("Update not found", id);
             throw new IllegalArgumentException("Grade not found");
         } else if (locale != null) {
-            updatedRows = jdbcTemplate.update(
-                    "UPDATE grades_localized SET title=?,locale=?,"
-                            + "description=? WHERE grade_id=? AND locale=?",
-                    grade.title(), locale.getLanguage(),
-                    grade.description(), id, locale.getLanguage());
+            updatedRows = jdbcClient.sql("""
+                            UPDATE %s
+                            SET title = ?, locale = ?, description = ?
+                            WHERE grade_id = ?
+                            AND locale = ?
+                            """.formatted(GRADES_LOCALIZED_TABLE))
+                    .param(INDEX_1, grade.title())
+                    .param(INDEX_2, locale.getLanguage())
+                    .param(INDEX_3, grade.description())
+                    .param(INDEX_4, id)
+                    .param(INDEX_5, locale.getLanguage())
+                    .update();
             if (updatedRows == 0) {
-                final Map<String, Object> valueMap = new HashMap<>(4);
-                valueMap.put("grade_id", id);
-                valueMap.put("locale", locale.getLanguage());
-                valueMap.put("title", grade.title());
-                valueMap.put("description", grade.description());
-                createLocalizedGrade(valueMap);
+                createLocalizedGrade(id, grade, locale);
             }
         }
+
         return read(userName, locale, id).get();
     }
 
-
     /**
-     * delete the grade.
+     * Delete boolean.
      *
+     * @param userName the user name
      * @param id       the id
-     * @param userName the userName
-     * @return grade optional
+     * @return the boolean
      */
-    public Boolean delete(final String userName,
-                          final UUID id) {
-        final String query = "DELETE FROM grades WHERE id = ?";
-        final Integer updatedRows = jdbcTemplate.update(query, id);
-        return !(updatedRows == 0);
+    public Boolean delete(final String userName, final UUID id) {
+        final String deleteGradeQuery =
+                "DELETE FROM %s WHERE id = ?".formatted(GRADES_TABLE);
+        return jdbcClient.sql(deleteGradeQuery)
+                .param(INDEX_1, id)
+                .update() != 0;
     }
 
     /**
-     * list the grade.
+     * List list.
      *
-     * @param userName the userName
-     * @param locale
-     * @return grade optional
+     * @param userName the user name
+     * @param locale   the locale
+     * @return the list
      */
     public List<Grade> list(final String userName,
                             final Locale locale) {
-        final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM grades"
-                : "SELECT DISTINCT b.ID, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.TITLE "
-                + "ELSE b.TITLE "
-                + "END AS TITLE, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.DESCRIPTION "
-                + "ELSE b.DESCRIPTION "
-                + "END AS DESCRIPTION,"
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM grades b "
-                + "LEFT JOIN GRADES_LOCALIZED bl "
-                + "ON b.ID = bl.GRADE_ID "
-                + "WHERE bl.LOCALE IS NULL "
-                + "OR bl.LOCALE = ? OR "
-                + "b.ID NOT IN "
-                + "(SELECT GRADE_ID FROM GRADES_LOCALIZED "
-                + "WHERE GRADE_ID=b.ID AND LOCALE = ?)";
-        return locale == null
-                ? jdbcTemplate.query(query, this::rowMapper)
-                : jdbcTemplate
-                .query(query, this::rowMapper,
-                                locale.getLanguage(),
-                                locale.getLanguage(),
-                                locale.getLanguage(),
-                                locale.getLanguage());
+        final String listGradeQuery = locale == null
+                ?
+                """
+                        SELECT id, title, description, created_at,
+                        created_by, modified_at, modified_by FROM %s
+                        """.formatted(GRADES_TABLE)
+                :
+                """
+                        SELECT DISTINCT g.ID,
+                            CASE WHEN gl.LOCALE = ?
+                                THEN gl.TITLE
+                                ELSE g.TITLE
+                            END AS TITLE,
+                            CASE WHEN gl.LOCALE = ?
+                                THEN gl.DESCRIPTION
+                                ELSE g.DESCRIPTION
+                            END AS DESCRIPTION,
+                            created_at, created_by, modified_at, modified_by
+                        FROM %s g
+                        LEFT JOIN %s gl ON g.ID = gl.GRADE_ID
+                        WHERE gl.LOCALE IS NULL
+                            OR gl.LOCALE = ?
+                            OR g.ID NOT IN (
+                                SELECT GRADE_ID
+                                FROM %s
+                                WHERE GRADE_ID = g.ID
+                                    AND LOCALE = ?
+                            )
+                        """.formatted(GRADES_TABLE, GRADES_LOCALIZED_TABLE,
+                        GRADES_LOCALIZED_TABLE);
 
+        return locale == null
+                ?
+                jdbcClient.sql(listGradeQuery)
+                        .query(this::rowMapper)
+                        .list()
+                :
+                jdbcClient.sql(listGradeQuery)
+                        .param(INDEX_1, locale.getLanguage())
+                        .param(INDEX_2, locale.getLanguage())
+                        .param(INDEX_3, locale.getLanguage())
+                        .param(INDEX_4, locale.getLanguage())
+                        .query(this::rowMapper)
+                        .list();
     }
 
-
     /**
-     * list the grade by board.
+     * List grades by board.
      *
-     * @param userName the userName
-     * @param boardId  the boardId
-     * @param locale
-     * @return grade optional
+     * @param userName the user name
+     * @param locale   the locale
+     * @param boardId  the board id
+     * @return the list
      */
     public List<Grade> list(final String userName,
                             final Locale locale,
                             final UUID boardId) {
-        final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at,modified_at,modified_by FROM grades "
-                + "JOIN boards_grades ON grades.id=boards_grades.grade_id"
-                + " where boards_grades.board_id = ?"
-                : " SELECT DISTINCT g.ID, "
-                + "CASE WHEN gl.LOCALE = ? "
-                + "THEN gl.TITLE "
-                + "ELSE g.TITLE "
-                + "END AS TITLE, "
-                + "CASE WHEN gl.LOCALE = ? "
-                + "THEN gl.DESCRIPTION "
-                + "ELSE g.DESCRIPTION "
-                + "END AS DESCRIPTION,"
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM grades g "
-                + "LEFT JOIN GRADES_LOCALIZED gl "
-                + "ON g.ID = gl.GRADE_ID "
-                + "LEFT JOIN boards_grades bg "
-                + "ON g.id = bg.grade_id where bg.board_id = ?";
+        final String listGradeByBoardQuery = locale == null
+                ?
+                """
+                        SELECT id, title, description, created_at, created_by,
+                        modified_at, modified_by
+                        FROM grades
+                        JOIN boards_grades ON grades.id = boards_grades.grade_id
+                        WHERE boards_grades.board_id = ?
+                        """
+                :
+                """
+                        SELECT DISTINCT g.ID,
+                            CASE WHEN gl.LOCALE = ?
+                                THEN gl.TITLE
+                                ELSE g.TITLE
+                            END AS TITLE,
+                            CASE WHEN gl.LOCALE = ?
+                                THEN gl.DESCRIPTION
+                                ELSE g.DESCRIPTION
+                            END AS DESCRIPTION,
+                            created_at, created_by, modified_at, modified_by
+                        FROM grades g
+                        LEFT JOIN GRADES_LOCALIZED gl ON g.ID = gl.GRADE_ID
+                        LEFT JOIN boards_grades bg ON g.id = bg.grade_id
+                        WHERE bg.board_id = ?
+                        """;
+
         return locale == null
-                ? jdbcTemplate.query(query, this::rowMapper, boardId)
-                : jdbcTemplate
-                .query(query, this::rowMapper,
-                                locale.getLanguage(),
-                                locale.getLanguage(),
-                                boardId);
+                ?
+                jdbcClient.sql(listGradeByBoardQuery)
+                        .param(INDEX_1, boardId)
+                        .query(this::rowMapper)
+                        .list()
+                :
+                jdbcClient.sql(listGradeByBoardQuery)
+                        .param(INDEX_1, locale.getLanguage())
+                        .param(INDEX_2, locale.getLanguage())
+                        .param(INDEX_3, boardId)
+                        .query(this::rowMapper)
+                        .list();
     }
 
     /**
-     * Cleaning up all grades.
+     * Delete all.
      */
     public void deleteAll() {
-        jdbcTemplate.update("DELETE FROM boards_grades");
-        jdbcTemplate.update("DELETE FROM boards_grades_subjects");
-        jdbcTemplate.update("DELETE FROM boards_grades_subjects_books");
-        jdbcTemplate.update("DELETE FROM grades_localized");
-        jdbcTemplate.update("DELETE FROM grades");
+        jdbcClient.sql("DELETE FROM boards_grades").update();
+        jdbcClient.sql("DELETE FROM boards_grades_subjects").update();
+        jdbcClient.sql("DELETE FROM boards_grades_subjects_books").update();
+        jdbcClient.sql("DELETE FROM grades_localized").update();
+        jdbcClient.sql("DELETE FROM grades").update();
     }
-
-
 }

@@ -4,17 +4,13 @@ import com.techatpark.workout.model.Campus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,174 +21,193 @@ import java.util.UUID;
 public final class CampusService {
 
     /**
-     * Logger Facade.
+     * Index.
      */
-    private final Logger logger =
-            LoggerFactory.getLogger(CampusService.class);
-
+    private static final int INDEX_1 = 1;
+    /**
+     * Index.
+     */
+    private static final int INDEX_2 = 2;
+    /**
+     * Index.
+     */
+    private static final int INDEX_3 = 3;
+    /**
+     * Index.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index.
+     */
+    private static final int INDEX_6 = 6;
+    /**
+     * Index.
+     */
+    private static final int INDEX_7 = 7;
+    /**
+     * Logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(CampusService.class);
+    /**
+     * JdbcClient.
+     */
+    private final JdbcClient jdbcClient;
+    /**
+     * campuses table.
+     */
+    private static final String CAMPUSES_TABLE = "campuses";
 
     /**
-     * this helps to execute sql queries.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * this is the connection for the database.
-     */
-    private final DataSource dataSource;
-
-    /**
-     * this is the constructor.
+     * Constructor for CampusService.
      *
-     * @param anJdbcTemplate
-     * @param aDataSource
+     * @param aJdbcClient The JDBC client.
      */
-    public CampusService(
-            final JdbcTemplate anJdbcTemplate, final DataSource aDataSource) {
-        this.jdbcTemplate = anJdbcTemplate;
-        this.dataSource = aDataSource;
+    public CampusService(final JdbcClient aJdbcClient) {
+        this.jdbcClient = aJdbcClient;
     }
 
-    /**
-     * Maps the data from and to the database.
-     *
-     * @param rs
-     * @param rowNum
-     * @return p
-     * @throws SQLException
-     */
     private Campus rowMapper(final ResultSet rs,
-                                final Integer rowNum)
+                             final Integer rowNum)
             throws SQLException {
-
-
-        Campus campus = new Campus((UUID)
-                rs.getObject("id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getObject("created_at", LocalDateTime.class),
-                rs.getString("created_by"),
-                rs.getObject("modified_at", LocalDateTime.class),
-                rs.getString("modified_by"));
-
-        return campus;
+        return new Campus(
+                (UUID) rs.getObject(INDEX_1),
+                rs.getString(INDEX_2),
+                rs.getString(INDEX_3),
+                rs.getObject(INDEX_4, LocalDateTime.class),
+                rs.getString(INDEX_5),
+                rs.getObject(INDEX_6, LocalDateTime.class),
+                rs.getString(INDEX_7)
+        );
     }
 
     /**
-     * inserts data.
+     * Create campus.
      *
-     * @param userName  the userName
-     * @param campus the campus
-     * @return question optional
+     * @param userName the user name
+     * @param campus   the campus
+     * @return the campus
      */
     public Campus create(final String userName,
-                            final Campus campus) {
-
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("campuses")
-                .usingColumns("id", "title",
-                        "description",
-                        "created_by");
-
-        final Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("title",
-                campus.title());
-        valueMap.put("description", campus.description());
-        valueMap.put("created_by", userName);
+                         final Campus campus) {
+        final String insertCampusQuery = """
+                INSERT INTO %s(id, title, description, created_by)
+                VALUES (?, ?, ?, ?)
+                """.formatted(CAMPUSES_TABLE);
 
         final UUID campusId = UUID.randomUUID();
-        valueMap.put("id", campusId);
-        insert.execute(valueMap);
-        final Optional<Campus> createdCourse =
-                read(userName, campusId);
+        jdbcClient.sql(insertCampusQuery)
+                .param(INDEX_1, campusId)
+                .param(INDEX_2, campus.title())
+                .param(INDEX_3, campus.description())
+                .param(INDEX_4, userName)
+                .update();
 
-        logger.info("Created Campus {}", campusId);
-
-        return createdCourse.get();
+        return read(userName, campusId).get();
     }
 
-
     /**
-     * reads from campus.
+     * Read optional.
      *
+     * @param userName the user name
      * @param id       the id
-     * @param userName the userName
-     * @return question optional
+     * @return the optional
      */
     public Optional<Campus> read(final String userName, final UUID id) {
-        final String query = "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM campuses "
-                + "WHERE id = ?";
-
+        final String selectCampusQuery = """
+                SELECT id, title, description, created_at,
+                       created_by, modified_at, modified_by
+                FROM %s
+                WHERE id = ?
+                """.formatted(CAMPUSES_TABLE);
 
         try {
-            final Campus p = jdbcTemplate
-                    .queryForObject(query, this::rowMapper, id);
-            return Optional.of(p);
+            return jdbcClient.sql(selectCampusQuery)
+                    .param(INDEX_1, id)
+                    .query(this::rowMapper)
+                    .optional();
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     /**
-     * update the campus.
+     * Update campus.
      *
-     * @param id        the id
-     * @param userName  the userName
-     * @param campus the campus
-     * @return question optional
+     * @param id       the id
+     * @param userName the user name
+     * @param campus   the campus
+     * @return the campus
      */
     public Campus update(final UUID id,
-                            final String userName,
-                            final Campus campus) {
+                         final String userName,
+                         final Campus campus) {
         logger.debug("Entering Update for Campus {}", id);
-        final String query =
-                "UPDATE campuses SET title = ?,"
-                        + "description = ?, modified_by = ? WHERE id = ?";
-        final Integer updatedRows =
-                jdbcTemplate.update(query, campus.title(),
-                        campus.description(), userName, id);
+        final String updateCampusQuery = """
+                UPDATE %s
+                SET title = ?, description = ?, modified_by = ?
+                WHERE id = ?
+                """.formatted(CAMPUSES_TABLE);
+
+        Integer updatedRows = jdbcClient.sql(updateCampusQuery)
+                .param(INDEX_1, campus.title())
+                .param(INDEX_2, campus.description())
+                .param(INDEX_3, userName)
+                .param(INDEX_4, id)
+                .update();
+
         if (updatedRows == 0) {
             logger.error("Update not found {}", id);
             throw new IllegalArgumentException("Campus not found");
         }
+
         return read(userName, id).get();
     }
 
     /**
-     * delete the campus.
+     * Delete boolean.
      *
+     * @param userName the user name
      * @param id       the id
-     * @param userName the userName
-     * @return false
+     * @return the boolean
      */
     public Boolean delete(final String userName, final UUID id) {
-        String query = "DELETE FROM campuses WHERE ID=?";
-
-        final Integer updatedRows = jdbcTemplate.update(query, id);
-        return !(updatedRows == 0);
+        final String deleteCampusQuery =
+                "DELETE FROM %s WHERE id = ?".formatted(CAMPUSES_TABLE);
+        return jdbcClient.sql(deleteCampusQuery)
+                .param(INDEX_1, id)
+                .update() != 0;
     }
 
-
     /**
-     * list of campuses.
+     * List list.
      *
-     * @param userName the userName
-     * @return campuses list
+     * @param userName the user name
+     * @return the list
      */
     public List<Campus> list(final String userName) {
-        String query = "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM campuses";
-        return jdbcTemplate.query(query, this::rowMapper);
+        final String listCampusesQuery = """
+                SELECT id, title, description, created_at,
+                       created_by, modified_at, modified_by
+                FROM %s
+                """.formatted(CAMPUSES_TABLE);
+
+        return jdbcClient.sql(listCampusesQuery)
+                .query(this::rowMapper)
+                .list();
     }
 
     /**
-     * Cleaning up all campuses.
+     * Delete all integer.
      *
-     * @return no.of campuses deleted
+     * @return the integer
      */
     public Integer deleteAll() {
-        final String query = "DELETE FROM campuses";
-        return jdbcTemplate.update(query);
+        final String deleteAllCampusesQuery =
+                "DELETE FROM %s".formatted(CAMPUSES_TABLE);
+        return jdbcClient.sql(deleteAllCampusesQuery).update();
     }
 }

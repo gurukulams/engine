@@ -3,6 +3,7 @@ package com.techatpark.workout.service;
 import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.model.Handle;
 import com.gurukulams.core.store.HandleStore;
+import com.gurukulams.core.store.LearnerProfileStore;
 import com.gurukulams.core.store.LearnerStore;
 import com.techatpark.workout.model.AuthProvider;
 import com.techatpark.workout.model.Learner;
@@ -12,17 +13,15 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -41,21 +40,15 @@ public class LearnerService {
      * learnerStore.
      */
     private final LearnerStore learnerStore;
+    /**
+     * learnerProfileStore.
+     */
+    private final LearnerProfileStore learnerProfileStore;
 
     /**
      * handleStore.
      */
     private final HandleStore handleStore;
-
-    /**
-     * this is the connection for the database.
-     */
-    private final DataSource dataSource;
-    /**
-     * this helps to execute sql queries.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
     /**
      * Bean Validator.
      */
@@ -64,21 +57,16 @@ public class LearnerService {
     /**
      * this is the constructor.
      *
-     * @param anDataSource
-     * @param anJdbcTemplate
-     * @param gurukulamsManager
-     * @param pValidator
+     * @param gurukulamsManager the gurukulams manager
+     * @param pValidator        the p validator
      */
-    public LearnerService(final DataSource anDataSource,
-                          final JdbcTemplate anJdbcTemplate,
-                          final GurukulamsManager gurukulamsManager,
+    public LearnerService(final GurukulamsManager gurukulamsManager,
                           final Validator
                                   pValidator) {
-        this.dataSource = anDataSource;
-        this.jdbcTemplate = anJdbcTemplate;
         this.validator = pValidator;
         this.learnerStore = gurukulamsManager.getLearnerStore();
         this.handleStore = gurukulamsManager.getHandleStore();
+        this.learnerProfileStore = gurukulamsManager.getLearnerProfileStore();
     }
 
     /**
@@ -106,8 +94,9 @@ public class LearnerService {
     /**
      * Sigup an User.
      *
-     * @param signUpRequest
-     * @param encoderFunction
+     * @param signUpRequest   the sign up request
+     * @param encoderFunction the encoder function
+     * @throws SQLException the sql exception
      */
     @Transactional
     public void signUp(final SignupRequest signUpRequest,
@@ -120,10 +109,13 @@ public class LearnerService {
             Optional<Handle> handle = createHandle(userHandle);
             if (handle.isPresent()) {
                 create(
-                    new Learner(userHandle, signUpRequest.getEmail(),
-                        encoderFunction.apply(signUpRequest.getPassword()),
-                        signUpRequest.getImageUrl(),
-                        signUpRequest.getAuthProvider(), null, null));
+                        new Learner(userHandle, signUpRequest.getEmail(),
+                                encoderFunction
+                                        .apply(signUpRequest.getPassword()),
+                                signUpRequest.getImageUrl(),
+                                signUpRequest
+                                        .getAuthProvider(), null,
+                                null));
             }
         } else {
             StringBuilder sb = new StringBuilder();
@@ -132,7 +124,7 @@ public class LearnerService {
                 sb.append(constraintViolation.getMessage());
             }
             throw new ConstraintViolationException("Error occurred: "
-                    + sb.toString(), violations);
+                    + sb, violations);
         }
 
     }
@@ -148,46 +140,54 @@ public class LearnerService {
     }
 
     /**
-     * @param userHandle
-     * @return learner
+     * Read optional.
+     *
+     * @param userHandle the user handle
+     * @return learner optional
+     * @throws SQLException the sql exception
      */
     public Optional<Learner> read(final String userHandle) throws SQLException {
         return getLearner(this.learnerStore.select(userHandle));
     }
 
     /**
-     * @param email
-     * @return learner
+     * Read by email optional.
+     *
+     * @param email the email
+     * @return learner optional
      */
     public Optional<Learner> readByEmail(final String email) {
-        final String query =  "SELECT user_handle,email,pword,image_url,"
+        final String query = "SELECT user_handle,email,pword,image_url,"
                 + "provider"
                 + ",created_at, modified_at"
                 + " FROM learner WHERE email = ?";
 
         try {
-            final Learner p = jdbcTemplate.queryForObject(query,
-                    this::rowMapper, email);
-            return Optional.of(p);
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
+            return getLearner(learnerStore.selectByEmail(email));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
-     * @param userHandle
-     * @param learner
-     * @return learner
+     * Update learner.
+     *
+     * @param userHandle the user handle
+     * @param learner    the learner
+     * @return learner learner
+     * @throws SQLException the sql exception
      */
     public Learner update(final String userHandle,
                           final Learner learner) throws SQLException {
         logger.debug("Entering updating from learner {}", userHandle);
-        final String query = "UPDATE learner SET email=?,provider=?,"
-                + "pword=?,image_url=? WHERE user_handle=?";
-        final int updatedRows = jdbcTemplate.update(query,
-                learner.email(), learner.provider().toString(),
-                learner.password(),
-                learner.imageUrl(), userHandle);
+        com.gurukulams.core.model.Learner learnerModel =
+                new com.gurukulams.core.model.Learner();
+        learnerModel.setUserHandle(userHandle);
+        learnerModel.setProvider(learner.provider().toString());
+        learnerModel.setEmail(learner.email());
+        learnerModel.setPword(learner.password());
+        learnerModel.setImageUrl(learner.imageUrl());
+        final int updatedRows = learnerStore.update(learnerModel);
         if (updatedRows == 0) {
             logger.error("Learner not found to update {}", userHandle);
             throw new IllegalArgumentException("Learner not found");
@@ -213,11 +213,13 @@ public class LearnerService {
 
     /**
      * Deletes Learners.
+     *
+     * @throws SQLException the sql exception
      */
-    public void delete() {
-        jdbcTemplate.update("DELETE FROM LEARNER_PROFILE");
-        jdbcTemplate.update("DELETE FROM learner");
-        jdbcTemplate.update("DELETE FROM HANDLE WHERE type='Learner'");
+    public void delete() throws SQLException {
+        learnerProfileStore.delete().execute();
+        learnerStore.delete().execute();
+        handleStore.delete(HandleStore.type().eq("Learner")).execute();
 
     }
 

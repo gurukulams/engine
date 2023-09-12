@@ -4,17 +4,13 @@ import com.techatpark.workout.model.Degree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,32 +21,58 @@ import java.util.UUID;
 public final class DegreeService {
 
     /**
-     * Logger Facade.
+     * Index.
      */
-    private final Logger logger =
-            LoggerFactory.getLogger(DegreeService.class);
+    private static final int INDEX_1 = 1;
+    /**
+     * Index.
+     */
+    private static final int INDEX_2 = 2;
+    /**
+     * Index.
+     */
+    private static final int INDEX_3 = 3;
+    /**
+     * Index.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index.
+     */
+    private static final int INDEX_6 = 6;
+    /**
+     * Index.
+     */
+    private static final int INDEX_7 = 7;
+    /**
+     * grades table.
+     */
+    private static final String GRADES_TABLE = "grades";
+    /**
+     * grades_localized table.
+     */
+    private static final String GRADES_LOCALIZED_TABLE = "grades_localized";
+    /**
+     * Logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(DegreeService.class);
+    /**
+     * JdbcClient.
+     */
+    private final JdbcClient jdbcClient;
 
 
     /**
-     * this helps to execute sql queries.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * this is the connection for the database.
-     */
-    private final DataSource dataSource;
-
-    /**
-     * this is the constructor.
+     * Instantiates a new Degree service.
      *
-     * @param anJdbcTemplate
-     * @param aDataSource
+     * @param aJdbcClient the JDBC client
      */
-    public DegreeService(
-            final JdbcTemplate anJdbcTemplate, final DataSource aDataSource) {
-        this.jdbcTemplate = anJdbcTemplate;
-        this.dataSource = aDataSource;
+    public DegreeService(final JdbcClient aJdbcClient) {
+        this.jdbcClient = aJdbcClient;
     }
 
     /**
@@ -62,137 +84,155 @@ public final class DegreeService {
      * @throws SQLException
      */
     private Degree rowMapper(final ResultSet rs,
-                                final Integer rowNum)
+                             final Integer rowNum)
             throws SQLException {
-
-
         Degree degree = new Degree((UUID)
-                rs.getObject("id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getObject("created_at", LocalDateTime.class),
-                rs.getString("created_by"),
-                rs.getObject("modified_at", LocalDateTime.class),
-                rs.getString("modified_by"));
+                rs.getObject(INDEX_1),
+                rs.getString(INDEX_2),
+                rs.getString(INDEX_3),
+                rs.getObject(INDEX_4, LocalDateTime.class),
+                rs.getString(INDEX_5),
+                rs.getObject(INDEX_6, LocalDateTime.class),
+                rs.getString(INDEX_7));
 
         return degree;
     }
 
     /**
-     * inserts data.
+     * Inserts data.
      *
-     * @param userName  the userName
-     * @param degree the degree
-     * @return question optional
+     * @param userName the userName
+     * @param degree   the degree
+     * @return degree optional
      */
     public Degree create(final String userName,
-                            final Degree degree) {
-
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("degree")
-                .usingColumns("id", "title",
-                        "description",
-                        "created_by");
-
-        final Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("title",
-                degree.title());
-        valueMap.put("description", degree.description());
-        valueMap.put("created_by", userName);
+                         final Degree degree) {
+        String insertDegreeQuery = """
+                INSERT INTO degree (id, title, description, created_by)
+                VALUES (?, ?, ?, ?)
+                """;
 
         final UUID degreeId = UUID.randomUUID();
-        valueMap.put("id", degreeId);
-        insert.execute(valueMap);
-        final Optional<Degree> createdCourse =
-                read(userName, degreeId);
+        jdbcClient.sql(insertDegreeQuery)
+                .param(INDEX_1, degreeId)
+                .param(INDEX_2, degree.title())
+                .param(INDEX_3, degree.description())
+                .param(INDEX_4, userName)
+                .update();
+
+        final Optional<Degree> createdDegree = read(userName, degreeId);
 
         logger.info("Created Degree {}", degreeId);
 
-        return createdCourse.get();
+        return createdDegree.get();
     }
 
-
     /**
-     * reads from degree.
+     * Reads from degree.
      *
-     * @param id       the id
      * @param userName the userName
-     * @return question optional
+     * @param id       the id
+     * @return degree optional
      */
     public Optional<Degree> read(final String userName, final UUID id) {
-        final String query = "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM degree "
-                + "WHERE id = ?";
-
+        String readDegreeQuery = """
+                SELECT id, title, description, created_at,
+                created_by, modified_at, modified_by
+                FROM degree
+                WHERE id = ?
+                """;
 
         try {
-            final Degree p = jdbcTemplate
-                    .queryForObject(query, this::rowMapper, id);
-            return Optional.of(p);
+            return jdbcClient.sql(readDegreeQuery)
+                    .param(INDEX_1, id)
+                    .query(this::rowMapper)
+                    .optional();
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     /**
-     * update the degree.
+     * Update the degree.
      *
-     * @param id        the id
-     * @param userName  the userName
-     * @param degree the degree
-     * @return question optional
+     * @param id       the id
+     * @param userName the userName
+     * @param degree   the degree
+     * @return degree optional
      */
     public Degree update(final UUID id,
-                            final String userName,
-                            final Degree degree) {
+                         final String userName,
+                         final Degree degree) {
         logger.debug("Entering Update for Degree {}", id);
-        final String query =
-                "UPDATE degree SET title = ?,"
-                        + "description = ?, modified_by = ? WHERE id = ?";
-        final Integer updatedRows =
-                jdbcTemplate.update(query, degree.title(),
-                        degree.description(), userName, id);
+        String updateDegreeQuery = """
+                UPDATE degree
+                SET title = ?, description = ?, modified_by = ?
+                WHERE id = ?
+                """;
+
+        Integer updatedRows = jdbcClient.sql(updateDegreeQuery)
+                .param(INDEX_1, degree.title())
+                .param(INDEX_2, degree.description())
+                .param(INDEX_3, userName)
+                .param(INDEX_4, id)
+                .update();
+
         if (updatedRows == 0) {
             logger.error("Update not found {}", id);
             throw new IllegalArgumentException("Degree not found");
         }
+
         return read(userName, id).get();
     }
 
     /**
-     * delete the degree.
+     * Delete the degree.
      *
-     * @param id       the id
      * @param userName the userName
-     * @return false
+     * @param id       the id
+     * @return false boolean
      */
     public Boolean delete(final String userName, final UUID id) {
-        String query = "DELETE FROM degree WHERE ID=?";
+        String deleteDegreeQuery = """
+                DELETE FROM degree WHERE ID=?
+                """;
 
-        final Integer updatedRows = jdbcTemplate.update(query, id);
+        Integer updatedRows = jdbcClient.sql(deleteDegreeQuery)
+                .param(INDEX_1, id)
+                .update();
+
         return !(updatedRows == 0);
     }
 
-
     /**
-     * list of degree.
+     * List of degree.
      *
      * @param userName the userName
      * @return degree list
      */
     public List<Degree> list(final String userName) {
-        String query = "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM degree";
-        return jdbcTemplate.query(query, this::rowMapper);
+        String listDegreeQuery = """
+                SELECT id, title, description, created_at,
+                created_by, modified_at, modified_by
+                FROM degree
+                """;
+
+        return jdbcClient.sql(listDegreeQuery)
+                .query(this::rowMapper)
+                .list();
     }
 
     /**
      * Cleaning up all degree.
      *
-     * @return no.of degree deleted
+     * @return no. of degree deleted
      */
     public Integer deleteAll() {
-        final String query = "DELETE FROM degree";
-        return jdbcTemplate.update(query);
+        String deleteAllDegreesQuery = """
+                DELETE FROM degree
+                """;
+
+        return jdbcClient.sql(deleteAllDegreesQuery)
+                .update();
     }
 }

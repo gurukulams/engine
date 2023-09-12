@@ -4,18 +4,14 @@ import com.techatpark.workout.model.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,314 +22,388 @@ import java.util.UUID;
 public class SubjectService {
 
     /**
-     * Logger Facade.
+     * Index.
      */
-    private final Logger logger =
-            LoggerFactory.getLogger(SubjectService.class);
+    private static final int INDEX_1 = 1;
+    /**
+     * Index.
+     */
+    private static final int INDEX_2 = 2;
+    /**
+     * Index.
+     */
+    private static final int INDEX_3 = 3;
+    /**
+     * Index.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index.
+     */
+    private static final int INDEX_6 = 6;
+    /**
+     * Index.
+     */
+    private static final int INDEX_7 = 7;
+    /**
+     * subjects table.
+     */
+    private static final String SUBJECTS_TABLE = "subjects";
+    /**
+     * subjects_localized table.
+     */
+    private static final String SUBJECTS_LOCALIZED_TABLE = "subjects_localized";
+    /**
+     * Logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(SubjectService.class);
+    /**
+     * JdbcClient.
+     */
+    private final JdbcClient jdbcClient;
 
     /**
-     * this helps to execute sql queries.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * this is the connection for the database.
-     */
-    private final DataSource dataSource;
-
-    /**
-     * this is the constructor.
+     * Instantiates a new Subject service.
      *
-     * @param ajdbcTemplate a jdbcTemplate
-     * @param adataSource   a dataSource
+     * @param aJdbcClient the jdbc client
      */
-    public SubjectService(final JdbcTemplate ajdbcTemplate,
-                          final DataSource adataSource) {
-        this.jdbcTemplate = ajdbcTemplate;
-        this.dataSource = adataSource;
+    public SubjectService(final JdbcClient aJdbcClient) {
+        this.jdbcClient = aJdbcClient;
     }
 
-    /**
-     * Maps the data from and to the database.
-     *
-     * @param rs
-     * @param rowNum
-     * @return p
-     * @throws SQLException
-     */
-    private Subject rowMapper(final ResultSet rs,
-                              final Integer rowNum)
+    private Subject rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Subject subject = new Subject((UUID)
-                rs.getObject("id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getObject("created_at", LocalDateTime.class),
-                rs.getString("created_by"),
-                rs.getObject("modified_at", LocalDateTime.class),
-                rs.getString("modified_by"));
+        Subject subject = new Subject((UUID) rs.getObject(INDEX_1),
+                rs.getString(INDEX_2),
+                rs.getString(INDEX_3),
+                rs.getObject(INDEX_4, LocalDateTime.class),
+                rs.getString(INDEX_5),
+                rs.getObject(INDEX_6, LocalDateTime.class),
+                rs.getString(INDEX_7));
 
         return subject;
     }
 
     /**
-     * creates new subject.
+     * Create subject.
      *
-     * @param userName the userName
+     * @param userName the user name
      * @param locale   the locale
-     * @param subject  the syllabus
-     * @return syllabus optional
+     * @param subject  the subject
+     * @return the subject
      */
     public Subject create(final String userName,
                           final Locale locale,
                           final Subject subject) {
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("subjects")
-                .usingColumns("id", "title",
-                        "description", "created_by");
-
-        final Map<String, Object> valueMap = new HashMap<>();
-
-        valueMap.put("title", subject.title());
-        valueMap.put("description", subject.description());
-        valueMap.put("created_by", userName);
+        final String insertSubjectQuery = """
+                INSERT INTO %s(id, title, description, created_by)
+                VALUES (?, ?, ?, ?)
+                """.formatted(SUBJECTS_TABLE);
 
         final UUID subjectId = UUID.randomUUID();
-        valueMap.put("id", subjectId);
-        insert.execute(valueMap);
-
+        jdbcClient.sql(insertSubjectQuery)
+                .param(INDEX_1, subjectId)
+                .param(INDEX_2, subject.title())
+                .param(INDEX_3, subject.description())
+                .param(INDEX_4, userName)
+                .update();
 
         if (locale != null) {
-            valueMap.put("subject_id", subjectId);
-            valueMap.put("locale", locale.getLanguage());
-            createLocalizedSubject(valueMap);
+            createLocalizedSubject(subjectId, subject, locale);
         }
-        final Optional<Subject> createdSubjects =
-                read(userName, null, subjectId);
 
-        logger.info("Subject Created {}", subjectId);
+        return read(userName, null, subjectId).get();
+    }
 
-        return createdSubjects.get();
+    private int createLocalizedSubject(final UUID subjectId,
+                                       final Subject subject,
+                                       final Locale locale) {
+        final String insertLocalizedSubjectQuery = """
+                INSERT INTO %s(subject_id, locale, title, description)
+                VALUES (?, ?, ?, ?)
+                """.formatted(SUBJECTS_LOCALIZED_TABLE);
+
+        return jdbcClient.sql(insertLocalizedSubjectQuery)
+                .param(INDEX_1, subjectId)
+                .param(INDEX_2, locale.getLanguage())
+                .param(INDEX_3, subject.title())
+                .param(INDEX_4, subject.description())
+                .update();
     }
 
     /**
-     * Create Localized subject.
+     * Read optional.
      *
-     * @param valueMap
-     * @return noOfSubject
-     */
-    private int createLocalizedSubject(final Map<String, Object> valueMap) {
-        return new SimpleJdbcInsert(dataSource)
-                .withTableName("subjects_localized")
-                .usingColumns("subject_id", "locale", "title", "description")
-                .execute(valueMap);
-    }
-
-    /**
-     * reads from syllabus.
-     *
-     * @param id       the id
-     * @param userName the userName
+     * @param userName the user name
      * @param locale   the locale
-     * @return question optional
+     * @param id       the id
+     * @return the optional
      */
     public Optional<Subject> read(final String userName,
                                   final Locale locale,
                                   final UUID id) {
-        final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM subjects "
-                + "WHERE id = ?"
-                : "SELECT DISTINCT b.ID, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.TITLE "
-                + "ELSE b.TITLE "
-                + "END AS TITLE, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.DESCRIPTION "
-                + "ELSE b.DESCRIPTION "
-                + "END AS DESCRIPTION,"
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM SUBJECTS b "
-                + "LEFT JOIN SUBJECTS_LOCALIZED bl "
-                + "ON b.ID = bl.SUBJECT_ID "
-                + "WHERE b.ID = ? "
-                + "AND (bl.LOCALE IS NULL "
-                + "OR bl.LOCALE = ? OR "
-                + "b.ID NOT IN "
-                + "(SELECT SUBJECT_ID FROM SUBJECTS_LOCALIZED "
-                + "WHERE SUBJECT_ID=b.ID AND LOCALE = ?))";
+        final String selectSubjectQuery = locale == null
+                ?
+                """
+                        SELECT id, title, description, created_at, created_by,
+                        modified_at, modified_by
+                        FROM %s
+                        WHERE id = ?
+                        """.formatted(SUBJECTS_TABLE)
+                :
+                """
+                        SELECT DISTINCT s.ID,
+                            CASE WHEN sl.LOCALE = ?
+                                THEN sl.TITLE
+                                ELSE s.TITLE
+                            END AS TITLE,
+                            CASE WHEN sl.LOCALE = ?
+                                THEN sl.DESCRIPTION
+                                ELSE s.DESCRIPTION
+                            END AS DESCRIPTION,
+                            created_at, created_by, modified_at, modified_by
+                        FROM %s s
+                        LEFT JOIN %s sl ON s.ID = sl.SUBJECT_ID
+                        WHERE s.ID = ?
+                            AND (sl.LOCALE IS NULL
+                            OR sl.LOCALE = ?
+                            OR s.ID NOT IN (
+                                SELECT SUBJECT_ID
+                                FROM %s
+                                WHERE SUBJECT_ID = s.ID
+                                    AND LOCALE = ?
+                            ))
+                        """.formatted(SUBJECTS_TABLE, SUBJECTS_LOCALIZED_TABLE,
+                        SUBJECTS_LOCALIZED_TABLE);
 
         try {
-            final Subject p = locale == null ? jdbcTemplate
-                    .queryForObject(query, this::rowMapper, id)
-                    : jdbcTemplate
-                    .queryForObject(query, this::rowMapper,
-                                    locale.getLanguage(),
-                                    locale.getLanguage(),
-                                    id,
-                                    locale.getLanguage(),
-                                    locale.getLanguage());
-            return Optional.of(p);
+            return locale == null
+                    ?
+                    jdbcClient.sql(selectSubjectQuery)
+                            .param(INDEX_1, id)
+                            .query(this::rowMapper)
+                            .optional()
+                    :
+                    jdbcClient.sql(selectSubjectQuery)
+                            .param(INDEX_1, locale.getLanguage())
+                            .param(INDEX_2, locale.getLanguage())
+                            .param(INDEX_3, id)
+                            .param(INDEX_4, locale.getLanguage())
+                            .param(INDEX_5, locale.getLanguage())
+                            .query(this::rowMapper)
+                            .optional();
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     /**
-     * update the subjects.
+     * Update subject.
      *
      * @param id       the id
-     * @param userName the userName
+     * @param userName the user name
      * @param locale   the locale
-     * @param subject  the subjects
-     * @return question optional
+     * @param subject  the subject
+     * @return the subject
      */
     public Subject update(final UUID id,
                           final String userName,
                           final Locale locale,
                           final Subject subject) {
         logger.debug("Entering update for Subject {}", id);
-        final String query = locale == null
-                ? "UPDATE subjects SET title=?,"
-                + "description=?,modified_by=? WHERE id=?"
-                : "UPDATE subjects SET modified_by=? WHERE id=?";
+        final String updateSubjectQuery = locale == null
+                ?
+                """
+                        UPDATE %s
+                        SET title = ?, description = ?, modified_by = ?
+                        WHERE id = ?
+                        """.formatted(SUBJECTS_TABLE)
+                :
+                "UPDATE %s SET modified_by = ? WHERE id = ?"
+                        .formatted(SUBJECTS_TABLE);
+
         Integer updatedRows = locale == null
-                ? jdbcTemplate.update(query, subject.title(),
-                subject.description(), userName, id)
-                : jdbcTemplate.update(query, userName, id);
+                ?
+                jdbcClient.sql(updateSubjectQuery)
+                        .param(INDEX_1, subject.title())
+                        .param(INDEX_2, subject.description())
+                        .param(INDEX_3, userName)
+                        .param(INDEX_4, id)
+                        .update()
+                :
+                jdbcClient.sql(updateSubjectQuery)
+                        .param(INDEX_1, userName)
+                        .param(INDEX_2, id)
+                        .update();
+
         if (updatedRows == 0) {
             logger.error("Update not found", id);
             throw new IllegalArgumentException("Subject not found");
         } else if (locale != null) {
-            updatedRows = jdbcTemplate.update(
-                    "UPDATE subjects_localized SET title=?,locale=?,"
-                            + "description=? WHERE subject_id=? AND locale=?",
-                    subject.title(), locale.getLanguage(),
-                    subject.description(), id, locale.getLanguage());
+            updatedRows = jdbcClient.sql("""
+                            UPDATE %s
+                            SET title = ?, locale = ?, description = ?
+                            WHERE subject_id = ?
+                            AND locale = ?
+                            """.formatted(SUBJECTS_LOCALIZED_TABLE))
+                    .param(INDEX_1, subject.title())
+                    .param(INDEX_2, locale.getLanguage())
+                    .param(INDEX_3, subject.description())
+                    .param(INDEX_4, id)
+                    .param(INDEX_5, locale.getLanguage())
+                    .update();
             if (updatedRows == 0) {
-                final Map<String, Object> valueMap = new HashMap<>(4);
-                valueMap.put("subject_id", id);
-                valueMap.put("locale", locale.getLanguage());
-                valueMap.put("title", subject.title());
-                valueMap.put("description", subject.description());
-                createLocalizedSubject(valueMap);
+                createLocalizedSubject(id, subject, locale);
             }
         }
+
         return read(userName, locale, id).get();
     }
 
     /**
-     * delete the subject.
+     * Delete boolean.
      *
+     * @param userName the user name
      * @param id       the id
-     * @param userName the userName
-     * @return question optional
+     * @return the boolean
      */
     public Boolean delete(final String userName, final UUID id) {
-        final String query = "DELETE FROM subjects WHERE id = ?";
-        final Integer updatedRows = jdbcTemplate.update(query, id);
-        return !(updatedRows == 0);
+        final String deleteSubjectQuery =
+                "DELETE FROM %s WHERE id = ?".formatted(SUBJECTS_TABLE);
+        return jdbcClient.sql(deleteSubjectQuery)
+                .param(INDEX_1, id)
+                .update() != 0;
     }
 
     /**
-     * list the subject.
+     * List list.
      *
-     * @param userName the userName
+     * @param userName the user name
      * @param locale   the locale
-     * @return question optional
+     * @return the list
      */
     public List<Subject> list(final String userName,
                               final Locale locale) {
-        final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at, modified_at, modified_by FROM subjects"
-                : "SELECT DISTINCT b.ID, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.TITLE "
-                + "ELSE b.TITLE "
-                + "END AS TITLE, "
-                + "CASE WHEN bl.LOCALE = ? "
-                + "THEN bl.DESCRIPTION "
-                + "ELSE b.DESCRIPTION "
-                + "END AS DESCRIPTION,"
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM SUBJECTS b "
-                + "LEFT JOIN SUBJECTS_LOCALIZED bl "
-                + "ON b.ID = bl.SUBJECT_ID "
-                + "WHERE bl.LOCALE IS NULL "
-                + "OR bl.LOCALE = ? OR "
-                + "b.ID NOT IN "
-                + "(SELECT SUBJECT_ID FROM SUBJECTS_LOCALIZED "
-                + "WHERE SUBJECT_ID=b.ID AND LOCALE = ?)";
-        return locale == null
-                ? jdbcTemplate.query(query, this::rowMapper)
-                : jdbcTemplate
-                .query(query, this::rowMapper,
-                                locale.getLanguage(),
-                                locale.getLanguage(),
-                                locale.getLanguage(),
-                                locale.getLanguage());
+        final String listSubjectQuery = locale == null
+                ?
+                """
+                        SELECT id, title, description, created_at,
+                        created_by, modified_at, modified_by FROM %s
+                        """.formatted(SUBJECTS_TABLE)
+                :
+                """
+                        SELECT DISTINCT s.ID,
+                            CASE WHEN sl.LOCALE = ?
+                                THEN sl.TITLE
+                                ELSE s.TITLE
+                            END AS TITLE,
+                            CASE WHEN sl.LOCALE = ?
+                                THEN sl.DESCRIPTION
+                                ELSE s.DESCRIPTION
+                            END AS DESCRIPTION,
+                            created_at, created_by, modified_at, modified_by
+                        FROM %s s
+                        LEFT JOIN %s sl ON s.ID = sl.SUBJECT_ID
+                        WHERE sl.LOCALE IS NULL
+                            OR sl.LOCALE = ?
+                            OR s.ID NOT IN (
+                                SELECT SUBJECT_ID
+                                FROM %s
+                                WHERE SUBJECT_ID = s.ID
+                                    AND LOCALE = ?
+                            )
+                        """.formatted(SUBJECTS_TABLE, SUBJECTS_LOCALIZED_TABLE,
+                        SUBJECTS_LOCALIZED_TABLE);
 
+        return locale == null
+                ?
+                jdbcClient.sql(listSubjectQuery)
+                        .query(this::rowMapper)
+                        .list()
+                :
+                jdbcClient.sql(listSubjectQuery)
+                        .param(INDEX_1, locale.getLanguage())
+                        .param(INDEX_2, locale.getLanguage())
+                        .param(INDEX_3, locale.getLanguage())
+                        .param(INDEX_4, locale.getLanguage())
+                        .query(this::rowMapper)
+                        .list();
     }
 
-
     /**
-     * list the subject by grade and board.
+     * List subjects by grade and board.
      *
-     * @param userName the userName
+     * @param userName the user name
      * @param locale   the locale
-     * @param boardId  the grade
-     * @param gradeId  the grade
-     * @return syllabus optional
+     * @param boardId  the board id
+     * @param gradeId  the grade id
+     * @return the list
      */
     public List<Subject> list(final String userName,
                               final Locale locale,
                               final UUID boardId,
                               final UUID gradeId) {
-        final String query = locale == null
-                ? "SELECT id,title,description,created_by,"
-                + "created_at,modified_at,modified_by FROM subjects "
-                + "JOIN boards_grades_subjects ON subjects.id "
-                + "= boards_grades_subjects.subject_id "
-                + " where boards_grades_subjects.grade_id = ? "
-                + "AND "
-                + " boards_grades_subjects.board_id = ? "
-                : " SELECT DISTINCT s.ID, "
-                + "CASE WHEN sl.LOCALE = ? "
-                + "THEN sl.TITLE "
-                + "ELSE s.TITLE "
-                + "END AS TITLE, "
-                + "CASE WHEN sl.LOCALE = ? "
-                + "THEN sl.DESCRIPTION "
-                + "ELSE s.DESCRIPTION "
-                + "END AS DESCRIPTION,"
-                + "created_by,created_at, modified_at, modified_by "
-                + "FROM subjects s "
-                + "LEFT JOIN SUBJECTS_LOCALIZED sl "
-                + "ON s.id = sl.subject_id "
-                + "LEFT JOIN boards_grades_subjects bgs "
-                + "ON s.id = bgs.subject_id where bgs.grade_id = ? "
-                + "AND bgs.board_id = ?";
+        final String listSubjectByGradeQuery = locale == null
+                ?
+                """
+                        SELECT id, title, description, created_at,
+                        created_by, modified_at, modified_by
+                        FROM %s
+                        JOIN boards_grades_subjects ON %s.id =
+                        boards_grades_subjects.subject_id
+                        WHERE boards_grades_subjects.grade_id = ?
+                        AND boards_grades_subjects.board_id = ?
+                        """.formatted(SUBJECTS_TABLE, SUBJECTS_TABLE)
+                :
+                """
+                        SELECT DISTINCT s.ID,
+                            CASE WHEN sl.LOCALE = ?
+                                THEN sl.TITLE
+                                ELSE s.TITLE
+                            END AS TITLE,
+                            CASE WHEN sl.LOCALE = ?
+                                THEN sl.DESCRIPTION
+                                ELSE s.DESCRIPTION
+                            END AS DESCRIPTION,
+                            created_at, created_by, modified_at, modified_by
+                        FROM %s s
+                        LEFT JOIN %s sl ON s.ID = sl.SUBJECT_ID
+                        LEFT JOIN boards_grades_subjects bgs ON s.id =
+                        bgs.subject_id
+                        WHERE bgs.grade_id = ?
+                        AND bgs.board_id = ?
+                        """.formatted(SUBJECTS_TABLE, SUBJECTS_LOCALIZED_TABLE,
+                        SUBJECTS_LOCALIZED_TABLE);
+
         return locale == null
-                ? jdbcTemplate.query(query, this::rowMapper, gradeId, boardId)
-                : jdbcTemplate
-                .query(query, this::rowMapper,
-                                locale.getLanguage(),
-                                locale.getLanguage(),
-                                gradeId,
-                                boardId);
+                ?
+                jdbcClient.sql(listSubjectByGradeQuery)
+                        .param(INDEX_1, gradeId)
+                        .param(INDEX_2, boardId)
+                        .query(this::rowMapper)
+                        .list()
+                :
+                jdbcClient.sql(listSubjectByGradeQuery)
+                        .param(INDEX_1, locale.getLanguage())
+                        .param(INDEX_2, locale.getLanguage())
+                        .param(INDEX_3, gradeId)
+                        .param(INDEX_4, boardId)
+                        .query(this::rowMapper)
+                        .list();
     }
 
-
     /**
-     * Cleaning up all subjects.
+     * Delete all.
      */
     public void deleteAll() {
-        jdbcTemplate.update("DELETE FROM boards_grades_subjects");
-        jdbcTemplate.update("DELETE FROM boards_grades_subjects_books");
-        jdbcTemplate.update("DELETE FROM subjects_localized");
-        jdbcTemplate.update("DELETE FROM subjects");
-
+        jdbcClient.sql("DELETE FROM boards_grades_subjects").update();
+        jdbcClient.sql("DELETE FROM boards_grades_subjects_books").update();
+        jdbcClient.sql("DELETE FROM %s".formatted(SUBJECTS_LOCALIZED_TABLE))
+                .update();
+        jdbcClient.sql("DELETE FROM %s".formatted(SUBJECTS_TABLE)).update();
     }
 }

@@ -2,7 +2,7 @@ package com.techatpark.workout.service;
 
 import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,25 +17,24 @@ import java.util.stream.Collectors;
 public class AnswerService {
 
     /**
-     * * this is used to execute a connection with a database.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
      * question Service.
      */
     private final QuestionService questionService;
+    /**
+     * JdbcClient instance.
+     */
+    private final JdbcClient jdbcClient;
 
     /**
      * Constructs Answer Service.
      *
-     * @param aJdbcTemplate     the a jdbc template
      * @param anQuestionService the an question service
+     * @param aJdbcClient       the a jdbc client
      */
-    AnswerService(final JdbcTemplate aJdbcTemplate,
-                  final QuestionService anQuestionService) {
-        this.jdbcTemplate = aJdbcTemplate;
+    AnswerService(final QuestionService anQuestionService,
+                  final JdbcClient aJdbcClient) {
         this.questionService = anQuestionService;
+        this.jdbcClient = aJdbcClient;
     }
 
     /**
@@ -58,8 +57,8 @@ public class AnswerService {
                             "SELECT COUNT(*) FROM ( " + question.getAnswer()
                                     + " except " + answer
                                     + " ) AS TOTAL_ROWS";
-                    final Integer count = jdbcTemplate
-                            .queryForObject(verificationSQL, Integer.class);
+                    final Integer count = jdbcClient
+                            .sql(verificationSQL).query(Integer.class).single();
                     isRigntAnswer = (count == 0);
                     break;
                 case CHOOSE_THE_BEST:

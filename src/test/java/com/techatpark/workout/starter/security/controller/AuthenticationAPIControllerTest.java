@@ -25,12 +25,13 @@ import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class AuthenticationAPIControllerTest {
-    @Value(value="${local.server.port}")
+    @Value(value = "${local.server.port}")
     private int port;
 
     private final AuthenticationRequest signupRequest;
@@ -52,20 +53,20 @@ class AuthenticationAPIControllerTest {
 
     @DynamicPropertySource
     static void authProperties(DynamicPropertyRegistry registry) {
-        registry.add("app.auth.tokenExpirationMsec",() -> 1500);
+        registry.add("app.auth.tokenExpirationMsec", () -> 1500);
     }
 
     @BeforeEach
-    void before() {
+    void before() throws SQLException {
         cleanup();
     }
 
     @AfterEach
-    void after() {
+    void after() throws SQLException {
         cleanup();
     }
 
-    void cleanup() {
+    void cleanup() throws SQLException {
         learnerService.delete();
         this.webTestClient
                 .post()
@@ -84,11 +85,13 @@ class AuthenticationAPIControllerTest {
                 this.signupRequest.getUserName(),
                 this.signupRequest.getPassword());
 
-        AuthenticationResponse authenticationResponse = login(authenticationRequest);
+        AuthenticationResponse authenticationResponse =
+                login(authenticationRequest);
 
         getMe(authenticationResponse).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
-        authenticationResponse = register(authenticationRequest, authenticationResponse);
+        authenticationResponse = register(authenticationRequest,
+                authenticationResponse);
 
         getMe(authenticationResponse).isEqualTo(HttpStatus.OK.value());
 
@@ -142,9 +145,11 @@ class AuthenticationAPIControllerTest {
                 this.signupRequest.getUserName(),
                 this.signupRequest.getPassword());
 
-        AuthenticationResponse authenticationResponse = login(authenticationRequest);
+        AuthenticationResponse authenticationResponse =
+                login(authenticationRequest);
 
-        authenticationResponse = register(authenticationRequest, authenticationResponse);
+        authenticationResponse = register(authenticationRequest,
+                authenticationResponse);
 
         getMe(authenticationResponse).isEqualTo(HttpStatus.OK.value());
 
@@ -161,14 +166,18 @@ class AuthenticationAPIControllerTest {
                 this.signupRequest.getUserName(),
                 this.signupRequest.getPassword());
 
-        AuthenticationResponse authenticationResponse = login(authenticationRequest);
+        AuthenticationResponse authenticationResponse =
+                login(authenticationRequest);
 
-        AuthenticationResponse authenticationResponse1 = register(authenticationRequest, authenticationResponse);
+        AuthenticationResponse authenticationResponse1 =
+                register(authenticationRequest, authenticationResponse);
 
-        AssertionError error = Assertions.assertThrows(AssertionError.class, () -> {
-            register(authenticationRequest, authenticationResponse1);
-        });
-        Assertions.assertEquals("Status expected:<201 CREATED> but was:<401 UNAUTHORIZED>", error.getMessage());
+        AssertionError error = Assertions.assertThrows(AssertionError.class,
+                () -> {
+                    register(authenticationRequest, authenticationResponse1);
+                });
+        Assertions.assertEquals("Status expected:<201 CREATED> but was:<401 " +
+                "UNAUTHORIZED>", error.getMessage());
 
         authenticationResponse = login(authenticationRequest);
         logout(authenticationRequest, authenticationResponse).isEqualTo(HttpStatus.OK.value());
@@ -179,7 +188,8 @@ class AuthenticationAPIControllerTest {
         AuthenticationResponse authenticationResponse = this.webTestClient
                 .post()
                 .uri("/api/auth/login")
-                .body(Mono.just(authenticationRequest), AuthenticationRequest.class)
+                .body(Mono.just(authenticationRequest),
+                        AuthenticationRequest.class)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
@@ -201,7 +211,8 @@ class AuthenticationAPIControllerTest {
                 .post()
                 .uri("/api/auth/register")
                 .body(Mono.just(registrationRequest), RegistrationRequest.class)
-                .header("Authorization", "Bearer " + authenticationResponse.getRegistrationToken())
+                .header("Authorization",
+                        "Bearer " + authenticationResponse.getRegistrationToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
@@ -210,7 +221,8 @@ class AuthenticationAPIControllerTest {
                 .returnResult().getResponseBody();
     }
 
-    private StatusAssertions refresh(final String authToken, final String rToken) {
+    private StatusAssertions refresh(final String authToken,
+                                     final String rToken) {
         RefreshToken refreshToken = new RefreshToken(rToken);
         return this.webTestClient
                 .post()
@@ -226,8 +238,10 @@ class AuthenticationAPIControllerTest {
         return this.webTestClient
                 .post()
                 .uri("/api/auth/logout")
-                .body(Mono.just(authenticationRequest), AuthenticationRequest.class)
-                .header("Authorization", "Bearer " + authenticationResponse.getAuthToken())
+                .body(Mono.just(authenticationRequest),
+                        AuthenticationRequest.class)
+                .header("Authorization",
+                        "Bearer " + authenticationResponse.getAuthToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus();
@@ -237,7 +251,8 @@ class AuthenticationAPIControllerTest {
         return this.webTestClient
                 .get()
                 .uri("/api/auth/me")
-                .header("Authorization", "Bearer " + authenticationResponse.getAuthToken())
+                .header("Authorization",
+                        "Bearer " + authenticationResponse.getAuthToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus();
