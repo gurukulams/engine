@@ -185,11 +185,11 @@ public class BoardService {
         try {
             return locale == null
                     ? jdbcClient.sql(query).param(INDEX_1, id)
-                    .query(Board.class).optional()
+                    .query(this::rowMapper).optional()
                     : jdbcClient.sql(query)
                     .param(INDEX_1, locale.getLanguage())
                     .param(INDEX_2, id)
-                    .query(Board.class).optional();
+                    .query(this::rowMapper).optional();
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -260,27 +260,27 @@ public class BoardService {
                 ? "SELECT id,title,description,created_at,"
                 + "created_by, modified_at, modified_by FROM boards "
                 : """
-                 SELECT
-                    b.id,
-                    COALESCE(bl.title, b.title) AS title,
-                    COALESCE(bl.description, b.description) AS description,
-                    b.created_at,
-                    b.created_by,
-                    b.modified_at,
-                    b.modified_by
-                 FROM
-                    boards b
-                 LEFT JOIN
-                    boards_localized bl
-                 ON
-                    b.id = bl.board_id
-                    AND bl.locale = ?
-                    """;
+                SELECT
+                   b.id,
+                   COALESCE(bl.title, b.title) AS title,
+                   COALESCE(bl.description, b.description) AS description,
+                   b.created_at,
+                   b.created_by,
+                   b.modified_at,
+                   b.modified_by
+                FROM
+                   boards b
+                LEFT JOIN
+                   boards_localized bl
+                ON
+                   b.id = bl.board_id
+                   AND bl.locale = ?
+                   """;
         return locale == null
                 ? jdbcClient.sql(query).query(this::rowMapper).list()
                 : jdbcClient.sql(query)
                 .param(INDEX_1, locale.getLanguage())
-                .query(Board.class).list();
+                .query(this::rowMapper).list();
 
     }
 
