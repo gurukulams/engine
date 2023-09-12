@@ -198,6 +198,8 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/auth/login"),
                                 antMatcher("/api/auth/signup"),
                                 antMatcher("/api/auth/welcome"),
+                                antMatcher("/questions/**"),
+                                antMatcher("/ta/questions/*"),
                                 antMatcher("/practices/basic/index.html"),
                                 antMatcher("/ta/practices/basic/index.html"),
                                 antMatcher("/favicon.ico"),

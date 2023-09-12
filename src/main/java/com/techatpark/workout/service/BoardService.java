@@ -20,6 +20,34 @@ import java.util.UUID;
 public class BoardService {
 
     /**
+     * Index Number.
+     */
+    private static final int INDEX_1 = 1;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_2 = 2;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_3 = 3;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_6 = 6;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_7 = 7;
+    /**
      * Logger Facade.
      */
     private final Logger logger =
@@ -52,13 +80,13 @@ public class BoardService {
                             final Integer rowNum)
             throws SQLException {
         return new Board((UUID)
-                rs.getObject(1),
-                rs.getString(2),
-                rs.getString(3),
-                rs.getObject(4, LocalDateTime.class),
-                rs.getString(5),
-                rs.getObject(6, LocalDateTime.class),
-                rs.getString(7));
+                rs.getObject(INDEX_1),
+                rs.getString(INDEX_2),
+                rs.getString(INDEX_3),
+                rs.getObject(INDEX_4, LocalDateTime.class),
+                rs.getString(INDEX_5),
+                rs.getObject(INDEX_6, LocalDateTime.class),
+                rs.getString(INDEX_7));
     }
 
     /**
@@ -79,10 +107,10 @@ public class BoardService {
                 "INSERT INTO boards(id, title, description, "
                         + "created_by) values(?,?,?,?)";
         jdbcClient.sql(sql)
-                .param(1, boardId)
-                .param(2, board.title())
-                .param(3, board.description())
-                .param(4, userName)
+                .param(INDEX_1, boardId)
+                .param(INDEX_2, board.title())
+                .param(INDEX_3, board.description())
+                .param(INDEX_4, userName)
                 .update();
 
         if (locale != null) {
@@ -112,10 +140,10 @@ public class BoardService {
                 "INSERT INTO boards_localized(board_id, locale, title, "
                         + "description) values(?, ?, ?, ?)";
         return jdbcClient.sql(sql)
-                .param(1, boardId)
-                .param(2, locale.getLanguage())
-                .param(3, board.title())
-                .param(4, board.description())
+                .param(INDEX_1, boardId)
+                .param(INDEX_2, locale.getLanguage())
+                .param(INDEX_3, board.title())
+                .param(INDEX_4, board.description())
                 .update();
     }
 
@@ -156,11 +184,11 @@ public class BoardService {
 
         try {
             return locale == null
-                    ? jdbcClient.sql(query).param(1, id)
+                    ? jdbcClient.sql(query).param(INDEX_1, id)
                     .query(Board.class).optional()
                     : jdbcClient.sql(query)
-                    .param(1, locale.getLanguage())
-                    .param(2, id)
+                    .param(INDEX_1, locale.getLanguage())
+                    .param(INDEX_2, id)
                     .query(Board.class).optional();
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -216,7 +244,7 @@ public class BoardService {
      */
     public Boolean delete(final String userName, final UUID id) {
         return jdbcClient.sql("DELETE FROM boards WHERE id = ?")
-                .param(1, id).update() != 0;
+                .param(INDEX_1, id).update() != 0;
     }
 
     /**
@@ -251,7 +279,7 @@ public class BoardService {
         return locale == null
                 ? jdbcClient.sql(query).query(this::rowMapper).list()
                 : jdbcClient.sql(query)
-                .param(1, locale.getLanguage())
+                .param(INDEX_1, locale.getLanguage())
                 .query(Board.class).list();
 
     }
@@ -271,9 +299,9 @@ public class BoardService {
                         + "values(?, ?)";
 
         return jdbcClient.sql(sql)
-                .param(1, boardId)
-                .param(2, gradeId)
-                .update() == 1;
+                .param(INDEX_1, boardId)
+                .param(INDEX_2, gradeId)
+                .update() == INDEX_1;
     }
 
     /**
@@ -294,10 +322,10 @@ public class BoardService {
                         + " subject_id) values(?,?,?)";
 
         return jdbcClient.sql(sql)
-                .param(1, boardId)
-                .param(2, gradeId)
-                .param(3, subjectId)
-                .update() == 1;
+                .param(INDEX_1, boardId)
+                .param(INDEX_2, gradeId)
+                .param(INDEX_3, subjectId)
+                .update() == INDEX_1;
     }
 
     /**
@@ -321,11 +349,11 @@ public class BoardService {
                         + "book_id) values(?,?,?,?)";
 
         return jdbcClient.sql(sql)
-                .param(1, boardId)
-                .param(2, gradeId)
-                .param(3, subjectId)
-                .param(4, bookId)
-                .update() == 1;
+                .param(INDEX_1, boardId)
+                .param(INDEX_2, gradeId)
+                .param(INDEX_3, subjectId)
+                .param(INDEX_4, bookId)
+                .update() == INDEX_1;
     }
 
     /**

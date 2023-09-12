@@ -1,6 +1,8 @@
 package com.techatpark.workout.service;
 
 import com.techatpark.workout.model.Book;
+import com.techatpark.workout.model.Question;
+import com.techatpark.workout.model.QuestionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -41,17 +43,33 @@ public class BookService {
      */
     private final DataSource dataSource;
 
+    /**
+     * Service for Practices.
+     */
+    private final QuestionService questionService;
+
+
+    /**
+     * this helps to practiceService.
+     */
+    private final PracticeService practiceService;
 
     /**
      * Instantiates a new Book service.
      *
      * @param ajdbcTemplate       a jdbcTemplate
      * @param adataSource         a dataSource
+     * @param theQuestionService  the question service
+     * @param thePracticeService  the practice service
      */
     public BookService(final JdbcTemplate ajdbcTemplate,
-                       final DataSource adataSource) {
+                       final DataSource adataSource,
+                       final QuestionService theQuestionService,
+                       final PracticeService thePracticeService) {
         this.jdbcTemplate = ajdbcTemplate;
         this.dataSource = adataSource;
+        this.questionService = theQuestionService;
+        this.practiceService = thePracticeService;
     }
 
     /**
@@ -346,6 +364,89 @@ public class BookService {
         jdbcTemplate.update("DELETE FROM books_localized");
         jdbcTemplate.update("DELETE FROM books");
 
+    }
+
+    /**
+     * Read annotation optional.
+     *
+     * @param userName the username
+     * @param locale   the locale
+     * @param categories the categoriesPath
+     * @return the optional
+     */
+    public List<Question> listAllQuestions(final String userName,
+                                           final Locale locale,
+                                           final List<String> categories) {
+        return questionService.list(userName, locale, categories);
+
+    }
+
+    /**
+     * create the question.
+     *
+     * @param questionType the questionType
+     * @param question     question
+     * @param categories         categories
+     * @param tags
+     * @param locale       the locale
+     * @param createdBy    createdBy
+     * @return successflag boolean
+     */
+    public Optional<Question> createAQuestion(
+                                              final QuestionType questionType,
+                                              final Locale locale,
+                                              final String createdBy,
+                                              final Question question,
+                                              final List<String> categories,
+                                              final List<String> tags) {
+
+
+        return questionService.create(categories, tags,
+                questionType, locale,
+                createdBy, question);
+    }
+
+    //create a function to delete, it must done inside question service
+
+    /**
+     * delete the question.
+     *
+     * @param id           the id
+     * @param questionType the questionType
+     * @return successflag boolean
+     */
+    public Boolean deleteAQuestion(final UUID id,
+                                   final QuestionType questionType) {
+
+        return questionService.deleteAQuestion(id, questionType);
+    }
+
+    /**
+     * delete the questions of a book.
+     *
+     * @param bookPath the id
+     * @return successflag boolean
+     */
+    public Boolean deleteQuestionBank(final String bookPath) {
+
+        return practiceService.deleteQuestionBank(bookPath);
+    }
+
+    /**
+     * update the question.
+     *
+     * @param id           the id
+     * @param questionType the questionType
+     * @param question     question
+     * @param locale       the locale
+     * @return successflag boolean
+     */
+    public Optional<Question> updateQuestion(final UUID id,
+                                             final Locale locale,
+                                             final QuestionType questionType,
+                                             final Question question) {
+        return questionService.update(questionType, id, locale,
+                question);
     }
 
     //learner create method
