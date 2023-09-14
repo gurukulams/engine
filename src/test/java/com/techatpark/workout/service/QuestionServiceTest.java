@@ -25,6 +25,9 @@ class QuestionServiceTest {
     @Autowired
     private AnswerService answerService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     /**
      * Before.
      *
@@ -45,6 +48,7 @@ class QuestionServiceTest {
 
     private void cleanUp() {
         questionService.deleteAll();
+        categoryService.deleteAll();
     }
 
     @Test
@@ -55,7 +59,8 @@ class QuestionServiceTest {
         newMCQ.getChoices().get(0).setAnswer(true);
 
         // Create a Question
-        Optional<Question> question = questionService.create(List.of("c1","c2"),
+        Optional<Question> question = questionService.create(List.of("c1",
+                        "c2"),
                 null,
                 QuestionType.CHOOSE_THE_BEST,
                 null,
@@ -86,7 +91,8 @@ class QuestionServiceTest {
         newMCQ.getChoices().get(2).setAnswer(true);
 
         // Create a Question
-        Optional<Question> question = questionService.create(List.of("c1","c2"),
+        Optional<Question> question = questionService.create(List.of("c1",
+                        "c2"),
                 null,
                 QuestionType.MULTI_CHOICE,
                 null,
