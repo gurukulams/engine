@@ -771,10 +771,8 @@ public class QuestionService {
     public void deleteAll() {
 
         jdbcTemplate.update("DELETE FROM questions_categories");
-        jdbcTemplate.update("DELETE FROM categories");
 
         jdbcTemplate.update("DELETE FROM questions_tags");
-        jdbcTemplate.update("DELETE FROM tags");
 
         jdbcTemplate.update("DELETE FROM question_choices_localized");
         jdbcTemplate.update("DELETE FROM question_choices");
