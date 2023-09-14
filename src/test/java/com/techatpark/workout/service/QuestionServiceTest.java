@@ -48,7 +48,6 @@ class QuestionServiceTest {
 
     private void cleanUp() {
         questionService.deleteAll();
-        categoryService.deleteAll();
     }
 
     @Test
