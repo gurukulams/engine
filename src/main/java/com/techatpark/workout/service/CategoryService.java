@@ -102,7 +102,8 @@ public class CategoryService {
                 VALUES (?, ?, ?)
                 """.formatted(CATEGORIES_TABLE);
 
-        final String categoryId = UUID.randomUUID().toString();
+        final String categoryId = category.id() == null ?
+                UUID.randomUUID().toString() : category.id();
         jdbcClient.sql(insertCategoryQuery)
                 .param(INDEX_1, categoryId)
                 .param(INDEX_2, category.title())
