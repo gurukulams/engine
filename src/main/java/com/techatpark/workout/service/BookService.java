@@ -66,13 +66,6 @@ public class BookService {
      * Service for Practices.
      */
     private final QuestionService questionService;
-
-
-    /**
-     * this helps to practiceService.
-     */
-    private final PracticeService practiceService;
-
     /**
      * JdbcClient instance.
      */
@@ -83,13 +76,10 @@ public class BookService {
      *
      * @param aJdbcClient        aJdbcClient
      * @param theQuestionService the question service
-     * @param thePracticeService the practice service
      */
     public BookService(final QuestionService theQuestionService,
-                       final PracticeService thePracticeService,
                        final JdbcClient aJdbcClient) {
         this.questionService = theQuestionService;
-        this.practiceService = thePracticeService;
         this.jdbcClient = aJdbcClient;
     }
 
@@ -508,17 +498,6 @@ public class BookService {
                                    final QuestionType questionType) {
 
         return questionService.deleteAQuestion(id, questionType);
-    }
-
-    /**
-     * delete the questions of a book.
-     *
-     * @param bookPath the id
-     * @return successflag boolean
-     */
-    public Boolean deleteQuestionBank(final String bookPath) {
-
-        return practiceService.deleteQuestionBank(bookPath);
     }
 
     /**
