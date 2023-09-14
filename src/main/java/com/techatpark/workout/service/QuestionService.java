@@ -750,14 +750,13 @@ public class QuestionService {
             noOfRowsInserted = insert.execute(valueMap);
         } catch (final DataIntegrityViolationException e) {
             // Retry with Auto Create Category
-            Category category = new Category(categoryId,
+            Category category = this.categoryService.create(
+                    userName, null, new Category(categoryId,
                     categoryId.toUpperCase(), null, null,
-                    null, null);
-            this.categoryService.create(userName, null, category);
-
-            noOfRowsInserted = insert.execute(valueMap);
-
-
+                    null, null));
+            if (category != null) {
+                return attachCategories(userName, questionId, category.id());
+            }
         }
 
         // DataIntegrityViolationException

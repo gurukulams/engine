@@ -4,6 +4,7 @@ import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,14 +13,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 class QuestionServiceTest {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private AnswerService answerService;
 
     /**
      * Before.
@@ -44,19 +48,70 @@ class QuestionServiceTest {
     }
 
     @Test
-    void create() {
-        questionService.create(List.of("c1","c2"),
+    void testChooseTheBest() {
+
+        Question newMCQ = newMCQ();
+
+        newMCQ.getChoices().get(0).setAnswer(true);
+
+        // Create a Question
+        Optional<Question> question = questionService.create(List.of("c1","c2"),
                 null,
                 QuestionType.CHOOSE_THE_BEST,
                 null,
                 "sathish",
-                newMCQ());
+                newMCQ);
+
+        // Right Answer
+        Assertions.assertTrue(answerService.answer(question.get().getId(),
+                question.get().getChoices().stream()
+                        .filter(Choice::isAnswer)
+                        .findFirst().get().getId().toString()));
+
+        // Wrong Answer
+        Assertions.assertFalse(answerService.answer(question.get().getId(),
+                question.get().getChoices().stream()
+                        .filter(choice -> !choice.isAnswer())
+                        .findFirst().get().getId().toString()));
+
+
+    }
+
+    @Test
+    void testMultiChoice() {
+
+        Question newMCQ = newMCQ();
+
+        newMCQ.getChoices().get(0).setAnswer(true);
+        newMCQ.getChoices().get(2).setAnswer(true);
+
+        // Create a Question
+        Optional<Question> question = questionService.create(List.of("c1","c2"),
+                null,
+                QuestionType.MULTI_CHOICE,
+                null,
+                "sathish",
+                newMCQ);
+
+        // Right Answer
+        Assertions.assertTrue(answerService.answer(question.get().getId(),
+                question.get().getChoices().stream()
+                        .filter(Choice::isAnswer)
+                        .map(choice -> choice.getId().toString())
+                        .collect(Collectors.joining(","))));
+
+        // Wrong Answer
+        Assertions.assertFalse(answerService.answer(question.get().getId(),
+                question.get().getChoices().stream()
+                        .filter(choice -> !choice.isAnswer())
+                        .findFirst().get().getId().toString()));
+
+
     }
 
     Question newMCQ() {
         Question question = new Question();
         question.setQuestion("Choose 1");
-        question.setType(QuestionType.CHOOSE_THE_BEST);
         question.setExplanation("A Choose the best question");
         question.setChoices(new ArrayList<>());
 
