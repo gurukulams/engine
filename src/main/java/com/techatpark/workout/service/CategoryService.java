@@ -102,19 +102,18 @@ public class CategoryService {
                 VALUES (?, ?, ?)
                 """.formatted(CATEGORIES_TABLE);
 
-        final String categoryId = category.id() == null ?
-                UUID.randomUUID().toString() : category.id();
+
         jdbcClient.sql(insertCategoryQuery)
-                .param(INDEX_1, categoryId)
+                .param(INDEX_1, category.id())
                 .param(INDEX_2, category.title())
                 .param(INDEX_3, userName)
                 .update();
 
         if (locale != null) {
-            createLocalizedCategory(categoryId, category, locale);
+            createLocalizedCategory(category.id(), category, locale);
         }
 
-        return read(userName, locale, categoryId).get();
+        return read(userName, locale, category.id()).get();
     }
 
     private int createLocalizedCategory(final String categoryId,
