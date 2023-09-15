@@ -2,13 +2,20 @@ package com.techatpark.workout;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import com.tngtech.archunit.lang.syntax.elements.GivenClassesConjunction;
 import io.swagger.v3.oas.annotations.Operation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
@@ -28,40 +35,14 @@ public class ArchUnitTest {
     }
 
     @Test
-    public void servicesAreSecureByDesign() {
-        SERVICE_CLASSES.should()
-                .accessClassesThat()
-                .resideOutsideOfPackage("javax.validation")
-                .andShould().onlyDependOnClassesThat()
-                .resideInAnyPackage(
-                        "org.springframework.stereotype"
-                        , "org.springframework.security.core.userdetails"
-                        , "org.springframework.jdbc.core"
-                        , "org.springframework.security.crypto.bcrypt"
-                        , "org.springframework.security.authentication"
-                        , "com.techatpark.workout.starter.security.util"
-                        , "com.gurukulams.core.store"
-                        , "java.util.stream"
-                        , "javax.sql"
-                        , "java.sql.Date"
-                        , "java.sql.ResultSet"
-                        , "com.fasterxml.jackson.databind"
-                        , "org.springframework.jdbc.core.simple"
-                        , "org.slf4j"
-                        , "com.gurukulams.core"
-                        , "java.util"
-                        , "java.lang"
-                        , "jakarta.validation"
-                        , "jakarta.validation.constraints"
-                        , "..service.."
-                        , "..model.."
-                        , "..payload.."
-                        )
-                .because("Services should only be hexogonal")
-                .check(allClasses);
-
+    void servicesAreSecureByDesign() {
+        ArchRule no_access_to_jdbc = ArchRuleDefinition.noClasses().that()
+                .resideInAPackage("com.techatpark.workout.service")
+                .should().accessClassesThat()
+                .belongToAnyOf(JdbcTemplate.class)
+                .because("we should not use JDBC Template");
+        no_access_to_jdbc.check(allClasses);
     }
-
 
     @Test
     public void controllerMethodsReturnOnlyResponseEntities() {
