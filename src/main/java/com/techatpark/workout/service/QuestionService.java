@@ -9,11 +9,13 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 import jakarta.validation.Validator;
 import jakarta.validation.metadata.ConstraintDescriptor;
+import org.apache.commons.lang3.math.IEEE754rUtils;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +43,37 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionService {
     /**
-     * this helps to execute sql queries.
+     * Index.
      */
-    private final JdbcTemplate jdbcTemplate;
-
+    private static final int INDEX_1 = 1;
+    /**
+     * Index.
+     */
+    private static final int INDEX_2 = 2;
+    /**
+     * Index.
+     */
+    private static final int INDEX_3 = 3;
+    /**
+     * Index.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index.
+     */
+    private static final int INDEX_6 = 6;
+    /**
+     * Index.
+     */
+    private static final int INDEX_7 = 7;
+    /**
+     * Index.
+     */
+    private static final int INDEX_8 = 8;
     /**
      * this helps to practiceService.
      */
@@ -60,26 +89,30 @@ public class QuestionService {
      */
     private final DataSource dataSource;
     /**
+     * JdbcClient.
+     */
+    private final JdbcClient jdbcClient;
+    /**
      * Maps the data from and to the database. return question.
      */
     private final RowMapper<Question> rowMapper = (rs, rowNum) -> {
         final Question question = new Question();
-        question.setId((UUID) rs.getObject("id"));
-        question.setQuestion(rs.getString("question"));
-        question.setExplanation(rs.getString("explanation"));
-        question.setType(QuestionType.valueOf(rs.getString("type")));
-        question.setCreatedBy(rs.getString("created_by"));
-        question.setAnswer(rs.getString("answer"));
+        question.setId((UUID) rs.getObject(INDEX_1));
+        question.setQuestion(rs.getString(INDEX_2));
+        question.setExplanation(rs.getString(INDEX_3));
+        question.setType(QuestionType.valueOf(rs.getString(INDEX_4)));
+        question.setCreatedBy(rs.getString(INDEX_5));
+        question.setAnswer(rs.getString(INDEX_6));
 
 
-        LocalDate calendarDate = rs.getDate("created_at")
+        LocalDate calendarDate = rs.getDate(INDEX_7)
                 .toLocalDate();
         ZonedDateTime zdt = calendarDate.atStartOfDay(ZoneId
                 .of("Europe/Paris"));
 
 
         question.setCreatedAt(zdt.toInstant());
-        Date sqlDate = rs.getDate("modified_at");
+        Date sqlDate = rs.getDate(INDEX_8);
 
         if (sqlDate != null) {
             calendarDate = sqlDate.toLocalDate();
@@ -94,9 +127,9 @@ public class QuestionService {
     private final RowMapper<Choice> rowMapperQuestionChoice = (
             rs, rowNum) -> {
         final Choice choice = new Choice();
-        choice.setId((UUID) rs.getObject("id"));
-        choice.setValue(rs.getString("c_value"));
-        choice.setAnswer(rs.getBoolean("is_answer"));
+        choice.setId((UUID) rs.getObject(INDEX_1));
+        choice.setValue(rs.getString(INDEX_2));
+        choice.setAnswer(rs.getBoolean(INDEX_3));
         // https://docs.oracle.com/javase/7/docs/api/java/sql
         // /ResultSet.html#wasNull%28%29
         if (rs.wasNull()) {
@@ -108,31 +141,31 @@ public class QuestionService {
     /**
      * initializes.
      *
-     * @param aJdbcTemplate    the a jdbc template
+     * @param aJdbcClient      a jdbcClient
      * @param aCategoryService the practiceservice
      * @param aValidator       thevalidator
      * @param aDataSource      the a data source
      */
-    public QuestionService(final JdbcTemplate aJdbcTemplate,
-                           final CategoryService aCategoryService,
+    public QuestionService(final CategoryService aCategoryService,
                            final Validator aValidator,
-                           final DataSource aDataSource) {
-        this.jdbcTemplate = aJdbcTemplate;
+                           final DataSource aDataSource,
+                           final JdbcClient aJdbcClient) {
         this.categoryService = aCategoryService;
         this.validator = aValidator;
         this.dataSource = aDataSource;
+        this.jdbcClient = aJdbcClient;
     }
 
 
     /**
      * inserts data.
      *
-     * @param categories      the categories
-     * @param type      the type
+     * @param categories the categories
+     * @param type       the type
      * @param tags
-     * @param locale    the locale
-     * @param createdBy the createdBy
-     * @param question  the question
+     * @param locale     the locale
+     * @param createdBy  the createdBy
+     * @param question   the question
      * @return question optional
      */
     @Transactional
@@ -147,33 +180,34 @@ public class QuestionService {
         Set<ConstraintViolation<Question>> violations =
                 getViolations(question);
         if (violations.isEmpty()) {
-            final SimpleJdbcInsert insert =
-                    new SimpleJdbcInsert(dataSource)
-                            .withTableName("questions")
-                            .usingColumns("id",
-                                    "question", "explanation",
-                                    "type",
-                                    "created_By", "answer");
-
-            final Map<String, Object> valueMap = new HashMap<>();
-            valueMap.put("question", question.getQuestion());
-            valueMap.put("explanation", question.getExplanation());
-            valueMap.put("type", type);
-            valueMap.put("created_by", createdBy);
-            valueMap.put("answer", question.getAnswer());
-
             final UUID id = UUID.randomUUID();
-            valueMap.put("id", id);
-            insert.execute(valueMap);
+
+            final String insertQuery = """
+                    INSERT INTO questions(id, question, explanation, type,
+                    created_By, answer)
+                    VALUES(?, ?, ?, ?, ?, ?)
+                    """;
+            jdbcClient.sql(insertQuery)
+                    .param(INDEX_1, id)
+                    .param(INDEX_2, question.getQuestion())
+                    .param(INDEX_3, question.getExplanation())
+                    .param(INDEX_4, type.toString())
+                    .param(INDEX_5, createdBy)
+                    .param(INDEX_6, question.getAnswer())
+                    .update();
 
             if (locale != null) {
-                valueMap.put("question_id", id);
-                valueMap.put("locale", locale.getLanguage());
-                new SimpleJdbcInsert(dataSource)
-                        .withTableName("questions_localized")
-                        .usingColumns("question_id",
-                                "locale", "question", "explanation")
-                        .execute(valueMap);
+                final String insertQueryLocalized = """
+                        INSERT INTO questions_localized(question_id, locale,
+                        question, explanation)
+                        VALUES(?, ?, ?, ?)
+                            """;
+                jdbcClient.sql(insertQueryLocalized)
+                        .param(INDEX_1, id)
+                        .param(INDEX_2, locale.getLanguage())
+                        .param(INDEX_3, question.getQuestion())
+                        .param(INDEX_4, question.getExplanation())
+                        .update();
             }
 
             if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
@@ -194,24 +228,21 @@ public class QuestionService {
     private void createChoice(final Choice choice,
                               final Locale locale,
                               final UUID questionId) {
-        final SimpleJdbcInsert insertQuestionChoice =
-                new SimpleJdbcInsert(dataSource)
-                        .withTableName("question_choices")
-                        .usingColumns("id", "question_id",
-                                "c_value", "is_answer");
-
-
-        Map<String, Object> valueMapQuestionChoice =
-                new HashMap<>();
-        valueMapQuestionChoice.put("question_id", questionId);
-        valueMapQuestionChoice.put("c_value", choice.getValue());
-        valueMapQuestionChoice.put("is_answer",
-                choice.isAnswer() != null && choice.isAnswer());
-
         UUID choiceId = UUID.randomUUID();
-        valueMapQuestionChoice.put("id", choiceId);
-        insertQuestionChoice
-                .execute(valueMapQuestionChoice);
+
+
+        final String query = """
+                INSERT INTO question_choices(id, question_id, c_value,
+                is_answer)
+                VALUES(?, ?, ?, ?)
+                """;
+        jdbcClient.sql(query)
+                .param(INDEX_1, choiceId)
+                .param(INDEX_2, questionId)
+                .param(INDEX_3, choice.getValue())
+                .param(INDEX_4,
+                        choice.isAnswer() != null && choice.isAnswer())
+                .update();
 
         if (locale != null) {
             choice.setId(choiceId);
@@ -223,11 +254,16 @@ public class QuestionService {
 
     private void saveLocalizedChoice(final Locale locale,
                                      final Choice choice) {
-        final String query = "UPDATE question_choices_localized SET "
-                + "c_value = ?"
-                + " WHERE choice_id = ? AND locale = ?";
-        int updatedRows = jdbcTemplate.update(query, choice.getValue(),
-                choice.getId(), locale.getLanguage());
+        final String query = """
+                UPDATE question_choices_localized
+                SET c_value = ?
+                WHERE choice_id = ? AND locale = ?
+                """;
+
+        int updatedRows = jdbcClient.sql(query)
+                .param(INDEX_1, choice.getValue())
+                .param(INDEX_2, choice.getId())
+                .param(INDEX_3, locale.getLanguage()).update();
         if (updatedRows == 0) {
             createLocalizedChoice(locale, choice);
         }
@@ -235,18 +271,16 @@ public class QuestionService {
 
     private void createLocalizedChoice(final Locale locale,
                                        final Choice choice) {
-        final SimpleJdbcInsert insertLocalizedQuestionChoice =
-                new SimpleJdbcInsert(dataSource)
-                        .withTableName("question_choices_localized")
-                        .usingColumns("choice_id",
-                                "locale", "c_value");
-        Map<String, Object> valueMapQuestionChoice =
-                new HashMap<>();
-        valueMapQuestionChoice.put("choice_id", choice.getId());
-        valueMapQuestionChoice.put("locale", locale.getLanguage());
-        valueMapQuestionChoice.put("c_value", choice.getValue());
-        insertLocalizedQuestionChoice
-                .execute(valueMapQuestionChoice);
+        String query = """
+                INSERT INTO question_choices_localized(
+                choice_id, locale, c_value)
+                VALUES(?, ?, ?)
+                """;
+        jdbcClient.sql(query)
+                .param(INDEX_1, choice.getId())
+                .param(INDEX_2, locale.getLanguage())
+                .param(INDEX_3, choice.getValue())
+                .update();
     }
 
     private void createChoices(final List<Choice> choices,
@@ -269,12 +303,12 @@ public class QuestionService {
                                             final UUID questionId,
                                             final Locale locale) {
         final String query = locale == null
-                ? "SELECT id,question_id,c_value,"
+                ? "SELECT id, c_value,"
                 + (isOwner ? "is_answer" : "NULL")
                 + " AS is_answer"
                 + " FROM question_choices WHERE"
                 + " question_id = ?"
-                : "SELECT id,question_id,"
+                : "SELECT id,"
                 + "CASE WHEN qcl.LOCALE = ? "
                 + "THEN qcl.c_value "
                 + "ELSE qc.c_value "
@@ -290,12 +324,15 @@ public class QuestionService {
                 + "question_choices_localized WHERE "
                 + "choice_id=qc.ID AND LOCALE = ?))";
         return locale == null
-                ? jdbcTemplate.query(query, rowMapperQuestionChoice,
-                questionId)
-                : jdbcTemplate.query(query,
-                rowMapperQuestionChoice, locale.getLanguage(),
-                questionId, locale.getLanguage(),
-                locale.getLanguage());
+                ?
+                jdbcClient.sql(query).param(INDEX_1, questionId)
+                        .query(rowMapperQuestionChoice).list()
+                : jdbcClient.sql(query)
+                .param(INDEX_1, locale.getLanguage())
+                .param(INDEX_2, questionId)
+                .param(INDEX_3, locale.getLanguage())
+                .param(INDEX_4, locale.getLanguage())
+                .query(rowMapperQuestionChoice).list();
     }
 
     /**
@@ -308,38 +345,40 @@ public class QuestionService {
     public Optional<Question> read(final UUID id,
                                    final Locale locale) {
         final String query = locale == null
-                ? "SELECT id,question,explanation"
-                + ",created_by,type,"
-                + "answer,created_at,modified_at FROM "
-                + "questions WHERE"
-                + " id = ?"
-                : "SELECT id,"
-                + "CASE WHEN ql.LOCALE = ? "
-                + "THEN ql.question "
-                + "ELSE q.question "
-                + "END AS question,"
-                + "CASE WHEN ql.LOCALE = ? "
-                + "THEN ql.explanation "
-                + "ELSE q.explanation "
-                + "END AS explanation,"
-                + "created_by,type,"
-                + "answer,created_at,modified_at FROM "
-                + "questions q LEFT JOIN questions_localized ql ON "
-                + "q.ID = ql.QUESTION_ID WHERE"
-                + " q.id = ? "
-                + "AND (ql.LOCALE IS NULL "
-                + "OR ql.LOCALE = ? OR "
-                + "q.ID NOT IN "
-                + "(SELECT question_id FROM questions_localized "
-                + "WHERE QUESTION_ID=q.ID AND LOCALE = ?))";
+                ? """
+                SELECT id, question, explanation, type, created_by, answer,
+                created_at, modified_at
+                FROM questions
+                WHERE id = ?
+                """
+                : """
+                SELECT id,
+                       CASE WHEN ql.LOCALE = ?
+                       THEN ql.question ELSE q.question END AS question,
+                       CASE WHEN ql.LOCALE = ?
+                       THEN ql.explanation ELSE q.explanation END AS explanation,
+                       type, created_by, answer, created_at, modified_at
+                FROM questions q
+                LEFT JOIN questions_localized ql ON q.ID = ql.QUESTION_ID
+                WHERE q.id = ?
+                AND (ql.LOCALE IS NULL OR ql.LOCALE = ? OR q.ID NOT IN (
+                    SELECT question_id
+                    FROM questions_localized
+                    WHERE QUESTION_ID = q.ID AND LOCALE = ?
+                ))
+                """;
+
         try {
 
-            Question question = locale == null ? jdbcTemplate
-                    .queryForObject(query, rowMapper, id)
-                    : jdbcTemplate
-                    .queryForObject(query, rowMapper, locale.getLanguage(),
-                                    locale.getLanguage(),
-                            id, locale.getLanguage(), locale.getLanguage());
+            Question question = locale == null ? jdbcClient
+                    .sql(query).param(INDEX_1, id).query(rowMapper).single()
+                    : jdbcClient
+                    .sql(query).param(INDEX_1, locale.getLanguage())
+                    .param(INDEX_2, locale.getLanguage())
+                    .param(INDEX_3, id)
+                    .param(INDEX_4, locale.getLanguage())
+                    .param(INDEX_5, locale.getLanguage())
+                    .query(rowMapper).single();
 
             if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
                     || question.getType().equals(QuestionType.MULTI_CHOICE))) {
@@ -371,21 +410,30 @@ public class QuestionService {
                 getViolations(question);
         if (violations.isEmpty()) {
             final String query = locale == null
-                    ? "UPDATE questions SET "
-                    + "question = ?,explanation = ?, answer = ?,"
-                    + "modified_at=CURRENT_TIMESTAMP"
-                    + " WHERE id = ? AND type = ? "
-                    : "UPDATE questions SET "
-                    + "answer = ?,"
-                    + "modified_at=CURRENT_TIMESTAMP"
-                    + " WHERE id = ? AND type = ? ";
+                    ? """
+                    UPDATE questions
+                    SET question = ?, explanation = ?, answer = ?, 
+                    modified_at = CURRENT_TIMESTAMP
+                    WHERE id = ? AND type = ?
+                    """
+                    : """
+                    UPDATE questions
+                    SET answer = ?, modified_at = CURRENT_TIMESTAMP
+                    WHERE id = ? AND type = ?
+                    """;
+
             Integer updatedRows = locale == null
-                    ? jdbcTemplate.update(query,
-                    question.getQuestion(),
-                    question.getExplanation(),
-                    question.getAnswer(), id, type.toString())
-                    : jdbcTemplate.update(query,
-                    question.getAnswer(), id, type.toString());
+                    ? jdbcClient.sql(query)
+                    .param(INDEX_1, question.getQuestion())
+                    .param(INDEX_2, question.getExplanation())
+                    .param(INDEX_3, question.getAnswer())
+                    .param(INDEX_4, id)
+                    .param(INDEX_5, type.toString()).update()
+                    : jdbcClient.sql(query)
+                    .param(INDEX_1, question.getAnswer())
+                    .param(INDEX_2, id).param(INDEX_3, type.toString())
+                    .update();
+
 
             if (locale != null) {
                 final String localizedUpdateQuery = """
@@ -399,10 +447,13 @@ public class QuestionService {
                                             = ?  )
                         """;
 
-                updatedRows = jdbcTemplate.update(localizedUpdateQuery,
-                        question.getQuestion(), question.getExplanation(),
-                        id, locale.getLanguage(),
-                        type.toString());
+                updatedRows = jdbcClient.sql(localizedUpdateQuery)
+                        .param(INDEX_1, question.getQuestion())
+                        .param(INDEX_2, question.getExplanation())
+                        .param(INDEX_3, id)
+                        .param(INDEX_4, locale.getLanguage())
+                        .param(INDEX_5, type.toString())
+                        .update();
 
                 if (updatedRows == 0) {
                     final String localizedInsertQuery = """
@@ -410,9 +461,12 @@ public class QuestionService {
                                 ( question_id, locale, question, explanation )
                                 VALUES ( ?, ? , ?, ?)
                             """;
-                    updatedRows = jdbcTemplate.update(localizedInsertQuery,
-                            id, locale.getLanguage(),
-                            question.getQuestion(), question.getExplanation());
+                    updatedRows = jdbcClient.sql(localizedInsertQuery)
+                            .param(INDEX_1, id)
+                            .param(INDEX_2, locale.getLanguage())
+                            .param(INDEX_3, question.getQuestion())
+                            .param(INDEX_4, question.getExplanation())
+                            .update();
 
                 }
             }
@@ -436,8 +490,8 @@ public class QuestionService {
                                     .collect(Collectors.joining(","))
                                     + ")";
                     availableIds.add(0, id);
-                    jdbcTemplate.update(deletequestionChoice,
-                            availableIds.toArray());
+                    jdbcClient.sql(deletequestionChoice).params(availableIds)
+                            .update();
                 }
 
 
@@ -461,21 +515,28 @@ public class QuestionService {
     private void updateChoice(final Choice choice,
                               final Locale locale) {
         final String updatequestionChoice = locale == null
-                ? "UPDATE question_choices SET c_value = ?, "
-                + "is_answer = ? "
-                + "WHERE id = ?"
-                : "UPDATE question_choices SET "
-                + "is_answer = ? "
-                + "WHERE id = ?";
+                ? """
+                UPDATE question_choices
+                SET c_value = ?,
+                    is_answer = ?
+                WHERE id = ?
+                """
+                : """
+                UPDATE question_choices
+                SET is_answer = ?
+                WHERE id = ?
+                """;
         if (locale == null) {
-            jdbcTemplate.update(updatequestionChoice,
-                    choice.getValue(),
-                    choice.isAnswer() != null && choice.isAnswer(),
-                    choice.getId());
+            jdbcClient.sql(updatequestionChoice)
+                    .param(INDEX_1, choice.getValue())
+                    .param(INDEX_2,
+                            choice.isAnswer() != null && choice.isAnswer())
+                    .param(INDEX_3, choice.getId());
         } else {
-            jdbcTemplate.update(updatequestionChoice,
-                    choice.isAnswer() != null && choice.isAnswer(),
-                    choice.getId());
+            jdbcClient.sql(updatequestionChoice)
+                    .param(INDEX_1,
+                            choice.isAnswer() != null && choice.isAnswer())
+                    .param(INDEX_2, choice.getId());
 
             saveLocalizedChoice(locale, choice);
         }
@@ -494,10 +555,11 @@ public class QuestionService {
                 """
                         DELETE FROM questions_localized WHERE question_id = ?
                         """;
-        jdbcTemplate.update(queryL, id);
+        jdbcClient.sql(queryL).param(INDEX_1, id).update();
         String query = "DELETE FROM questions WHERE ID=?";
 
-        final Integer updatedRows = jdbcTemplate.update(query, id);
+        final Integer updatedRows = jdbcClient.sql(query)
+                .param(INDEX_1, id).update();
         return !(updatedRows == 0);
     }
 
@@ -510,13 +572,15 @@ public class QuestionService {
     public Boolean deleteQuestionChoice(final UUID questionId) {
         final String queryL =
                 """
-                DELETE FROM question_choices_localized WHERE choice_id IN
-                (SELECT id FROM question_choices WHERE question_id = ?)
-                        """;
-        jdbcTemplate.update(queryL, questionId);
+                        DELETE FROM question_choices_localized WHERE choice_id IN
+                        (SELECT id FROM question_choices WHERE question_id = ?)
+                                """;
+        jdbcClient.sql(queryL)
+                .param(INDEX_1, questionId).update();
         final String query =
                 "DELETE FROM question_choices WHERE question_id = ?";
-        final Integer updatedRows = jdbcTemplate.update(query, questionId);
+        final Integer updatedRows = jdbcClient.sql(query)
+                .param(INDEX_1, questionId).update();
         return !(updatedRows == 0);
     }
 
@@ -524,9 +588,9 @@ public class QuestionService {
     /**
      * List questions of exam.
      *
-     * @param userName the user name
-     * @param categories     the categories
-     * @param locale   the locale
+     * @param userName   the user name
+     * @param categories the categories
+     * @param locale     the locale
      * @return quetions in given exam
      */
     public List<Question> list(final String userName,
@@ -537,9 +601,10 @@ public class QuestionService {
 
         final String query = locale == null
                 ? "SELECT id,question,explanation,type,"
-                + "created_by,created_at,modified_at,"
+                + "created_by"
                 + (isOwner ? "answer" : "NULL")
-                + " AS answer"
+                + " AS answer,"
+                + "created_at,modified_at"
                 + " FROM questions"
                 + " where "
                 + "id IN (" + getQuestionIdFilter(categories) + ") "
@@ -553,7 +618,7 @@ public class QuestionService {
                 + "THEN ql.explanation "
                 + "ELSE q.explanation "
                 + "END AS explanation,"
-                + "created_by,type,"
+                + "type, created_by"
                 + (isOwner ? "q.answer" : "NULL")
                 + " AS answer"
                 + ",created_at,modified_at FROM "
@@ -579,8 +644,9 @@ public class QuestionService {
         }
 
 
-        List<Question> questions = jdbcTemplate.query(query, rowMapper,
-                parameters.toArray());
+        List<Question> questions =
+                jdbcClient.sql(query).params(parameters).query(rowMapper)
+                        .list();
 
         if (!questions.isEmpty()) {
             questions.forEach(question -> {
@@ -597,17 +663,15 @@ public class QuestionService {
     }
 
     private String getQuestionIdFilter(final List<String> categories) {
-        StringBuilder builder =
-                new StringBuilder("SELECT QUESTION_ID FROM "
-                        + "questions_categories WHERE category_id IN (");
-        builder.append(categories.stream()
+        String builder = "SELECT QUESTION_ID FROM "
+                + "questions_categories WHERE category_id IN (" + categories.stream()
                 .map(tag -> "?")
-                .collect(Collectors.joining(",")));
-        builder.append(") ");
-        builder.append("GROUP BY QUESTION_ID ");
-        builder.append("HAVING COUNT(DISTINCT category_id) = ");
-        builder.append(categories.size());
-        return builder.toString();
+                .collect(Collectors.joining(",")) +
+                ") " +
+                "GROUP BY QUESTION_ID " +
+                "HAVING COUNT(DISTINCT category_id) = " +
+                categories.size();
+        return builder;
     }
 
     /**
@@ -621,10 +685,12 @@ public class QuestionService {
     public List<Question> list(final Integer pageNumber,
                                final Integer pageSize,
                                final Locale locale) {
-        String query = "SELECT id,question,explanation,type,"
-                + "created_by,created_at,modified_at,answer FROM questions";
+        String query = """
+                SELECT id,question,explanation,type,created_by,
+                created_at,modified_at,answer FROM questions
+                """;
         query = query + " LIMIT " + pageSize + " OFFSET " + (pageNumber - 1);
-        return jdbcTemplate.query(query, rowMapper);
+        return jdbcClient.sql(query).query(rowMapper).list();
     }
 
     /**
@@ -714,12 +780,15 @@ public class QuestionService {
         final String queryL =
                 "DELETE FROM QUESTIONS_LOCALIZED WHERE question_id=?";
 
-        jdbcTemplate.update(queryL, id);
+        jdbcClient.sql(queryL).param(id).update();
 
         final String query =
                 "DELETE FROM questions WHERE ID=? and type = ?";
         int updatedRow =
-                jdbcTemplate.update(query, id, questionType.toString());
+                jdbcClient.sql(query)
+                        .param(INDEX_1, id)
+                        .param(INDEX_2, questionType.toString())
+                        .update();
         return !(updatedRow == 0);
 
     }
@@ -727,33 +796,33 @@ public class QuestionService {
 
     /**
      * Adds tag to question.
+     *
      * @param userName
      * @param questionId the questionId
-     * @param categoryId      the categoryId
+     * @param categoryId the categoryId
      * @return grade optional
      */
     private boolean attachCategories(final String userName,
-                                    final UUID questionId,
-                                    final String categoryId) {
-        final SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
-                .withTableName("questions_categories")
-                .usingColumns("question_id", "category_id");
-
-        final Map<String, Object> valueMap = new HashMap<>();
-
-        valueMap.put("question_id", questionId);
-        valueMap.put("category_id", categoryId);
+                                     final UUID questionId,
+                                     final String categoryId) {
+        String insertQuery = """
+                INSERT INTO questions_categories(question_id, category_id)
+                VALUES(?, ?)
+                """;
 
         int noOfRowsInserted = 0;
 
         try {
-            noOfRowsInserted = insert.execute(valueMap);
+            noOfRowsInserted = jdbcClient.sql(insertQuery)
+                    .param(INDEX_1, questionId)
+                    .param(INDEX_2, categoryId)
+                    .update();
         } catch (final DataIntegrityViolationException e) {
             // Retry with Auto Create Category
             Category category = this.categoryService.create(
                     userName, null, new Category(categoryId,
-                    categoryId.toUpperCase(), null, null,
-                    null, null));
+                            categoryId.toUpperCase(), null, null,
+                            null, null));
             if (category != null) {
                 return attachCategories(userName, questionId, category.id());
             }
@@ -769,15 +838,15 @@ public class QuestionService {
      */
     public void deleteAll() {
 
-        jdbcTemplate.update("DELETE FROM questions_categories");
+        jdbcClient.sql("DELETE FROM questions_categories").update();
 
-        jdbcTemplate.update("DELETE FROM questions_tags");
+        jdbcClient.sql("DELETE FROM questions_tags").update();
 
-        jdbcTemplate.update("DELETE FROM question_choices_localized");
-        jdbcTemplate.update("DELETE FROM question_choices");
+        jdbcClient.sql("DELETE FROM question_choices_localized").update();
+        jdbcClient.sql("DELETE FROM question_choices").update();
 
-        jdbcTemplate.update("DELETE FROM QUESTIONS_LOCALIZED");
-        jdbcTemplate.update("DELETE FROM QUESTIONS");
+        jdbcClient.sql("DELETE FROM QUESTIONS_LOCALIZED").update();
+        jdbcClient.sql("DELETE FROM QUESTIONS").update();
 
     }
 }
