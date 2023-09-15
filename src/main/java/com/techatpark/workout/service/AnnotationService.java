@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techatpark.workout.model.Annotation;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,11 @@ public class AnnotationService {
      * this creates connection functionalities.
      */
     private final DataSource dataSource;
+
+    /**
+     * this helps to execute sql queries.
+     */
+    private final JdbcClient jdbcClient;
 
     /**
      * this is ObjectMapper of Spring.
@@ -65,15 +71,19 @@ public class AnnotationService {
 
     /**
      * initializes.
-     *  @param aJdbcTemplate the a jdbc template
-     * @param aDataSource   the a data source
+     *
+     * @param aJdbcTemplate  the a jdbc template
+     * @param aDataSource    the a data source
+     * @param aJdbcClient
      * @param anObjectMapper
      */
     public AnnotationService(final JdbcTemplate aJdbcTemplate,
                              final DataSource aDataSource,
+                             final JdbcClient aJdbcClient,
                              final ObjectMapper anObjectMapper) {
         this.jdbcTemplate = aJdbcTemplate;
         this.dataSource = aDataSource;
+        this.jdbcClient = aJdbcClient;
         this.objectMapper = anObjectMapper;
     }
 
@@ -213,5 +223,12 @@ public class AnnotationService {
         final String query = "DELETE FROM annotations WHERE ID=?";
         final Integer updatedRows = jdbcTemplate.update(query, id);
         return !(updatedRows == 0);
+    }
+
+    /**
+     * Deletes all Annotations.
+     */
+    public void deleteAll() {
+        jdbcClient.sql("DELETE FROM boards_grades_subjects_books").update();
     }
 }
