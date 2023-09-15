@@ -9,14 +9,11 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 import jakarta.validation.Validator;
 import jakarta.validation.metadata.ConstraintDescriptor;
-import org.apache.commons.lang3.math.IEEE754rUtils;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -356,7 +353,8 @@ public class QuestionService {
                        CASE WHEN ql.LOCALE = ?
                        THEN ql.question ELSE q.question END AS question,
                        CASE WHEN ql.LOCALE = ?
-                       THEN ql.explanation ELSE q.explanation END AS explanation,
+                       THEN ql.explanation ELSE q.explanation
+                       END AS explanation,
                        type, created_by, answer, created_at, modified_at
                 FROM questions q
                 LEFT JOIN questions_localized ql ON q.ID = ql.QUESTION_ID
@@ -412,7 +410,7 @@ public class QuestionService {
             final String query = locale == null
                     ? """
                     UPDATE questions
-                    SET question = ?, explanation = ?, answer = ?, 
+                    SET question = ?, explanation = ?, answer = ?,
                     modified_at = CURRENT_TIMESTAMP
                     WHERE id = ? AND type = ?
                     """
@@ -572,7 +570,8 @@ public class QuestionService {
     public Boolean deleteQuestionChoice(final UUID questionId) {
         final String queryL =
                 """
-                        DELETE FROM question_choices_localized WHERE choice_id IN
+                        DELETE FROM question_choices_localized
+                        WHERE choice_id IN
                         (SELECT id FROM question_choices WHERE question_id = ?)
                                 """;
         jdbcClient.sql(queryL)
@@ -664,13 +663,13 @@ public class QuestionService {
 
     private String getQuestionIdFilter(final List<String> categories) {
         String builder = "SELECT QUESTION_ID FROM "
-                + "questions_categories WHERE category_id IN (" + categories.stream()
-                .map(tag -> "?")
-                .collect(Collectors.joining(",")) +
-                ") " +
-                "GROUP BY QUESTION_ID " +
-                "HAVING COUNT(DISTINCT category_id) = " +
-                categories.size();
+                + "questions_categories WHERE category_id IN ("
+                + categories.stream().map(tag -> "?")
+                .collect(Collectors.joining(","))
+                + ") "
+                + "GROUP BY QUESTION_ID "
+                + "HAVING COUNT(DISTINCT category_id) = "
+                + categories.size();
         return builder;
     }
 
