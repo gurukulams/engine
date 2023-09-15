@@ -321,8 +321,7 @@ public class TokenProvider {
         String[] parts = userName.split("@");
         String userHandle = parts[0];
         LearnerProfile learnerProfile = new LearnerProfile(userHandle,
-                registrationRequest.getFirstName(),
-                registrationRequest.getLastName(),
+                registrationRequest.getName(),
                 registrationRequest.getDob());
 
 

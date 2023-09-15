@@ -28,10 +28,7 @@ public class LearnerProfileService {
      * Index.
      */
     private static final int INDEX_3 = 3;
-    /**
-     * Index.
-     */
-    private static final int INDEX_4 = 4;
+
 
     /**
      * learner_profile table.
@@ -57,8 +54,7 @@ public class LearnerProfileService {
         return new LearnerProfile(
                 rs.getString(INDEX_1),
                 rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDate.class)
+                rs.getObject(INDEX_3, LocalDate.class)
         );
     }
 
@@ -70,15 +66,14 @@ public class LearnerProfileService {
      */
     public LearnerProfile create(final LearnerProfile learnerProfile) {
         final String insertLearnerProfileQuery = """
-                INSERT INTO %s(user_handle, first_name, last_name, dob)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO %s(user_handle, name, dob)
+                VALUES (?, ?, ?)
                 """.formatted(LEARNER_PROFILE_TABLE);
 
         jdbcClient.sql(insertLearnerProfileQuery)
                 .param(INDEX_1, learnerProfile.userHandle())
-                .param(INDEX_2, learnerProfile.firstName())
-                .param(INDEX_3, learnerProfile.lastName())
-                .param(INDEX_4, learnerProfile.dob())
+                .param(INDEX_2, learnerProfile.name())
+                .param(INDEX_3, learnerProfile.dob())
                 .update();
 
         return read(learnerProfile.userHandle()).get();
@@ -92,7 +87,7 @@ public class LearnerProfileService {
      */
     public Optional<LearnerProfile> read(final String userHandle) {
         final String selectLearnerProfileQuery = """
-                SELECT user_handle, first_name, last_name, dob
+                SELECT user_handle, name, dob
                 FROM %s
                 WHERE user_handle = ?
                 """.formatted(LEARNER_PROFILE_TABLE);

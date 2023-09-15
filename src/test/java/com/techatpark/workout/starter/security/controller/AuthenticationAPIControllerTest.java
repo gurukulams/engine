@@ -6,7 +6,6 @@ import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
-import com.techatpark.workout.starter.security.payload.SignupRequest;
 import com.techatpark.workout.service.LearnerService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -203,8 +202,8 @@ class AuthenticationAPIControllerTest {
                                             final AuthenticationResponse authenticationResponse) {
 
         RegistrationRequest registrationRequest = new RegistrationRequest();
-        registrationRequest.setFirstName("Sathish Kumar");
-        registrationRequest.setLastName("Thiyagarajan");
+        registrationRequest.setName("Sathish Kumar");
+        registrationRequest.setAadhar("Thiyagarajan");
         registrationRequest.setDob(LocalDate.now());
 
         return this.webTestClient

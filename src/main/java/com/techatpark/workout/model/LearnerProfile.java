@@ -7,9 +7,7 @@ import java.time.LocalDate;
 public record LearnerProfile(@Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
                              String userHandle,
                              @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-                             String firstName,
-                             @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-                             String lastName,
+                             String name,
 
                              @Schema(accessMode = Schema.AccessMode.READ_ONLY)
                              LocalDate dob) {

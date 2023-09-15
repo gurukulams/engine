@@ -1,6 +1,7 @@
 package com.techatpark.workout.starter.security.payload;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
 
@@ -14,13 +15,7 @@ public class RegistrationRequest {
      * firstName.
      */
     @NotBlank
-    private String firstName;
-
-    /**
-     * imageUrl.
-     */
-    @NotBlank
-    private String lastName;
+    private String name;
 
     /**
      * Date of Birth.
@@ -28,14 +23,21 @@ public class RegistrationRequest {
     @NotBlank
     private LocalDate dob;
 
+    /**
+     * imageUrl.
+     */
+    @NotBlank
+    @Pattern(regexp = "^[2-9]{1}[0-9]{3}\\\\s[0-9]{4}\\\\s[0-9]{4}$",
+            message = "Should be valid Aadhar number")
+    private String aadhar;
 
     /**
      * getPassword.
      *
      * @return password
      */
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
     /**
@@ -43,8 +45,8 @@ public class RegistrationRequest {
      *
      * @param thepassword
      */
-    public void setFirstName(final String thepassword) {
-        this.firstName = thepassword;
+    public void setName(final String thepassword) {
+        this.name = thepassword;
     }
 
     /**
@@ -52,8 +54,8 @@ public class RegistrationRequest {
      *
      * @return imageUrl
      */
-    public String getLastName() {
-        return lastName;
+    public String getAadhar() {
+        return aadhar;
     }
 
     /**
@@ -61,8 +63,8 @@ public class RegistrationRequest {
      *
      * @param aimageUrl
      */
-    public void setLastName(final String aimageUrl) {
-        this.lastName = aimageUrl;
+    public void setAadhar(final String aimageUrl) {
+        this.aadhar = aimageUrl;
     }
 
 
