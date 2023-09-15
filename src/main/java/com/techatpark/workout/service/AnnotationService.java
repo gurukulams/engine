@@ -5,18 +5,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techatpark.workout.model.Annotation;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,15 +21,32 @@ import java.util.UUID;
  */
 @Service
 public class AnnotationService {
-    /**
-     * this helps to execute sql queries.
-     */
-    private final JdbcTemplate jdbcTemplate;
 
     /**
-     * this creates connection functionalities.
+     * Index Number.
      */
-    private final DataSource dataSource;
+    private static final int INDEX_1 = 1;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_2 = 2;
+
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_3 = 3;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_4 = 4;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_5 = 5;
+    /**
+     * Index Number.
+     */
+    private static final int INDEX_6 = 6;
 
     /**
      * this helps to execute sql queries.
@@ -54,13 +67,13 @@ public class AnnotationService {
                                  final int rowNum)
             throws SQLException {
         final Annotation annotation = new Annotation();
-        annotation.setId((UUID) rs.getObject("id"));
+        annotation.setId((UUID) rs.getObject(INDEX_1));
         final TypeReference<HashMap<String, Object>> typeRef
                 = new TypeReference<>() {
         };
         try {
             String unwrappedJSON = objectMapper
-                    .readValue(rs.getString("json_value"), String.class);
+                    .readValue(rs.getString(INDEX_2), String.class);
             annotation.setValue(objectMapper.readValue(unwrappedJSON,
                     typeRef));
         } catch (JsonProcessingException e) {
@@ -72,17 +85,11 @@ public class AnnotationService {
     /**
      * initializes.
      *
-     * @param aJdbcTemplate  the a jdbc template
-     * @param aDataSource    the a data source
      * @param aJdbcClient
      * @param anObjectMapper
      */
-    public AnnotationService(final JdbcTemplate aJdbcTemplate,
-                             final DataSource aDataSource,
-                             final JdbcClient aJdbcClient,
+    public AnnotationService(final JdbcClient aJdbcClient,
                              final ObjectMapper anObjectMapper) {
-        this.jdbcTemplate = aJdbcTemplate;
-        this.dataSource = aDataSource;
         this.jdbcClient = aJdbcClient;
         this.objectMapper = anObjectMapper;
     }
@@ -104,26 +111,21 @@ public class AnnotationService {
                                      final Locale locale,
                                      final String userName)
             throws JsonProcessingException {
-        final SimpleJdbcInsert insert =
-                new SimpleJdbcInsert(dataSource).withTableName("annotations")
-                        .usingColumns("id", "created_by",
-                                "on_type", "on_instance",
-                                "locale", "json_value");
-
-        final Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("created_by", userName);
-        valueMap.put("on_type", onType);
-        valueMap.put("on_instance", onInstance);
-        valueMap.put("json_value", objectMapper
-                .writeValueAsString(annotation.getValue()));
-        if (locale == null) {
-            valueMap.put("locale", null);
-        } else {
-            valueMap.put("locale", locale.getLanguage());
-        }
         final UUID id = UUID.randomUUID();
-        valueMap.put("id", id);
-        insert.execute(valueMap);
+
+        String sql =
+            "INSERT INTO annotations(id, created_by, on_type, "
+                + "on_instance, locale, json_value) values(?,?,?,?,?,?)";
+        jdbcClient.sql(sql)
+                .param(INDEX_1, id)
+                .param(INDEX_2, userName)
+                .param(INDEX_3, onType)
+                .param(INDEX_4, onInstance)
+                .param(INDEX_5, locale == null ? null : locale.getLanguage())
+                .param(INDEX_6, objectMapper
+                        .writeValueAsString(annotation.getValue()))
+                .update();
+
         return read(id, locale);
     }
 
@@ -150,8 +152,10 @@ public class AnnotationService {
             } else {
                 params = new Object[]{id, locale.getLanguage()};
             }
-            return Optional.of(jdbcTemplate
-                    .queryForObject(query, this::rowMapper, params));
+            return Optional.of(jdbcClient
+                    .sql(query)
+                            .params(List.of(params))
+                    .query(this::rowMapper).single());
 
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -178,10 +182,18 @@ public class AnnotationService {
                 + ((locale == null)
                 ? "locale IS NULL" : "locale = ?");
         return (locale == null)
-                ? jdbcTemplate.query(query, this::rowMapper, onType, onInstance,
-                userName)
-                : jdbcTemplate.query(query, this::rowMapper, onType, onInstance,
-                userName, locale.getLanguage());
+                ? jdbcClient.sql(query)
+                .param(INDEX_1, onType)
+                .param(INDEX_2, onInstance)
+                .param(INDEX_3, userName)
+                .query(this::rowMapper).list()
+
+                : jdbcClient.sql(query)
+                .param(INDEX_1, onType)
+                .param(INDEX_2, onInstance)
+                .param(INDEX_3, userName)
+                .param(INDEX_4, locale.getLanguage())
+                .query(this::rowMapper).list();
     }
 
     /**
@@ -200,15 +212,23 @@ public class AnnotationService {
                 "UPDATE annotations SET "
                         + "json_value = ? WHERE id = ? AND "
                         + ((locale == null) ? "locale IS NULL" : "locale = ?");
-        final Integer updatedRows = (locale == null)
+        final int updatedRows = (locale == null)
                 ?
-                jdbcTemplate.update(query,
-                        objectMapper.writeValueAsString(annotation.getValue()),
-                        id)
-                : jdbcTemplate.update(query,
-                objectMapper.writeValueAsString(annotation.getValue()),
-                id, locale.getLanguage());
-        return updatedRows == 0 ? null : read(id, locale);
+                jdbcClient.sql(query)
+                    .param(INDEX_1,
+                        objectMapper.writeValueAsString(annotation.getValue()))
+                    .param(INDEX_2, id).update()
+                :
+                jdbcClient.sql(query)
+                .param(INDEX_1,
+                        objectMapper.writeValueAsString(annotation.getValue()))
+                .param(INDEX_2, id)
+                .param(INDEX_3, locale.getLanguage())
+                .update();
+        if (updatedRows == 0) {
+            throw new IllegalArgumentException("Annotation not found");
+        }
+        return read(id, locale);
     }
 
     /**
@@ -220,15 +240,14 @@ public class AnnotationService {
      */
     public final boolean delete(final UUID id,
                           final Locale locale) {
-        final String query = "DELETE FROM annotations WHERE ID=?";
-        final Integer updatedRows = jdbcTemplate.update(query, id);
-        return !(updatedRows == 0);
+        return jdbcClient.sql("DELETE FROM annotations WHERE ID=?")
+                .param(INDEX_1, id).update() != 0;
     }
 
     /**
      * Deletes all Annotations.
      */
     public void deleteAll() {
-        jdbcClient.sql("DELETE FROM boards_grades_subjects_books").update();
+        jdbcClient.sql("DELETE FROM annotations").update();
     }
 }
