@@ -2,10 +2,12 @@ package com.techatpark.workout;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.lang.syntax.elements.GivenClassesConjunction;
 import io.swagger.v3.oas.annotations.Operation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
@@ -15,10 +17,49 @@ public class ArchUnitTest {
 
     static JavaClasses allClasses = null;
 
+    private static final GivenClassesConjunction SERVICE_CLASSES = classes()
+            .that()
+            .areAnnotatedWith(Service.class);
+
     @BeforeAll
     public static void setUp() {
         allClasses = new ClassFileImporter().importPackages("com"
                 + ".techatpark.workout");
+    }
+
+    @Test
+    public void servicesAreSecureByDesign() {
+        SERVICE_CLASSES.should()
+                .accessClassesThat()
+                .resideOutsideOfPackage("javax.validation")
+                .andShould().onlyDependOnClassesThat()
+                .resideInAnyPackage(
+                        "org.springframework.stereotype"
+                        , "org.springframework.security.core.userdetails"
+                        , "org.springframework.jdbc.core"
+                        , "org.springframework.security.crypto.bcrypt"
+                        , "org.springframework.security.authentication"
+                        , "com.techatpark.workout.starter.security.util"
+                        , "com.gurukulams.core.store"
+                        , "java.util.stream"
+                        , "javax.sql"
+                        , "java.sql.Date"
+                        , "java.sql.ResultSet"
+                        , "com.fasterxml.jackson.databind"
+                        , "org.springframework.jdbc.core.simple"
+                        , "org.slf4j"
+                        , "com.gurukulams.core"
+                        , "java.util"
+                        , "java.lang"
+                        , "jakarta.validation"
+                        , "jakarta.validation.constraints"
+                        , "..service.."
+                        , "..model.."
+                        , "..payload.."
+                        )
+                .because("Services should only be hexogonal")
+                .check(allClasses);
+
     }
 
 

@@ -87,7 +87,7 @@ public class AnnotationService {
      * @param locale tha language
      * @return the optional
      */
-    public Optional<Annotation> create(
+    public final Optional<Annotation> create(
             final String onType,
             final String onInstance,
             final Annotation annotation,
@@ -124,7 +124,7 @@ public class AnnotationService {
      * @param locale tha language
      * @return the optional
      */
-    public Optional<Annotation> read(final UUID id,
+    public final Optional<Annotation> read(final UUID id,
                                    final Locale locale) {
         final String query =
                 "SELECT id,json_value"
@@ -157,7 +157,7 @@ public class AnnotationService {
      * @param locale tha language
      * @return the list
      */
-    public List<Annotation> list(final String userName,
+    public final List<Annotation> list(final String userName,
                                  final Locale locale,
                                  final String onType,
                                  final String onInstance) {
@@ -182,7 +182,7 @@ public class AnnotationService {
      * @param locale tha language
      * @return the optional
      */
-    public Optional<Annotation> update(final UUID id,
+    public final Optional<Annotation> update(final UUID id,
                                        final Locale locale,
                                        final Annotation annotation)
             throws JsonProcessingException {
@@ -208,7 +208,7 @@ public class AnnotationService {
      * @return the boolean
      * @param locale tha language
      */
-    public Boolean delete(final UUID id,
+    public final boolean delete(final UUID id,
                           final Locale locale) {
         final String query = "DELETE FROM annotations WHERE ID=?";
         final Integer updatedRows = jdbcTemplate.update(query, id);
