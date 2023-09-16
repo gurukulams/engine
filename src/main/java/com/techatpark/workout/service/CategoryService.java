@@ -111,7 +111,7 @@ public class CategoryService {
             createLocalizedCategory(category.id(), category, locale);
         }
 
-        return read(userName, locale, category.id()).get();
+        return read(userName, category.id(), locale).get();
     }
 
     private int createLocalizedCategory(final String categoryId,
@@ -133,13 +133,13 @@ public class CategoryService {
      * Read optional.
      *
      * @param userName the user name
-     * @param locale   the locale
      * @param id       the id
+     * @param locale   the locale
      * @return the optional
      */
     public Optional<Category> read(final String userName,
-                                   final Locale locale,
-                                   final String id) {
+                                   final String id,
+                                   final Locale locale) {
         final String selectCategoryQuery = locale == null
                 ?
                 """
@@ -247,7 +247,7 @@ public class CategoryService {
             }
         }
 
-        return read(userName, locale, id).get();
+        return read(userName, id, locale).get();
     }
 
     /**
@@ -303,6 +303,7 @@ public class CategoryService {
                 :
                 jdbcClient.sql(listCategoryQuery)
                         .param(INDEX_1, locale.getLanguage())
+                        .param(INDEX_2, locale.getLanguage())
                         .query(this::rowMapper)
                         .list();
     }
