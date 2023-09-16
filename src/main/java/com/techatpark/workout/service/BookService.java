@@ -5,7 +5,6 @@ import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
@@ -217,7 +216,7 @@ public class BookService {
                             AND LOCALE = ?
                     ))""";
 
-        try {
+
             return locale == null ? jdbcClient
                     .sql(query).param(INDEX_1, id).query(this::rowMapper)
                     .optional()
@@ -228,9 +227,7 @@ public class BookService {
                     .param(INDEX_4, locale.getLanguage())
                     .param(INDEX_5, locale.getLanguage())
                     .query(this::rowMapper).optional();
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**

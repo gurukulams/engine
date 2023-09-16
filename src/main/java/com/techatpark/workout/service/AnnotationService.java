@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techatpark.workout.model.Annotation;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
@@ -145,21 +144,19 @@ public class AnnotationService {
                         + " id = ? AND "
                         + ((locale == null)
                         ? "locale IS NULL" : "locale = ?");
-        try {
+
             Object[] params;
             if (locale == null) {
                 params = new Object[]{id};
             } else {
                 params = new Object[]{id, locale.getLanguage()};
             }
-            return Optional.of(jdbcClient
+            return jdbcClient
                     .sql(query)
                             .params(List.of(params))
-                    .query(this::rowMapper).single());
+                    .query(this::rowMapper).optional();
 
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**

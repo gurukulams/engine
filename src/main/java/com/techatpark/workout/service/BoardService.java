@@ -3,7 +3,6 @@ package com.techatpark.workout.service;
 import com.techatpark.workout.model.Board;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
@@ -182,7 +181,7 @@ public class BoardService {
                     b.id = ?
                  """;
 
-        try {
+
             return locale == null
                     ? jdbcClient.sql(query).param(INDEX_1, id)
                     .query(this::rowMapper).optional()
@@ -190,9 +189,7 @@ public class BoardService {
                     .param(INDEX_1, locale.getLanguage())
                     .param(INDEX_2, id)
                     .query(this::rowMapper).optional();
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**

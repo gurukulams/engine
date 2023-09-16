@@ -3,7 +3,6 @@ package com.techatpark.workout.service;
 import com.techatpark.workout.model.Campus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 

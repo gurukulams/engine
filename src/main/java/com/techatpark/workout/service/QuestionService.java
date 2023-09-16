@@ -11,7 +11,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
@@ -366,27 +365,28 @@ public class QuestionService {
                 ))
                 """;
 
-        try {
 
-            Question question = locale == null ? jdbcClient
-                    .sql(query).param(INDEX_1, id).query(rowMapper).single()
+
+            Optional<Question> question = locale == null ? jdbcClient
+                    .sql(query).param(INDEX_1, id).query(rowMapper).optional()
                     : jdbcClient
                     .sql(query).param(INDEX_1, locale.getLanguage())
                     .param(INDEX_2, locale.getLanguage())
                     .param(INDEX_3, id)
                     .param(INDEX_4, locale.getLanguage())
                     .param(INDEX_5, locale.getLanguage())
-                    .query(rowMapper).single();
+                    .query(rowMapper).optional();
 
-            if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
-                    || question.getType().equals(QuestionType.MULTI_CHOICE))) {
-                question.setChoices(
-                        listQuestionChoice(true, question.getId(), locale));
+            if ((question.get().getType()
+                    .equals(QuestionType.CHOOSE_THE_BEST)
+                    || question.get().getType()
+                    .equals(QuestionType.MULTI_CHOICE))) {
+                question.get().setChoices(
+                        listQuestionChoice(true,
+                                question.get().getId(), locale));
             }
-            return Optional.of(question);
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+            return question;
+
     }
 
     /**

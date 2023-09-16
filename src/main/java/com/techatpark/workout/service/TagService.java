@@ -3,7 +3,6 @@ package com.techatpark.workout.service;
 import com.techatpark.workout.model.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
@@ -159,12 +158,12 @@ public final class TagService {
                 """.formatted(TAGS_TABLE, TAGS_LOCALIZED_TABLE,
                 TAGS_LOCALIZED_TABLE);
 
-        try {
-            final Tag tag = locale == null ? jdbcClient
+
+            return locale == null ? jdbcClient
                     .sql(query)
                     .param(INDEX_1, id)
                     .query(this::rowMapper)
-                    .single()
+                    .optional()
                     : jdbcClient
                     .sql(query)
                     .param(INDEX_1, locale.getLanguage())
@@ -172,11 +171,8 @@ public final class TagService {
                     .param(INDEX_3, locale.getLanguage())
                     .param(INDEX_4, locale.getLanguage())
                     .query(this::rowMapper)
-                    .single();
-            return Optional.of(tag);
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+                    .optional();
+
     }
 
     /**

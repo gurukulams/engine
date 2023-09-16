@@ -1,7 +1,6 @@
 package com.techatpark.workout.service;
 
 import com.techatpark.workout.model.LearnerProfile;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
@@ -92,13 +91,11 @@ public class LearnerProfileService {
                 WHERE user_handle = ?
                 """.formatted(LEARNER_PROFILE_TABLE);
 
-        try {
+
             return jdbcClient.sql(selectLearnerProfileQuery)
                     .param(INDEX_1, userHandle)
                     .query(this::rowMapper)
                     .optional();
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 }
