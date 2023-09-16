@@ -132,15 +132,12 @@ public final class CourseService {
                 FROM courses
                 WHERE id = ?
                 """;
-        try {
-            final Course p = jdbcClient.sql(sql)
+
+            return jdbcClient.sql(sql)
                     .param(INDEX_1, id)
                     .query(this::rowMapper)
-                    .single();
-            return Optional.of(p);
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+                    .optional();
+
     }
 
     /**

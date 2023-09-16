@@ -142,14 +142,12 @@ public final class DegreeService {
                 WHERE id = ?
                 """;
 
-        try {
+
             return jdbcClient.sql(readDegreeQuery)
                     .param(INDEX_1, id)
                     .query(this::rowMapper)
                     .optional();
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**

@@ -124,14 +124,12 @@ public final class CampusService {
                 WHERE id = ?
                 """.formatted(CAMPUSES_TABLE);
 
-        try {
+
             return jdbcClient.sql(selectCampusQuery)
                     .param(INDEX_1, id)
                     .query(this::rowMapper)
                     .optional();
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**

@@ -180,7 +180,7 @@ public class GradeService {
                         """.formatted(GRADES_TABLE, GRADES_LOCALIZED_TABLE,
                         GRADES_LOCALIZED_TABLE);
 
-        try {
+
             return locale == null
                     ?
                     jdbcClient.sql(selectGradeQuery)
@@ -196,9 +196,7 @@ public class GradeService {
                             .param(INDEX_5, locale.getLanguage())
                             .query(this::rowMapper)
                             .optional();
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**

@@ -180,7 +180,7 @@ public class SubjectService {
                         """.formatted(SUBJECTS_TABLE, SUBJECTS_LOCALIZED_TABLE,
                         SUBJECTS_LOCALIZED_TABLE);
 
-        try {
+
             return locale == null
                     ?
                     jdbcClient.sql(selectSubjectQuery)
@@ -196,9 +196,7 @@ public class SubjectService {
                             .param(INDEX_5, locale.getLanguage())
                             .query(this::rowMapper)
                             .optional();
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
     }
 
     /**
