@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Event;
+import com.gurukulams.core.model.Events;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -10,15 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * The type Event service.
+ * The type Events service.
  */
 @Service
 public class EventService {
@@ -65,7 +63,7 @@ public class EventService {
     private final JdbcClient jdbcClient;
 
     /**
-     * Instantiates a new Event service.
+     * Instantiates a new Events service.
      *
      * @param aJdbcClient the jdbc client
      */
@@ -73,17 +71,17 @@ public class EventService {
         this.jdbcClient = aJdbcClient;
     }
 
-    private Event rowMapper(final ResultSet rs, final Integer rowNum)
+    private Events rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Event event = new Event((UUID) rs.getObject(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDate.class),
-                rs.getObject(INDEX_5, LocalDateTime.class),
-                rs.getString(INDEX_6),
-                rs.getObject(INDEX_7, LocalDateTime.class),
-                rs.getString(INDEX_8));
-
+        Events event = new Events();
+        event.setId((UUID) rs.getObject(INDEX_1));
+        event.setTitle(rs.getString(INDEX_2));
+        event.setDescription(rs.getString(INDEX_3));
+        event.setEventDate(rs.getObject(INDEX_4, LocalDate.class));
+                event.setCreatedAt(rs.getObject(INDEX_5, LocalDateTime.class));
+        event.setCreatedBy(rs.getString(INDEX_6));
+                event.setModifiedAt(rs.getObject(INDEX_7, LocalDateTime.class));
+        event.setModifiedBy(rs.getString(INDEX_8));
         return event;
     }
 
@@ -95,45 +93,45 @@ public class EventService {
      * @param event    the event
      * @return the event
      */
-    public Event create(final String userName, final Locale locale,
-                        final Event event) {
+    public Events create(final String userName, final Locale locale,
+                        final Events event) {
         final UUID eventId = UUID.randomUUID();
 
-        String insertEventSQL = """
+        String insertEventsSQL = """
                 INSERT INTO events(id, title, event_date,
                 description, created_by)
                 VALUES (?, ?, ?, ?, ?)
                 """;
-        jdbcClient.sql(insertEventSQL)
+        jdbcClient.sql(insertEventsSQL)
                 .param(INDEX_1, eventId)
-                .param(INDEX_2, event.title())
-                .param(INDEX_3, event.event_date())
-                .param(INDEX_4, event.description())
+                .param(INDEX_2, event.getTitle())
+                .param(INDEX_3, event.getEventDate())
+                .param(INDEX_4, event.getDescription())
                 .param(INDEX_5, userName)
                 .update();
 
         if (locale != null) {
-            createLocalizedEvent(eventId, event, locale);
+            createLocalizedEvents(eventId, event, locale);
         }
 
-        final Optional<Event> createdEvent = read(userName, locale, eventId);
-        logger.info("Event Created {}", eventId);
+        final Optional<Events> createdEvents = read(userName, locale, eventId);
+        logger.info("Events Created {}", eventId);
 
-        return createdEvent.get();
+        return createdEvents.get();
     }
 
-    private int createLocalizedEvent(final UUID eventId, final Event event,
+    private int createLocalizedEvents(final UUID eventId, final Events event,
                                      final Locale locale) {
-        String insertLocalizedEventSQL = """
+        String insertLocalizedEventsSQL = """
                 INSERT INTO events_localized(
                 event_id, locale, title, description)
                 VALUES (?, ?, ?, ?)
                 """;
-        return jdbcClient.sql(insertLocalizedEventSQL)
+        return jdbcClient.sql(insertLocalizedEventsSQL)
                 .param(INDEX_1, eventId)
                 .param(INDEX_2, locale.getLanguage())
-                .param(INDEX_3, event.title())
-                .param(INDEX_4, event.description())
+                .param(INDEX_3, event.getTitle())
+                .param(INDEX_4, event.getDescription())
                 .update();
     }
 
@@ -145,7 +143,7 @@ public class EventService {
      * @param id       the id
      * @return the optional
      */
-    public Optional<Event> read(final String userName, final Locale locale,
+    public Optional<Events> read(final String userName, final Locale locale,
                                 final UUID id) {
         final String query = locale == null
                 ? """
@@ -195,9 +193,9 @@ public class EventService {
      * @param event    the event
      * @return the event
      */
-    public Event update(final UUID id, final String userName,
-                        final Locale locale, final Event event) {
-        logger.debug("Entering update for Event {}", id);
+    public Events update(final UUID id, final String userName,
+                        final Locale locale, final Events event) {
+        logger.debug("Entering update for Events {}", id);
         final String query = locale == null
                 ? """
                 UPDATE events SET title=?, event_date=?, description=?,
@@ -206,41 +204,37 @@ public class EventService {
                 : """
                 UPDATE events SET event_date=?, modified_by=? WHERE id=?
                 """;
-        Integer updatedRows = locale == null
+        int updatedRows = locale == null
                 ? jdbcClient.sql(query)
-                .param(INDEX_1, event.title())
-                .param(INDEX_2, event.event_date())
-                .param(INDEX_3, event.description())
+                .param(INDEX_1, event.getTitle())
+                .param(INDEX_2, event.getEventDate())
+                .param(INDEX_3, event.getDescription())
                 .param(INDEX_4, userName)
                 .param(INDEX_5, id).update()
                 : jdbcClient.sql(query)
-                .param(INDEX_1, event.event_date())
+                .param(INDEX_1, event.getEventDate())
                 .param(INDEX_2, userName)
                 .param(INDEX_3, id).update();
 
         if (updatedRows == 0) {
-            logger.error("Update not found", id);
-            throw new IllegalArgumentException("Event not found");
+            logger.error("Update not found {}", id);
+            throw new IllegalArgumentException("Events not found");
         } else if (locale != null) {
             updatedRows = jdbcClient.sql("""
                             UPDATE events_localized SET title=?, locale=?,
                             description=?
                             WHERE event_id=? AND locale=?
                             """)
-                    .param(INDEX_1, event.title())
+                    .param(INDEX_1, event.getTitle())
                     .param(INDEX_2, locale.getLanguage())
-                    .param(INDEX_3, event.description())
+                    .param(INDEX_3, event.getDescription())
                     .param(INDEX_4, id)
                     .param(INDEX_5, locale.getLanguage())
                     .update();
 
             if (updatedRows == 0) {
-                final Map<String, Object> valueMap = new HashMap<>(4);
-                valueMap.put("event_id", id);
-                valueMap.put("locale", locale.getLanguage());
-                valueMap.put("title", event.title());
-                valueMap.put("description", event.description());
-                createLocalizedEvent(id, event, locale);
+
+                createLocalizedEvents(id, event, locale);
             }
         }
         return read(userName, locale, id).get();
@@ -253,14 +247,10 @@ public class EventService {
      * @param id       the id
      * @return the boolean
      */
-    public Boolean delete(final String userName, final UUID id) {
-        final String query = """
-                DELETE FROM events WHERE id = ?
-                """;
-        final Integer updatedRows = jdbcClient.sql(query)
+    public boolean delete(final String userName, final UUID id) {
+        return jdbcClient.sql("DELETE FROM events WHERE id = ?")
                 .param(INDEX_1, id)
-                .update();
-        return !(updatedRows == 0);
+                .update() == 1;
     }
 
     /**
@@ -270,7 +260,7 @@ public class EventService {
      * @param locale   the locale
      * @return the list
      */
-    public List<Event> list(final String userName, final Locale locale) {
+    public List<Events> list(final String userName, final Locale locale) {
         final String query = locale == null
                 ? """
                 SELECT id, title, description, event_date, created_at,
@@ -311,27 +301,20 @@ public class EventService {
      * @return the boolean
      */
     public boolean register(final UUID eventId, final String userEmail) {
-        String query = """
-                SELECT EVENT_DATE FROM EVENTS WHERE ID=?
-                """;
         LocalDateTime event = jdbcClient
-                .sql(query)
+                .sql("SELECT EVENT_DATE FROM EVENTS WHERE ID=?")
                 .param(INDEX_1, eventId)
                 .query(LocalDateTime.class)
                 .single();
         if (LocalDateTime.now().isAfter(event)) {
-            throw new IllegalArgumentException("Event Date is expired");
+            throw new IllegalArgumentException("Events Date is expired");
         }
-        UUID userId = getUserId(userEmail);
 
-
-        String insertQuery = """
-                INSERT INTO event_users(event_id, user_id) VALUES(?, ?)
-                """;
-
-        return jdbcClient.sql(insertQuery)
+        return jdbcClient
+                .sql("INSERT INTO event_users(event_id, user_id) VALUES(?, ?)")
                 .param(INDEX_1, eventId)
-                .param(INDEX_2, userId).update() == 1;
+                .param(INDEX_2, getUserId(userEmail))
+                .update() == 1;
     }
 
     /**
@@ -340,21 +323,21 @@ public class EventService {
      * @param email the email
      * @return the user id
      */
-    public UUID getUserId(final String email) {
+    public String getUserId(final String email) {
         String query = """
-                SELECT ID FROM LEARNER WHERE EMAIL=?
+                SELECT user_handle FROM LEARNER WHERE EMAIL=?
                 """;
         return jdbcClient
                 .sql(query)
                 .param(INDEX_1, email)
-                .query(UUID.class)
+                .query(String.class)
                 .single();
     }
 
     /**
-     * Delete all.
+     * Delete all the events related data.
      */
-    public void deleteAll() {
+    public void delete() {
         jdbcClient.sql("DELETE FROM event_users").update();
         jdbcClient.sql("DELETE FROM events_localized").update();
         jdbcClient.sql("DELETE FROM events").update();

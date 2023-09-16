@@ -1,6 +1,6 @@
 package com.techatpark.workout.controller;
 
-import com.techatpark.workout.model.Event;
+import com.gurukulams.core.model.Events;
 import com.techatpark.workout.service.BookService;
 import com.techatpark.workout.service.EventService;
 import com.techatpark.workout.service.GradeService;
@@ -31,8 +31,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/events")
-@Tag(name = "Events", description = "Resource to manage Event")
-class EventAPIController {
+@Tag(name = "Eventss", description = "Resource to manage Events")
+class EventsAPIController {
 
     /**
      * declare a event service.
@@ -54,11 +54,11 @@ class EventAPIController {
      */
     private final BookService bookService;
 
-    EventAPIController(final EventService aEventService,
+    EventsAPIController(final EventService aEventsService,
                        final GradeService agradeService,
                        final SubjectService asubjectService,
                        final BookService aBookService) {
-        this.eventService = aEventService;
+        this.eventService = aEventsService;
         this.gradeService = agradeService;
         this.subjectService = asubjectService;
         this.bookService = aBookService;
@@ -84,12 +84,14 @@ class EventAPIController {
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public final ResponseEntity<Event> create(final Principal principal,
+    public final ResponseEntity<Events> create(final Principal principal,
                                 @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale,
-                                        @RequestBody final Event event) {
-        Event created = eventService.create(principal.getName(), locale, event);
-        return ResponseEntity.created(URI.create("/api/event" + created.id()))
+                                        @RequestBody final Events event) {
+        Events created = eventService.create(principal.getName(),
+                locale, event);
+        return ResponseEntity.created(URI.create("/api/event"
+                        + created.getId()))
                 .body(created);
     }
 
@@ -121,7 +123,7 @@ class EventAPIController {
      * @param locale    the locale
      * @return a event
      */
-    @Operation(summary = "Get the Event with given id",
+    @Operation(summary = "Get the Events with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
             description = "getting event successfully"),
@@ -131,7 +133,7 @@ class EventAPIController {
                     description = "syllabus not found")})
 
     @GetMapping("/{id}")
-    public final ResponseEntity<Event> read(@PathVariable final UUID id,
+    public final ResponseEntity<Events> read(@PathVariable final UUID id,
                                       @RequestHeader(name = "Accept-Language",
                                           required = false) final Locale locale,
                                       final Principal principal) {
@@ -140,7 +142,7 @@ class EventAPIController {
     }
 
     /**
-     * Update a Event.
+     * Update a Events.
      *
      * @param id
      * @param principal
@@ -162,21 +164,21 @@ class EventAPIController {
                     description = "syllabus not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public final ResponseEntity<Event> update(@PathVariable final UUID id,
+    public final ResponseEntity<Events> update(@PathVariable final UUID id,
                                         final Principal
                                                 principal,
                                         @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale,
-                                        @RequestBody final Event
+                                        @RequestBody final Events
                                                 event) {
-        final Event updatedEvent =
+        final Events updatedEvents =
                 eventService.update(id, principal.getName(), locale, event);
-        return updatedEvent == null ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(updatedEvent);
+        return updatedEvents == null ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(updatedEvents);
     }
 
     /**
-     * Delete a Event.
+     * Delete a Events.
      *
      * @param id
      * @param principal
@@ -200,7 +202,7 @@ class EventAPIController {
     }
 
     /**
-     * List the Events.
+     * List the Eventss.
      *
      * @param principal
      * @param locale
@@ -216,11 +218,11 @@ class EventAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public final ResponseEntity<List<Event>> list(final Principal
+    public final ResponseEntity<List<Events>> list(final Principal
                                                     principal,
                                         @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale) {
-        final List<Event> eventList = eventService.list(
+        final List<Events> eventList = eventService.list(
                 principal.getName(), locale);
         return eventList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(eventList);
