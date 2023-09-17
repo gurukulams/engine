@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import com.techatpark.workout.service.AnswerService;
-import com.techatpark.workout.service.BookService;
+import com.techatpark.workout.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -40,9 +40,9 @@ import java.util.UUID;
 @Tag(name = "Questions", description = "Resource to manage Questions")
 class QuestionAPIController {
     /**
-     * declare a bookservice.
+     * declare a QuestionService.
      */
-    private final BookService bookService;
+    private final QuestionService questionService;
 
     /**
      * answerService.
@@ -52,12 +52,12 @@ class QuestionAPIController {
     /**
      * Instantiates a new Book api controller.
      *
-     * @param abookService   the book service
+     * @param aQuestionService   the book service
      * @param aAnswerService a Answer Service
      */
-    QuestionAPIController(final BookService abookService,
+    QuestionAPIController(final QuestionService aQuestionService,
                           final AnswerService aAnswerService) {
-        this.bookService = abookService;
+        this.questionService = aQuestionService;
         this.answerService = aAnswerService;
     }
     /**
@@ -98,10 +98,11 @@ class QuestionAPIController {
             throws ServletException, IOException {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                bookService.createAQuestion(questionType, locale,
-                        principal.getName(), question,
+                questionService.create(
                         getCategories(request.getRequestURI(), questionType),
-                        null));
+                        null,
+                        questionType, locale,
+                        principal.getName(), question));
     }
 
     /**
@@ -145,8 +146,8 @@ class QuestionAPIController {
             throws JsonProcessingException {
 
         final Optional<Question> updatedQuestion =
-                bookService.updateQuestion(
-                        questionId, locale, questionType,
+                questionService.update(
+                        questionType, questionId, locale,
                         question);
         return updatedQuestion == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatedQuestion);
@@ -174,7 +175,7 @@ class QuestionAPIController {
                                                     final @PathVariable
                                                             QuestionType
                                                             questionType) {
-        bookService.deleteAQuestion(id, QuestionType.CHOOSE_THE_BEST);
+        questionService.deleteAQuestion(id, QuestionType.CHOOSE_THE_BEST);
         return null;
     }
 
@@ -207,7 +208,7 @@ class QuestionAPIController {
                            final HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(bookService.listAllQuestions(principal.getName(),
+                .body(questionService.list(principal.getName(),
                         locale, getCategories(request.getRequestURI())));
     }
 
