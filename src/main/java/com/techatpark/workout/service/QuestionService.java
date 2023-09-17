@@ -600,7 +600,7 @@ public class QuestionService {
 
         final String query = locale == null
                 ? "SELECT id,question,explanation,type,"
-                + "created_by"
+                + "created_by, "
                 + (isOwner ? "answer" : "NULL")
                 + " AS answer,"
                 + "created_at,modified_at"

@@ -32,7 +32,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/events")
 @Tag(name = "Eventss", description = "Resource to manage Events")
-class EventsAPIController {
+class EventAPIController {
 
     /**
      * declare a event service.
@@ -54,7 +54,7 @@ class EventsAPIController {
      */
     private final BookService bookService;
 
-    EventsAPIController(final EventService aEventsService,
+    EventAPIController(final EventService aEventsService,
                        final GradeService agradeService,
                        final SubjectService asubjectService,
                        final BookService aBookService) {

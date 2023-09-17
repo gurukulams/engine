@@ -114,6 +114,35 @@ class QuestionServiceTest {
 
     }
 
+    @Test
+    void testList() {
+        Question newMCQ = newMCQ();
+
+        newMCQ.getChoices().get(0).setAnswer(true);
+
+        // Create a Question
+        questionService.create(List.of("c1",
+                        "c2"),
+                null,
+                QuestionType.CHOOSE_THE_BEST,
+                null,
+                "sathish",
+                newMCQ);
+
+        questionService.create(List.of("c1",
+                        "c2"),
+                null,
+                QuestionType.CHOOSE_THE_BEST,
+                null,
+                "sathish",
+                newMCQ);
+
+        Assertions.assertEquals(2,
+                questionService.list("mani", null, List.of("c1",
+                "c2")).size());
+
+    }
+
     Question newMCQ() {
         Question question = new Question();
         question.setQuestion("Choose 1");
