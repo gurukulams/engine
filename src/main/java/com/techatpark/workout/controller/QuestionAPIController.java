@@ -250,7 +250,8 @@ class QuestionAPIController {
     }
 
     private List<String> getCategories(final String requestURI) {
-        return List.of(requestURI.split("/")[1]
+        return List.of(requestURI
+                .replaceFirst("/api/questions/", "")
                 .split("/"));
     }
 
