@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -133,13 +134,17 @@ class QuestionServiceTest {
                         "c2"),
                 null,
                 QuestionType.CHOOSE_THE_BEST,
-                null,
+                Locale.FRENCH,
                 "sathish",
                 newMCQ);
 
         Assertions.assertEquals(2,
                 questionService.list("mani", null, List.of("c1",
                 "c2")).size());
+
+        Assertions.assertEquals(2,
+                questionService.list("mani", Locale.FRENCH, List.of("c1",
+                        "c2")).size());
 
     }
 
