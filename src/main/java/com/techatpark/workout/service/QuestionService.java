@@ -377,14 +377,18 @@ public class QuestionService {
                     .param(INDEX_5, locale.getLanguage())
                     .query(rowMapper).optional();
 
-            if ((question.get().getType()
-                    .equals(QuestionType.CHOOSE_THE_BEST)
-                    || question.get().getType()
-                    .equals(QuestionType.MULTI_CHOICE))) {
-                question.get().setChoices(
-                        listQuestionChoice(true,
-                                question.get().getId(), locale));
+            if (question.isPresent()) {
+                if ((question.get().getType()
+                        .equals(QuestionType.CHOOSE_THE_BEST)
+                        || question.get().getType()
+                        .equals(QuestionType.MULTI_CHOICE))) {
+                    question.get().setChoices(
+                            listQuestionChoice(true,
+                                    question.get().getId(), locale));
+                }
             }
+
+
             return question;
 
     }
@@ -776,15 +780,14 @@ public class QuestionService {
 
         deleteQuestionChoice(id);
 
-        final String queryL =
-                "DELETE FROM QUESTIONS_LOCALIZED WHERE question_id=?";
+        jdbcClient.sql("DELETE FROM QUESTIONS_LOCALIZED WHERE question_id=?")
+                .param(id).update();
 
-        jdbcClient.sql(queryL).param(id).update();
+        jdbcClient.sql("DELETE FROM QUESTIONS_CATEGORIES WHERE question_id=?")
+                .param(id).update();
 
-        final String query =
-                "DELETE FROM questions WHERE ID=? and type = ?";
         int updatedRow =
-                jdbcClient.sql(query)
+                jdbcClient.sql("DELETE FROM questions WHERE ID=? and type = ?")
                         .param(INDEX_1, id)
                         .param(INDEX_2, questionType.toString())
                         .update();

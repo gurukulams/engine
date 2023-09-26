@@ -1,0 +1,14 @@
+{
+  "question" : "C இல் int datatype மூலம் சேமிக்கப்படும் மதிப்புகளின் வரம்பு என்ன?",
+  "explanation" : "",
+  "choices" : [ {
+    "value" : "-(2^31) to (2^31) - 1",
+    "answer" : true
+  }, {
+    "value" : "-256 to 255"
+  }, {
+    "value" : "-(2^63) to (2^63) - 1"
+  }, {
+    "value" : "0 to (2^31) - 1"
+  } ]
+}

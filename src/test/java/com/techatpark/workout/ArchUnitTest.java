@@ -13,9 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
@@ -87,12 +84,13 @@ public class ArchUnitTest {
                 .layer("Controller").definedBy("..controller..")
                 .layer("Service").definedBy("..service..")
                 .layer("Util").definedBy("..util..")
+                .layer("Component").definedBy("..component..")
                 .layer("Security").definedBy("..security.config..", "." +
                         ".security.filter..")
 
                 .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
                 .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller"
-                        , "Security", "Util")
+                        , "Component", "Security", "Util")
                 .check(allClasses);
 
         fields().that().areDeclaredInClassesThat().areAnnotatedWith(RestController.class)

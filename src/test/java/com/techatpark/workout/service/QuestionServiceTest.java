@@ -116,6 +116,28 @@ class QuestionServiceTest {
     }
 
     @Test
+    void testDelete() {
+        Question newMCQ = newMCQ();
+
+        newMCQ.getChoices().get(0).setAnswer(true);
+
+        // Create a Question
+        Optional<Question> question = questionService.create(List.of("c1",
+                        "c2"),
+                null,
+                QuestionType.CHOOSE_THE_BEST,
+                null,
+                "sathish",
+                newMCQ);
+
+
+        questionService.deleteAQuestion(question.get().getId(), QuestionType.CHOOSE_THE_BEST);
+
+        Assertions.assertTrue(questionService.read(question.get().getId(), null).isEmpty());
+
+    }
+
+    @Test
     void testList() {
         Question newMCQ = newMCQ();
 
