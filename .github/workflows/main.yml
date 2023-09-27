@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 20
+          java-version: 21
       - name: Build
         run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B jacoco:prepare-agent install jacoco:report --file pom.xml
         env:
