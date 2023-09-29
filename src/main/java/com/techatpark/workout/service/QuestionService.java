@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Category;
+import com.gurukulams.core.model.Categories;
 import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
@@ -821,12 +821,14 @@ public class QuestionService {
                     .update();
         } catch (final DataIntegrityViolationException e) {
             // Retry with Auto Create Category
-            Category category = this.categoryService.create(
-                    userName, null, new Category(categoryId,
-                            categoryId.toUpperCase(), null, null,
-                            null, null));
-            if (category != null) {
-                return attachCategories(userName, questionId, category.id());
+
+            Categories categories = new Categories();
+            categories.setId(categoryId);
+            categories.setTitle(categoryId.toUpperCase());
+
+            if (this.categoryService.create(
+                    userName, null, categories) != null) {
+                return attachCategories(userName, questionId, categoryId);
             }
         }
 

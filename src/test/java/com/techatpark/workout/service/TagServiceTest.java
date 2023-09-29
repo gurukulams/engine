@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Tag;
+import com.gurukulams.core.model.Tags;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,36 +44,38 @@ class TagServiceTest {
 
     @Test
     void create() {
-        final Tag tag = tagService.create("hari"
+        final Tags tag = tagService.create("hari"
                 , null, anTag());
-        Assertions.assertTrue(tagService.read("hari", tag.id(), null).isPresent(), "Created Tag");
+        Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(), "Created Tags");
     }
 
     @Test
     void createLocalized() {
-        final Tag tag = tagService.create("hari"
+        final Tags tag = tagService.create("hari"
                 , Locale.GERMAN, anTag());
-        Assertions.assertTrue(tagService.read("hari", tag.id(), Locale.GERMAN).isPresent(), "Created Localized Tag");
-        Assertions.assertTrue(tagService.read("hari", tag.id(), null).isPresent(), "Created Tag");
+        Assertions.assertTrue(tagService.read("hari", tag.getId(), Locale.GERMAN).isPresent(), "Created Localized Tags");
+        Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(), "Created Tags");
     }
 
     @Test
     void read() {
-        final Tag tag = tagService.create("hari",
+        final Tags tag = tagService.create("hari",
                 null, anTag());
-        Assertions.assertTrue(tagService.read("hari", tag.id(), null).isPresent(),
-                "Created Tag");
+        Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(),
+                "Created Tags");
     }
 
     @Test
     void update() {
 
-        final Tag tag = tagService.create("hari",
+        final Tags tag = tagService.create("hari",
                 null, anTag());
-        Tag newTag = new Tag(tag.id(), "HansiTag", null, null, null, null);
-        Tag updatedTag = tagService
-                .update(tag.id(), "priya", null, newTag);
-        Assertions.assertEquals("HansiTag", updatedTag.title(), "Updated");
+        Tags newTag = new Tags();
+        newTag.setId(tag.getId());
+         newTag.setTitle("HansiTag");
+        Tags updatedTag = tagService
+                .update(tag.getId(), "priya", null, newTag);
+        Assertions.assertEquals("HansiTag", updatedTag.getTitle(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             tagService
@@ -84,14 +86,16 @@ class TagServiceTest {
     @Test
     void updateLocalized() {
 
-        final Tag tag = tagService.create("hari",
+        final Tags tag = tagService.create("hari",
                 null, anTag());
-        Tag newTag = new Tag(tag.id(), "HansiTag", null, null, null, null);
-        Tag updatedTag = tagService
-                .update(tag.id(), "priya", Locale.GERMAN, newTag);
+        Tags newTag = new Tags();
+        newTag.setId(tag.getId());
+        newTag.setTitle("HansiTag");
+        Tags updatedTag = tagService
+                .update(tag.getId(), "priya", Locale.GERMAN, newTag);
 
-        Assertions.assertEquals("HansiTag", tagService.read("mani", tag.id(), Locale.GERMAN).get().title(), "Updated");
-        Assertions.assertNotEquals("HansiTag", tagService.read("mani", tag.id(), null).get().title(), "Updated");
+        Assertions.assertEquals("HansiTag", tagService.read("mani", tag.getId(), Locale.GERMAN).get().getTitle(), "Updated");
+        Assertions.assertNotEquals("HansiTag", tagService.read("mani", tag.getId(), null).get().getTitle(), "Updated");
 
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -103,21 +107,23 @@ class TagServiceTest {
     @Test
     void delete() {
 
-        final Tag tag = tagService.create("hari", null,
+        final Tags tag = tagService.create("hari", null,
                 anTag());
-        tagService.delete("mani", tag.id());
-        Assertions.assertFalse(tagService.read("mani", tag.id(), null).isPresent(), "Deleted Tag");
+        tagService.delete("mani", tag.getId());
+        Assertions.assertFalse(tagService.read("mani", tag.getId(), null).isPresent(), "Deleted Tags");
     }
 
     @Test
     void list() {
 
-        final Tag tag = tagService.create("hari", null,
+        final Tags tag = tagService.create("hari", null,
                 anTag());
-        Tag newTag = new Tag(UUID.randomUUID().toString(), "HansiTag", null, null, null, null);
+        Tags newTag = new Tags();
+        newTag.setId(UUID.randomUUID().toString());
+        newTag.setTitle("HansiTag");
         tagService.create("hari", null,
                 newTag);
-        List<Tag> listofcategories = tagService.list("hari", null);
+        List<Tags> listofcategories = tagService.list("hari", null);
         Assertions.assertEquals(2, listofcategories.size());
 
     }
@@ -125,12 +131,14 @@ class TagServiceTest {
     @Test
     void listLocalized() {
 
-        final Tag tag = tagService.create("hari", Locale.GERMAN,
+        final Tags tag = tagService.create("hari", Locale.GERMAN,
                 anTag());
-        Tag newTag = new Tag(UUID.randomUUID().toString(), "HansiTag", null, null, null, null);
+        Tags newTag = new Tags();
+        newTag.setId(UUID.randomUUID().toString());
+        newTag.setTitle("HansiTag");
         tagService.create("hari", null,
                 newTag);
-        List<Tag> listofcategories = tagService.list("hari", null);
+        List<Tags> listofcategories = tagService.list("hari", null);
         Assertions.assertEquals(2, listofcategories.size());
 
         listofcategories = tagService.list("hari", Locale.GERMAN);
@@ -144,9 +152,11 @@ class TagServiceTest {
      *
      * @return the practice
      */
-    Tag anTag() {
+    Tags anTag() {
 
-        Tag tag = new Tag(UUID.randomUUID().toString(), "HariTag", null, null, null, null);
+        Tags tag = new Tags();
+        tag.setId(UUID.randomUUID().toString());
+        tag.setTitle("HariTag");
         return tag;
     }
 

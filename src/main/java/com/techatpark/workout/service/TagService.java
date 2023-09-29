@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Tag;
+import com.gurukulams.core.model.Tags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -71,15 +71,15 @@ public final class TagService {
         this.jdbcClient = ajdbcClient;
     }
 
-    private Tag rowMapper(final ResultSet rs, final Integer rowNum)
+    private Tags rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Tag tag = new Tag(
-                rs.getString(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getObject(INDEX_3, LocalDateTime.class),
-                rs.getString(INDEX_4),
-                rs.getObject(INDEX_5, LocalDateTime.class),
-                rs.getString(INDEX_6));
+        Tags tag = new Tags();
+        tag.setId(rs.getString(INDEX_1));
+        tag.setTitle(rs.getString(INDEX_2));
+        tag.setCreatedAt(rs.getObject(INDEX_3, LocalDateTime.class));
+        tag.setCreatedBy(rs.getString(INDEX_4));
+        tag.setModifiedAt(rs.getObject(INDEX_5, LocalDateTime.class));
+        tag.setModifiedBy(rs.getString(INDEX_6));
         return tag;
     }
 
@@ -91,9 +91,9 @@ public final class TagService {
      * @param tag      the tag
      * @return the tag
      */
-    public Tag create(final String userName,
+    public Tags create(final String userName,
                       final Locale locale,
-                      final Tag tag) {
+                      final Tags tag) {
 
         final String insertTagQuery = """
                 INSERT INTO %s(id, title, created_by)
@@ -101,8 +101,8 @@ public final class TagService {
                 """.formatted(TAGS_TABLE);
 
         jdbcClient.sql(insertTagQuery)
-                .param(INDEX_1, tag.id())
-                .param(INDEX_2, tag.title())
+                .param(INDEX_1, tag.getId())
+                .param(INDEX_2, tag.getTitle())
                 .param(INDEX_3, userName)
                 .update();
 
@@ -111,15 +111,15 @@ public final class TagService {
                             INSERT INTO %s(tag_id, locale, title)
                             VALUES (?, ?, ?)
                             """.formatted(TAGS_LOCALIZED_TABLE))
-                    .param(INDEX_1, tag.id())
+                    .param(INDEX_1, tag.getId())
                     .param(INDEX_2, locale.getLanguage())
-                    .param(INDEX_3, tag.title())
+                    .param(INDEX_3, tag.getTitle())
                     .update();
         }
 
-        final Optional<Tag> optionalTag = read(userName, tag.id(), locale);
+        final Optional<Tags> optionalTag = read(userName, tag.getId(), locale);
 
-        logger.info("Created Tag {}", tag.id());
+        logger.info("Created Tag {}", tag.getId());
 
         return optionalTag.get();
     }
@@ -132,7 +132,7 @@ public final class TagService {
      * @param locale   the locale
      * @return the optional tag
      */
-    public Optional<Tag> read(final String userName,
+    public Optional<Tags> read(final String userName,
                               final String id,
                               final Locale locale) {
         final String query = locale == null
@@ -184,10 +184,10 @@ public final class TagService {
      * @param tag      the tag
      * @return the tag
      */
-    public Tag update(final String id,
+    public Tags update(final String id,
                       final String userName,
                       final Locale locale,
-                      final Tag tag) {
+                      final Tags tag) {
         logger.debug("Entering update for Tag {}", id);
         final String updateTagQuery = locale == null
                 ?
@@ -198,7 +198,7 @@ public final class TagService {
 
         final int updatedRows = locale == null ? jdbcClient
                 .sql(updateTagQuery)
-                .param(INDEX_1, tag.title())
+                .param(INDEX_1, tag.getTitle())
                 .param(INDEX_2, userName)
                 .param(INDEX_3, id)
                 .update()
@@ -218,7 +218,7 @@ public final class TagService {
                             SET title=?, locale=?
                             WHERE tag_id=? AND locale=?
                             """.formatted(TAGS_LOCALIZED_TABLE))
-                    .param(INDEX_1, tag.title())
+                    .param(INDEX_1, tag.getTitle())
                     .param(INDEX_2, locale.getLanguage())
                     .param(INDEX_3, id)
                     .param(INDEX_4, locale.getLanguage())
@@ -231,7 +231,7 @@ public final class TagService {
                                 """.formatted(TAGS_LOCALIZED_TABLE))
                         .param(INDEX_1, id)
                         .param(INDEX_2, locale.getLanguage())
-                        .param(INDEX_3, tag.title())
+                        .param(INDEX_3, tag.getTitle())
                         .update();
             }
         }
@@ -265,7 +265,7 @@ public final class TagService {
      * @param locale   the locale
      * @return the list of tags
      */
-    public List<Tag> list(final String userName, final Locale locale) {
+    public List<Tags> list(final String userName, final Locale locale) {
         final String query = locale == null
                 ? """
                 SELECT id, title, created_at, created_by, modified_at,

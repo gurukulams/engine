@@ -2,7 +2,7 @@ package com.techatpark.workout.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.techatpark.workout.model.Category;
+import com.gurukulams.core.model.Categories;
 import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
@@ -92,12 +92,14 @@ public class QuestionsLoader {
                     .forEach(tagFolder -> {
                         if (!tagFolder.equals(questionsFolder)) {
                             try {
+                                Categories categories = new Categories();
+                                categories.setId(tagFolder
+                                        .getFileName().toString());
+                                categories.setTitle(tagFolder
+                                        .getFileName().toString());
+
                                 tagService.create(userName, null,
-                                new Category(tagFolder.getFileName().toString(),
-                                        tagFolder.getFileName().toString(),
-                                        null,
-                                        userName, null,
-                                        userName));
+                                        categories);
                             } catch (DuplicateKeyException e) {
                                 System.out.println("Duplicate Category "
                                         + tagFolder.getFileName().toString());
