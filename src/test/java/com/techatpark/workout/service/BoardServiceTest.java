@@ -1,5 +1,6 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.model.Boards;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +16,8 @@ import java.util.UUID;
 @SpringBootTest
 public class BoardServiceTest {
 
-    public static final String STATE_BOARD_IN_ENGLISH = "State Board";
-    public static final String STATE_BOARD_DESCRIPTION_IN_ENGLISH = "State Board Description";
+    public static final String STATE_BOARD_IN_ENGLISH = "State Boards";
+    public static final String STATE_BOARD_DESCRIPTION_IN_ENGLISH = "State Boards Description";
     public static final String STATE_BOARD_TITLE_IN_FRENCH = "Conseil d'État";
     public static final String STATE_BOARD_DESCRIPTION_IN_FRENCH = "Description du conseil d'État";
     @Autowired
@@ -46,32 +47,34 @@ public class BoardServiceTest {
 
     @Test
     void create() {
-        final Board board = boardService.create("mani", null,
+        final Boards board = boardService.create("mani", null,
                 anBoard());
-        Assertions.assertTrue(boardService.read("mani", null, board.id()).isPresent(),
-                "Created Board");
+        Assertions.assertTrue(boardService.read("mani", null, board.getId()).isPresent(),
+                "Created Boards");
     }
 
     @Test
     void read() {
-        final Board board = boardService.create("mani", null,
+        final Boards board = boardService.create("mani", null,
                 anBoard());
-        final UUID newBoardId = board.id();
+        final UUID newBoardId = board.getId();
         Assertions.assertTrue(boardService.read("mani", null, newBoardId).isPresent(),
-                "Board Created");
+                "Boards Created");
     }
 
     @Test
     void update() {
 
-        final Board board = boardService.create("mani", null,
+        final Boards board = boardService.create("mani", null,
                 anBoard());
-        final UUID newBoardId = board.id();
-        Board newBoard = new Board(null, "Board", "A " +
-                "Board", null, "tom", null, null);
-        Board updatedBoard = boardService
+        final UUID newBoardId = board.getId();
+        Boards newBoard = new Boards();
+        newBoard.setTitle("Boards");
+        newBoard.setDescription("A Boards");
+        newBoard.setCreatedBy("tom");
+        Boards updatedBoard = boardService
                 .update(newBoardId, "mani", null, newBoard);
-        Assertions.assertEquals("Board", updatedBoard.title(), "Updated");
+        Assertions.assertEquals("Boards", updatedBoard.getTitle(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             boardService
@@ -82,32 +85,34 @@ public class BoardServiceTest {
     @Test
     void delete() {
 
-        final Board board = boardService.create("mani", null,
+        final Boards board = boardService.create("mani", null,
                 anBoard());
-        boardService.delete("mani", board.id());
-        Assertions.assertFalse(boardService.read("mani", null, board.id()).isPresent(),
-                "Deleted Board");
+        boardService.delete("mani", board.getId());
+        Assertions.assertFalse(boardService.read("mani", null, board.getId()).isPresent(),
+                "Deleted Boards");
 
     }
 
     @Test
     void list() {
 
-        final Board board = boardService.create("mani", null,
+        final Boards board = boardService.create("mani", null,
                 anBoard());
-        Board newBoard = new Board(null, "Board New", "A " +
-                "Board", null, "tom", null, null);
+        Boards newBoard = new Boards();
+        newBoard.setTitle("Boards New");
+        newBoard.setDescription("A Boards");
+        newBoard.setCreatedBy("tom");
         boardService.create("mani", null,
                 newBoard);
-        List<Board> listofboard = boardService.list("manikanta", null);
+        List<Boards> listofboard = boardService.list("manikanta", null);
         Assertions.assertEquals(2, listofboard.size());
 
     }
 
     @Test
     void testLocalizationFromDefaultWithoutLocale() {
-        // Create a Board without locale
-        final Board board = boardService.create("mani", null,
+        // Create a Boards without locale
+        final Boards board = boardService.create("mani", null,
                 anBoard());
 
         testLocalization(board);
@@ -116,49 +121,49 @@ public class BoardServiceTest {
 
     @Test
     void testLocalizationFromCreateWithLocale() {
-        // Create a Board with locale
-        final Board board = boardService.create("mani", Locale.GERMAN,
+        // Create a Boards with locale
+        final Boards board = boardService.create("mani", Locale.GERMAN,
                 anBoard());
 
         testLocalization(board);
 
     }
 
-    void testLocalization(Board board) {
+    void testLocalization(Boards board) {
 
         // Update for China Language
-        boardService.update(board.id(), "mani", Locale.FRENCH, anBoard(board,
+        boardService.update(board.getId(), "mani", Locale.FRENCH, anBoard(board,
                 STATE_BOARD_TITLE_IN_FRENCH,
                 STATE_BOARD_DESCRIPTION_IN_FRENCH));
 
         // Get for french Language
-        Board createBoard = boardService.read("mani", Locale.FRENCH,
-                board.id()).get();
-        Assertions.assertEquals(STATE_BOARD_TITLE_IN_FRENCH, createBoard.title());
-        Assertions.assertEquals(STATE_BOARD_DESCRIPTION_IN_FRENCH, createBoard.description());
+        Boards createBoard = boardService.read("mani", Locale.FRENCH,
+                board.getId()).get();
+        Assertions.assertEquals(STATE_BOARD_TITLE_IN_FRENCH, createBoard.getTitle());
+        Assertions.assertEquals(STATE_BOARD_DESCRIPTION_IN_FRENCH, createBoard.getDescription());
 
-        final UUID id = createBoard.id();
+        final UUID id = createBoard.getId();
         createBoard = boardService.list("mani", Locale.FRENCH)
                 .stream()
-                .filter(board1 -> board1.id().equals(id))
+                .filter(board1 -> board1.getId().equals(id))
                 .findFirst().get();
-        Assertions.assertEquals(STATE_BOARD_TITLE_IN_FRENCH, createBoard.title());
+        Assertions.assertEquals(STATE_BOARD_TITLE_IN_FRENCH, createBoard.getTitle());
         Assertions.assertEquals(STATE_BOARD_DESCRIPTION_IN_FRENCH,
-                createBoard.description());
+                createBoard.getDescription());
 
         // Get for France which does not have data
         createBoard = boardService.read("mani", Locale.CHINESE,
-                board.id()).get();
-        Assertions.assertEquals(STATE_BOARD_IN_ENGLISH, createBoard.title());
-        Assertions.assertEquals(STATE_BOARD_DESCRIPTION_IN_ENGLISH, createBoard.description());
+                board.getId()).get();
+        Assertions.assertEquals(STATE_BOARD_IN_ENGLISH, createBoard.getTitle());
+        Assertions.assertEquals(STATE_BOARD_DESCRIPTION_IN_ENGLISH, createBoard.getDescription());
 
         createBoard = boardService.list("mani", Locale.CHINESE)
                 .stream()
-                .filter(board1 -> board1.id().equals(id))
+                .filter(board1 -> board1.getId().equals(id))
                 .findFirst().get();
 
-        Assertions.assertEquals(STATE_BOARD_IN_ENGLISH, createBoard.title());
-        Assertions.assertEquals(STATE_BOARD_DESCRIPTION_IN_ENGLISH, createBoard.description());
+        Assertions.assertEquals(STATE_BOARD_IN_ENGLISH, createBoard.getTitle());
+        Assertions.assertEquals(STATE_BOARD_DESCRIPTION_IN_ENGLISH, createBoard.getDescription());
 
     }
 
@@ -167,10 +172,10 @@ public class BoardServiceTest {
      *
      * @return the board
      */
-    Board anBoard() {
-        Board board = new Board(null, STATE_BOARD_IN_ENGLISH,
-                STATE_BOARD_DESCRIPTION_IN_ENGLISH, null, null,
-                null, null);
+    Boards anBoard() {
+        Boards board = new Boards();
+        board.setTitle(STATE_BOARD_IN_ENGLISH);
+        board.setDescription(STATE_BOARD_DESCRIPTION_IN_ENGLISH);
         return board;
     }
 
@@ -179,9 +184,16 @@ public class BoardServiceTest {
      *
      * @return the board
      */
-    Board anBoard(final Board ref, final String title, final String description) {
-        return new Board(ref.id(), title,
-                description, ref.created_at(), ref.created_by(),
-                ref.modified_at(), ref.modified_by());
+    Boards anBoard(final Boards ref, final String title, final String description) {
+        
+        Boards board = new Boards();
+        board.setId(ref.getId());
+        board.setTitle(title);
+        board.setDescription(description);
+        board.setCreatedAt(ref.getCreatedAt()); 
+        board.setCreatedBy(ref.getCreatedBy());
+        board.setModifiedAt(ref.getModifiedAt());
+        board.setModifiedBy(ref.getModifiedBy());
+        return board;
     }
 }

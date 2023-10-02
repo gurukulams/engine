@@ -1,5 +1,6 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.model.Campuses;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,31 +43,32 @@ class CampusServiceTest {
 
     @Test
     void create() {
-        final Campus campus = campusService.create("hari",
+        final Campuses campus = campusService.create("hari",
                 aCampus());
-        Assertions.assertTrue(campusService.read("hari", campus.id()).isPresent(), "Created Campus");
+        Assertions.assertTrue(campusService.read("hari", campus.getId()).isPresent(), "Created Campuses");
     }
 
     @Test
     void read() {
-        final Campus campus = campusService.create("hari",
+        final Campuses campus = campusService.create("hari",
                 aCampus());
-        final UUID newCourseId = campus.id();
-        Assertions.assertTrue(campusService.read("hari", campus.id()).isPresent(),
-                "Created Campus");
+        final UUID newCourseId = campus.getId();
+        Assertions.assertTrue(campusService.read("hari", campus.getId()).isPresent(),
+                "Created Campuses");
     }
 
     @Test
     void update() {
 
-        final Campus campus = campusService.create("hari",
+        final Campuses campus = campusService.create("hari",
                 aCampus());
-        final UUID newCourseId = campus.id();
-        Campus newCourse = new Campus(null, "HansiCourse", "An " +
-                "Campus", null, null, null, null);
-        Campus updatedCourse = campusService
+        final UUID newCourseId = campus.getId();
+        Campuses newCourse = new Campuses();
+        newCourse.setTitle("HansiCourse");
+        newCourse.setDescription("An Campuses");
+        Campuses updatedCourse = campusService
                 .update(newCourseId, "priya", newCourse);
-        Assertions.assertEquals("HansiCourse", updatedCourse.title(), "Updated");
+        Assertions.assertEquals("HansiCourse", updatedCourse.getTitle(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             campusService
@@ -77,22 +79,23 @@ class CampusServiceTest {
     @Test
     void delete() {
 
-        final Campus campus = campusService.create("hari",
+        final Campuses campus = campusService.create("hari",
                 aCampus());
-        campusService.delete("mani", campus.id());
-        Assertions.assertFalse(campusService.read("mani", campus.id()).isPresent(), "Deleted Campus");
+        campusService.delete("mani", campus.getId());
+        Assertions.assertFalse(campusService.read("mani", campus.getId()).isPresent(), "Deleted Campuses");
     }
 
     @Test
     void list() {
 
-        final Campus campus = campusService.create("hari",
+        final Campuses campus = campusService.create("hari",
                 aCampus());
-        Campus newCourse = new Campus(null, "HansiCourse", "An " +
-                "Campus", null, null, null, null);
+        Campuses newCourse = new Campuses();
+        newCourse.setTitle("HansiCourse");
+        newCourse.setDescription("An Campuses");
         campusService.create("hari",
                 newCourse);
-        List<Campus> listofCourses = campusService.list("hari");
+        List<Campuses> listofCourses = campusService.list("hari");
         Assertions.assertEquals(2, listofCourses.size());
 
     }
@@ -102,10 +105,10 @@ class CampusServiceTest {
      *
      * @return the practice
      */
-    Campus aCampus() {
-
-        Campus campus = new Campus(null, "HariCourse", "An " +
-                "Campus", null, null, null, null);
+    Campuses aCampus() {
+        Campuses campus = new Campuses();
+        campus.setTitle("HariCourse");
+        campus.setDescription("An Campuses");
         return campus;
     }
 

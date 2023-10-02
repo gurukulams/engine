@@ -1,5 +1,6 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.model.Degree;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,15 +45,15 @@ class DegreeServiceTest {
     void create() {
         final Degree degree = degreeService.create("hari",
                 aDegree());
-        Assertions.assertTrue(degreeService.read("hari", degree.id()).isPresent(), "Created Degree");
+        Assertions.assertTrue(degreeService.read("hari", degree.getId()).isPresent(), "Created Degree");
     }
 
     @Test
     void read() {
         final Degree degree = degreeService.create("hari",
                 aDegree());
-        final UUID newDegreeId = degree.id();
-        Assertions.assertTrue(degreeService.read("hari", degree.id()).isPresent(),
+        final UUID newDegreeId = degree.getId();
+        Assertions.assertTrue(degreeService.read("hari", degree.getId()).isPresent(),
                 "Created Degree");
     }
 
@@ -61,12 +62,13 @@ class DegreeServiceTest {
 
         final Degree degree = degreeService.create("hari",
                 aDegree());
-        final UUID newDegreeId = degree.id();
-        Degree newDegree = new Degree(null, "HansiCourse", "An " +
-                "Degree", null, null, null, null);
+        final UUID newDegreeId = degree.getId();
+        Degree newDegree = new Degree();
+        newDegree.setTitle("HansiCourse");
+        newDegree.setDescription("An Degree");
         Degree updatedDegree = degreeService
                 .update(newDegreeId, "priya", newDegree);
-        Assertions.assertEquals("HansiCourse", updatedDegree.title(), "Updated");
+        Assertions.assertEquals("HansiCourse", updatedDegree.getTitle(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             degreeService
@@ -79,8 +81,8 @@ class DegreeServiceTest {
 
         final Degree degree = degreeService.create("hari",
                 aDegree());
-        degreeService.delete("mani", degree.id());
-        Assertions.assertFalse(degreeService.read("mani", degree.id()).isPresent(), "Deleted Degree");
+        degreeService.delete("mani", degree.getId());
+        Assertions.assertFalse(degreeService.read("mani", degree.getId()).isPresent(), "Deleted Degree");
     }
 
     @Test
@@ -88,8 +90,9 @@ class DegreeServiceTest {
 
         final Degree degree = degreeService.create("hari",
                 aDegree());
-        Degree newDegree = new Degree(null, "HansiDegree", "An " +
-                "Degree", null, null, null, null);
+        Degree newDegree = new Degree();
+        newDegree.setTitle("HansiDegree");
+        newDegree.setDescription("An Degree");
         degreeService.create("hari",
                 newDegree);
         List<Degree> listofCourses = degreeService.list("hari");
@@ -104,8 +107,9 @@ class DegreeServiceTest {
      */
     Degree aDegree() {
 
-        Degree degree = new Degree(null, "HariDegree", "An " +
-                "Degree", null, null, null, null);
+        Degree degree = new Degree();
+        degree.setTitle("HariDegree");
+        degree.setDescription("An Degree");
         return degree;
     }
 

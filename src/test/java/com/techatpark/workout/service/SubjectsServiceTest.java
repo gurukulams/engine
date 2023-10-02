@@ -1,5 +1,8 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.model.Boards;
+import com.gurukulams.core.model.Grades;
+import com.gurukulams.core.model.Subjects;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +19,8 @@ import java.util.UUID;
 @SpringBootTest
 public class SubjectsServiceTest {
 
-    public static final String STATE_SUBJECT_IN_ENGLISH = "State Board";
-    public static final String STATE_SUBJECT_DESCRIPTION_IN_ENGLISH = "State Board Description";
+    public static final String STATE_SUBJECT_IN_ENGLISH = "State Boards";
+    public static final String STATE_SUBJECT_DESCRIPTION_IN_ENGLISH = "State Boards Description";
     public static final String STATE_SUBJECT_TITLE_IN_FRENCH = "Conseil d'État";
     public static final String STATE_SUBJECT_DESCRIPTION_IN_FRENCH = "Description du conseil d'État";
 
@@ -57,17 +60,17 @@ public class SubjectsServiceTest {
 
     @Test
     void create() {
-        final Subject subject = subjectService.create("mani", null,
+        final Subjects subject = subjectService.create("mani", null,
                 anSubject());
-        Assertions.assertTrue(subjectService.read("mani", null, subject.id()).isPresent(),
+        Assertions.assertTrue(subjectService.read("mani", null, subject.getId()).isPresent(),
                 "Created Syllabous");
     }
 
     @Test
     void read() {
-        final Subject subject = subjectService.create("mani", null,
+        final Subjects subject = subjectService.create("mani", null,
                 anSubject());
-        final UUID newSubjectId = subject.id();
+        final UUID newSubjectId = subject.getId();
         Assertions.assertTrue(subjectService.read("mani", null, newSubjectId).isPresent(),
                 "subject Created");
     }
@@ -75,14 +78,17 @@ public class SubjectsServiceTest {
     @Test
     void update() {
 
-        final Subject subject = subjectService.create("mani", null,
+        final Subjects subject = subjectService.create("mani", null,
                 anSubject());
-        final UUID newSubjectId = subject.id();
-        Subject newSubject = new Subject(null, "MathsSubject", "An " +
-                "Syllabus", null, "tom", null, null);
-        Subject updateSubject = subjectService
+        final UUID newSubjectId = subject.getId();
+        Subjects newSubject = new Subjects();
+        newSubject.setTitle("MathsSubject");
+        newSubject.setDescription("An Syllabus");
+        newSubject.setCreatedBy("tom");
+
+        Subjects updateSubject = subjectService
                 .update(newSubjectId, "manikanta", null, newSubject);
-        Assertions.assertEquals("MathsSubject", updateSubject.title(), "Updated");
+        Assertions.assertEquals("MathsSubject", updateSubject.getTitle(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             subjectService
@@ -93,23 +99,25 @@ public class SubjectsServiceTest {
     @Test
     void delete() {
 
-        final Subject subject = subjectService.create("mani", null,
+        final Subjects subject = subjectService.create("mani", null,
                 anSubject());
-        subjectService.delete("mani", subject.id());
-        Assertions.assertFalse(subjectService.read("mani", null, subject.id()).isPresent(), "Deleted Subject");
+        subjectService.delete("mani", subject.getId());
+        Assertions.assertFalse(subjectService.read("mani", null, subject.getId()).isPresent(), "Deleted Subjects");
 
     }
 
     @Test
     void list() {
 
-        final Subject subject = subjectService.create("mani", null,
+        final Subjects subject = subjectService.create("mani", null,
                 anSubject());
-        Subject newSubject = new Subject(null, "Physicssubject", "An " +
-                "Syllabus", null, "tom", null, null);
+        Subjects newSubject = new Subjects();
+        newSubject.setTitle("Physicssubject");
+        newSubject.setDescription("An Syllabus");
+        newSubject.setCreatedBy("tom");
         subjectService.create("manikanta", null,
                 newSubject);
-        List<Subject> listofsyllabus = subjectService.list("manikanta", null);
+        List<Subjects> listofsyllabus = subjectService.list("manikanta", null);
         Assertions.assertEquals(2, listofsyllabus.size());
 
     }
@@ -117,11 +125,11 @@ public class SubjectsServiceTest {
 
     @Test
     void testLocalizationFromDefaultWithoutLocale() {
-        // Create a Subject for Default Language
-        final Board board = boardService.create("mani", null,
+        // Create a Subjects for Default Language
+        final Boards board = boardService.create("mani", null,
                 anBoard());
-        final Grade grade = gradeService.create("tom", null, aGrade());
-        final Subject subject = subjectService.create("mani", null,
+        final Grades grade = gradeService.create("tom", null, aGrade());
+        final Subjects subject = subjectService.create("mani", null,
                 anSubject());
 
         testLocalization(subject);
@@ -132,11 +140,11 @@ public class SubjectsServiceTest {
 
     @Test
     void testLocalizationFromCreateWithLocale() {
-        // Create a Subject for GERMAN Language
-        final Board board = boardService.create("mani", Locale.GERMAN,
+        // Create a Subjects for GERMAN Language
+        final Boards board = boardService.create("mani", Locale.GERMAN,
                 anBoard());
-        final Grade grade = gradeService.create("tom", Locale.GERMAN, aGrade());
-        final Subject subject = subjectService.create("mani", Locale.GERMAN,
+        final Grades grade = gradeService.create("tom", Locale.GERMAN, aGrade());
+        final Subjects subject = subjectService.create("mani", Locale.GERMAN,
                 anSubject());
 
         testLocalization(subject);
@@ -145,62 +153,62 @@ public class SubjectsServiceTest {
 
     }
 
-    void testLocalization(Subject subject) {
+    void testLocalization(Subjects subject) {
 
         // Update for China Language
-        subjectService.update(subject.id(), "mani", Locale.FRENCH, anSubject(subject,
+        subjectService.update(subject.getId(), "mani", Locale.FRENCH, anSubject(subject,
                 STATE_SUBJECT_TITLE_IN_FRENCH,
                 STATE_SUBJECT_DESCRIPTION_IN_FRENCH));
 
         // Get for french Language
-        Subject createSubject = subjectService.read("mani", Locale.FRENCH,
-                subject.id()).get();
-        Assertions.assertEquals(STATE_SUBJECT_TITLE_IN_FRENCH, createSubject.title());
-        Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_FRENCH, createSubject.description());
+        Subjects createSubject = subjectService.read("mani", Locale.FRENCH,
+                subject.getId()).get();
+        Assertions.assertEquals(STATE_SUBJECT_TITLE_IN_FRENCH, createSubject.getTitle());
+        Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_FRENCH, createSubject.getDescription());
 
-        final UUID id = createSubject.id();
+        final UUID id = createSubject.getId();
         createSubject = subjectService.list("mani", Locale.FRENCH)
                 .stream()
-                .filter(subject1 -> subject1.id().equals(id))
+                .filter(subject1 -> subject1.getId().equals(id))
                 .findFirst().get();
-        Assertions.assertEquals(STATE_SUBJECT_TITLE_IN_FRENCH, createSubject.title());
+        Assertions.assertEquals(STATE_SUBJECT_TITLE_IN_FRENCH, createSubject.getTitle());
         Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_FRENCH,
-                createSubject.description());
+                createSubject.getDescription());
 
         // Get for France which does not have data
         createSubject = subjectService.read("mani", Locale.CHINESE,
-                subject.id()).get();
-        Assertions.assertEquals(STATE_SUBJECT_IN_ENGLISH, createSubject.title());
-        Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_ENGLISH, createSubject.description());
+                subject.getId()).get();
+        Assertions.assertEquals(STATE_SUBJECT_IN_ENGLISH, createSubject.getTitle());
+        Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_ENGLISH, createSubject.getDescription());
 
         createSubject = subjectService.list("mani", Locale.CHINESE)
                 .stream()
-                .filter(subject1 -> subject1.id().equals(id))
+                .filter(subject1 -> subject1.getId().equals(id))
                 .findFirst().get();
 
-        Assertions.assertEquals(STATE_SUBJECT_IN_ENGLISH, createSubject.title());
-        Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_ENGLISH, createSubject.description());
+        Assertions.assertEquals(STATE_SUBJECT_IN_ENGLISH, createSubject.getTitle());
+        Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_ENGLISH, createSubject.getDescription());
 
     }
 
-    void listbyBoardandgrade(Board board, Grade grade, Subject subject, Locale locale) {
+    void listbyBoardandgrade(Boards board, Grades grade, Subjects subject, Locale locale) {
 
-        Assertions.assertTrue(boardService.attachSubject("tom", board.id(), grade.id(), subject.id()), "Unable to add grade to board");
+        Assertions.assertTrue(boardService.attachSubject("tom", board.getId(), grade.getId(), subject.getId()), "Unable to add grade to board");
 
-        final UUID id = subject.id();
-        Subject getSubject = subjectService.list("tom", locale, board.id(), grade.id()).stream()
-                .filter(subject1 -> subject1.id().equals(id))
+        final UUID id = subject.getId();
+        Subjects getSubject = subjectService.list("tom", locale, board.getId(), grade.getId()).stream()
+                .filter(subject1 -> subject1.getId().equals(id))
                 .findFirst().get();
 
         if (locale == null) {
 
-            Assertions.assertEquals(STATE_SUBJECT_IN_ENGLISH, getSubject.title());
-            Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_ENGLISH, getSubject.description());
+            Assertions.assertEquals(STATE_SUBJECT_IN_ENGLISH, getSubject.getTitle());
+            Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_ENGLISH, getSubject.getDescription());
 
         } else {
 
-            Assertions.assertEquals(STATE_SUBJECT_TITLE_IN_FRENCH, getSubject.title());
-            Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_FRENCH, getSubject.description());
+            Assertions.assertEquals(STATE_SUBJECT_TITLE_IN_FRENCH, getSubject.getTitle());
+            Assertions.assertEquals(STATE_SUBJECT_DESCRIPTION_IN_FRENCH, getSubject.getDescription());
 
         }
 
@@ -212,11 +220,11 @@ public class SubjectsServiceTest {
      *
      * @return the subject
      */
-    Subject anSubject() {
+    Subjects anSubject() {
 
-        Subject subject = new Subject(null, STATE_SUBJECT_IN_ENGLISH,
-                STATE_SUBJECT_DESCRIPTION_IN_ENGLISH, null, null,
-                null, null);
+        Subjects subject = new Subjects();
+        subject.setTitle(STATE_SUBJECT_IN_ENGLISH);
+        subject.setDescription(STATE_SUBJECT_DESCRIPTION_IN_ENGLISH);
         return subject;
     }
 
@@ -225,17 +233,23 @@ public class SubjectsServiceTest {
      *
      * @return the subject
      */
-    Subject anSubject(final Subject ref, final String title, final String description) {
-        return new Subject(ref.id(), title,
-                description, ref.created_at(), ref.created_by(),
-                ref.modified_at(), ref.modified_by());
+    Subjects anSubject(final Subjects ref, final String title, final String description) {
+        Subjects subject =  new Subjects();
+        subject.setId(ref.getId());
+        subject.setTitle(title);
+        subject.setDescription(description);
+        subject.setCreatedAt(ref.getCreatedAt());
+        subject.setCreatedBy(ref.getCreatedBy());
+        subject.setModifiedAt(ref.getModifiedAt());
+        subject.setModifiedBy(ref.getModifiedBy());
+return  subject;
     }
 
-    Grade aGrade() {
+    Grades aGrade() {
 
-        Grade grade = new Grade(null, "Student Grade" + new Date().getTime(),
-                "A " + "Grade", null, null,
-                null, null);
+        Grades grade = new Grades();
+        grade.setTitle("Student Grades" + new Date().getTime());
+        grade.setDescription("A Grades");
         return grade;
     }
 
@@ -245,11 +259,11 @@ public class SubjectsServiceTest {
      *
      * @return the board
      */
-    Board anBoard() {
+    Boards anBoard() {
 
-        Board board = new Board(null, "State Board" + new Date().getTime(),
-                "A " + "Board", null, null,
-                null, null);
+        Boards board = new Boards();
+        board.setTitle("State Boards" + new Date().getTime());
+        board.setDescription("A Boards");
         return board;
     }
 
