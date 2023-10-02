@@ -57,7 +57,7 @@ class SubjectAPIController {
                                                  @RequestHeader
                                                   (name = "Accept-Language",
                                           required = false) final Locale locale,
-                                                 final @RequestBody Subjects subjects) {
+                                     final @RequestBody Subjects subjects) {
         Subjects created = subjectsService.create(principal.getName(), locale,
                 subjects);
         return ResponseEntity.created(

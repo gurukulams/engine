@@ -91,8 +91,10 @@ class BoardAPIController {
                                 @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale,
                                         @RequestBody final Boards board) {
-        Boards created = boardService.create(principal.getName(), locale, board);
-        return ResponseEntity.created(URI.create("/api/board" + created.getId()))
+        Boards created = boardService
+                .create(principal.getName(), locale, board);
+        return ResponseEntity.created(URI
+                        .create("/api/board" + created.getId()))
                 .body(created);
     }
 
@@ -232,7 +234,7 @@ class BoardAPIController {
                                                    @RequestHeader
                                                 (name = "Accept-Language",
                                     required = false) final Locale locale,
-                                                   @PathVariable final UUID id) {
+                                       @PathVariable final UUID id) {
         final List<Grades> gradeList = gradeService.list(
                 principal.getName(), locale, id);
         return gradeList.isEmpty() ? ResponseEntity.noContent().build()
@@ -263,8 +265,8 @@ class BoardAPIController {
     @GetMapping("/{boardId}/grades/{gradeId}/subjects")
     public final ResponseEntity<List<Subjects>> list(final Principal principal,
                                                      final Locale locale,
-                                                     @PathVariable final UUID boardId,
-                                                     @PathVariable final UUID gradeId) {
+                                     @PathVariable final UUID boardId,
+                                     @PathVariable final UUID gradeId) {
 
         final List<Subjects> subjectList = subjectService.list(
                 principal.getName(), locale, boardId, gradeId);

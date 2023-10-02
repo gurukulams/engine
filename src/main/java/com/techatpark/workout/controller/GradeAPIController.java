@@ -59,7 +59,7 @@ class GradeAPIController {
                                                @RequestHeader
                                                 (name = "Accept-Language",
                                     required = false) final Locale locale,
-                                               final @RequestBody Grades grade) {
+                                       final @RequestBody Grades grade) {
         Grades created = gradeService.create(principal.getName(), locale,
                 grade);
         return ResponseEntity.created(URI.create("/api/grade"

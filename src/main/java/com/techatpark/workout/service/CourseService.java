@@ -84,7 +84,8 @@ public final class CourseService {
                 course.setDescription(rs.getString(INDEX_3));
                 course.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
                 course.setCreatedBy(rs.getString(INDEX_5));
-                course.setModifiedAt(rs.getObject(INDEX_6, LocalDateTime.class));
+                course.setModifiedAt(rs.getObject(INDEX_6,
+                        LocalDateTime.class));
                 course.setModifiedBy(rs.getString(INDEX_7));
         return course;
     }
@@ -96,7 +97,8 @@ public final class CourseService {
      * @param course   the course
      * @return created course
      */
-    public Courses create(final String userName, final Courses course) {
+    public Courses create(final String userName,
+                          final Courses course) {
         String sql = """
                 INSERT INTO courses (id, title, description, created_at,
                 created_by)

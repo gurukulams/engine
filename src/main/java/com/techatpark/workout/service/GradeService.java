@@ -82,7 +82,7 @@ public class GradeService {
         grade.setDescription(rs.getString(INDEX_3));
         grade.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
         grade.setCreatedBy(rs.getString(INDEX_5));
-        grade.setModifiedAt(rs.getObject(INDEX_6,LocalDateTime.class));
+        grade.setModifiedAt(rs.getObject(INDEX_6, LocalDateTime.class));
         grade.setModifiedBy(rs.getString(INDEX_5));
         return grade;
     }

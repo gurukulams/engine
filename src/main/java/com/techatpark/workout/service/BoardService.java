@@ -75,7 +75,8 @@ public class BoardService {
      * @return p
      * @throws SQLException
      */
-    private Boards rowMapper(final ResultSet rs, final Integer rowNum) throws SQLException {
+    private Boards rowMapper(final ResultSet rs,
+                             final Integer rowNum) throws SQLException {
         Boards boards = new Boards();
         boards.setId((UUID) rs.getObject(INDEX_1));
         boards.setTitle(rs.getString(INDEX_2));
