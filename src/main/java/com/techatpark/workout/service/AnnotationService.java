@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,30 +57,6 @@ public class AnnotationService {
      * this is ObjectMapper of Spring.
      */
     private final ObjectMapper objectMapper;
-    /**
-     * Maps the data from and to the database. return question.
-     * @param rowNum
-     * @param rs
-     * @return annotation
-     */
-    private Annotation rowMapper(final ResultSet rs,
-                                 final int rowNum)
-            throws SQLException {
-        final Annotation annotation = new Annotation();
-        annotation.setId((UUID) rs.getObject(INDEX_1));
-        final TypeReference<HashMap<String, Object>> typeRef
-                = new TypeReference<>() {
-        };
-        try {
-            String unwrappedJSON = objectMapper
-                    .readValue(rs.getString(INDEX_2), String.class);
-            annotation.setValue(objectMapper.readValue(unwrappedJSON,
-                    typeRef));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return annotation;
-    };
 
     /**
      * initializes.
@@ -94,26 +71,38 @@ public class AnnotationService {
     }
 
     /**
+     * Maps the data from and to the database. return question.
+     *
+     * @param rowNum
+     * @param rs
+     * @return annotation
+     */
+    private Annotation rowMapper(final ResultSet rs,
+                     final int rowNum) throws SQLException {
+        final Annotation annotation = new Annotation();
+        annotation.setId((UUID) rs.getObject(INDEX_1));
+        annotation.setValue(getMap(rs.getString(INDEX_2)));
+        return annotation;
+    }
+
+    /**
      * Create optional.
      *
-     * @param userName user name
+     * @param userName   user name
      * @param annotation the  annotation
      * @param onType
      * @param onInstance
-     * @param locale tha language
+     * @param locale     tha language
      * @return the optional
      */
-    public final Optional<Annotation> create(
-            final String onType,
-            final String onInstance,
-            final Annotation annotation,
-                                     final Locale locale,
-                                     final String userName)
-            throws JsonProcessingException {
+    public final Optional<Annotation> create(final String onType,
+                                 final String onInstance,
+                                 final Annotation annotation,
+                                 final Locale locale,
+                                 final String userName) {
         final UUID id = UUID.randomUUID();
 
-        String sql =
-            "INSERT INTO annotations(id, created_by, on_type, "
+        String sql = "INSERT INTO annotations(id, created_by, on_type, "
                 + "on_instance, locale, json_value) values(?,?,?,?,?,?)";
         jdbcClient.sql(sql)
                 .param(INDEX_1, id)
@@ -121,40 +110,36 @@ public class AnnotationService {
                 .param(INDEX_3, onType)
                 .param(INDEX_4, onInstance)
                 .param(INDEX_5, locale == null ? null : locale.getLanguage())
-                .param(INDEX_6, objectMapper
-                        .writeValueAsString(annotation.getValue()))
-                .update();
+                .param(INDEX_6, getJsonText(annotation.getValue())).update();
 
         return read(id, locale);
     }
 
+
     /**
      * Read optional.
      *
-     * @param id the id
+     * @param id     the id
      * @param locale tha language
      * @return the optional
      */
-    public final Optional<Annotation> read(final UUID id,
-                                   final Locale locale) {
-        final String query =
-                "SELECT id,json_value"
-                        + " FROM "
-                        + "annotations WHERE"
-                        + " id = ? AND "
-                        + ((locale == null)
-                        ? "locale IS NULL" : "locale = ?");
+    public final Optional<Annotation> read(final UUID id, final Locale locale) {
+        final String query = "SELECT id,json_value"
+                + " FROM "
+                + "annotations WHERE"
+                + " id = ? AND "
+                + ((locale == null)
+                ? "locale IS NULL" : "locale = ?");
 
-            Object[] params;
-            if (locale == null) {
-                params = new Object[]{id};
-            } else {
-                params = new Object[]{id, locale.getLanguage()};
-            }
-            return jdbcClient
-                    .sql(query)
-                            .params(List.of(params))
-                    .query(this::rowMapper).optional();
+        Object[] params;
+        if (locale == null) {
+            params = new Object[]{id};
+        } else {
+            params = new Object[]{id, locale.getLanguage()};
+        }
+        return jdbcClient.sql(query)
+                .params(List.of(params))
+                .query(this::rowMapper).optional();
 
 
     }
@@ -165,21 +150,20 @@ public class AnnotationService {
      * @param userName   user name
      * @param onInstance the on instance
      * @param onType
-     * @param locale tha language
+     * @param locale     tha language
      * @return the list
      */
     public final List<Annotation> list(final String userName,
-                                 final Locale locale,
-                                 final String onType,
-                                 final String onInstance) {
+                                       final Locale locale,
+                                       final String onType,
+                                       final String onInstance) {
         final String query = "SELECT id,"
                 + "json_value FROM "
                 + "annotations WHERE"
                 + " on_type = ? and on_instance = ? and created_by = ? AND "
-                + ((locale == null)
-                ? "locale IS NULL" : "locale = ?");
-        return (locale == null)
-                ? jdbcClient.sql(query)
+                + ((locale == null) ? "locale IS NULL" : "locale = ?");
+        return (locale == null) ? jdbcClient
+                .sql(query)
                 .param(INDEX_1, onType)
                 .param(INDEX_2, onInstance)
                 .param(INDEX_3, userName)
@@ -196,31 +180,24 @@ public class AnnotationService {
     /**
      * Update Annotation optional.
      *
-     * @param id       the id
+     * @param id         the id
      * @param annotation the user Annotation
-     * @param locale tha language
+     * @param locale     tha language
      * @return the optional
      */
     public final Optional<Annotation> update(final UUID id,
-                                       final Locale locale,
-                                       final Annotation annotation)
-            throws JsonProcessingException {
-        final String query =
-                "UPDATE annotations SET "
-                        + "json_value = ? WHERE id = ? AND "
-                        + ((locale == null) ? "locale IS NULL" : "locale = ?");
-        final int updatedRows = (locale == null)
-                ?
-                jdbcClient.sql(query)
-                    .param(INDEX_1,
-                        objectMapper.writeValueAsString(annotation.getValue()))
-                    .param(INDEX_2, id).update()
-                :
-                jdbcClient.sql(query)
-                .param(INDEX_1,
-                        objectMapper.writeValueAsString(annotation.getValue()))
-                .param(INDEX_2, id)
-                .param(INDEX_3, locale.getLanguage())
+                                 final Locale locale,
+                                 final Annotation annotation) {
+        final String query = "UPDATE annotations SET "
+                + "json_value = ? WHERE id = ? AND "
+                + ((locale == null) ? "locale IS NULL" : "locale = ?");
+        final int updatedRows = (locale == null) ? jdbcClient
+                .sql(query)
+                .param(INDEX_1, getJsonText(annotation.getValue()))
+                .param(INDEX_2, id).update()
+                : jdbcClient.sql(query)
+                .param(INDEX_1, getJsonText(annotation.getValue()))
+                .param(INDEX_2, id).param(INDEX_3, locale.getLanguage())
                 .update();
         if (updatedRows == 0) {
             throw new IllegalArgumentException("Annotation not found");
@@ -231,14 +208,21 @@ public class AnnotationService {
     /**
      * Delete boolean.
      *
-     * @param id the id
-     * @return the boolean
+     * @param id     the id
      * @param locale tha language
+     * @return the boolean
      */
-    public final boolean delete(final UUID id,
-                          final Locale locale) {
-        return jdbcClient.sql("DELETE FROM annotations WHERE ID=?")
-                .param(INDEX_1, id).update() != 0;
+    public final boolean delete(final UUID id, final Locale locale) {
+        if (locale == null) {
+            return jdbcClient
+                .sql("DELETE FROM annotations WHERE ID=? AND locale IS NULL")
+                    .param(INDEX_1, id)
+                    .update() != 0;
+        }
+        return jdbcClient.sql("DELETE FROM annotations WHERE ID=? AND locale=?")
+                .param(INDEX_1, id)
+                .param(INDEX_2, locale.getLanguage())
+                .update() != 0;
     }
 
     /**
@@ -247,4 +231,25 @@ public class AnnotationService {
     public void deleteAll() {
         jdbcClient.sql("DELETE FROM annotations").update();
     }
+
+    private Map<String, Object> getMap(final String jsonTxt) {
+        final TypeReference<HashMap<String, Object>> typeRef
+                = new TypeReference<>() {
+        };
+        try {
+            return objectMapper.readValue(objectMapper
+                    .readValue(jsonTxt, String.class), typeRef);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getJsonText(final Map<String, Object> value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
