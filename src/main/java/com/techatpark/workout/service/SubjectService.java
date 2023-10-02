@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Subject;
+import com.gurukulams.core.model.Subjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -66,7 +66,7 @@ public class SubjectService {
     private final JdbcClient jdbcClient;
 
     /**
-     * Instantiates a new Subject service.
+     * Instantiates a new Subjects service.
      *
      * @param aJdbcClient the jdbc client
      */
@@ -74,16 +74,16 @@ public class SubjectService {
         this.jdbcClient = aJdbcClient;
     }
 
-    private Subject rowMapper(final ResultSet rs, final Integer rowNum)
+    private Subjects rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Subject subject = new Subject((UUID) rs.getObject(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDateTime.class),
-                rs.getString(INDEX_5),
-                rs.getObject(INDEX_6, LocalDateTime.class),
-                rs.getString(INDEX_7));
-
+        Subjects subject = new Subjects();
+        subject.setId((UUID) rs.getObject(INDEX_1));
+        subject.setTitle(rs.getString(INDEX_2));
+        subject.setDescription(rs.getString(INDEX_3));
+        subject.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
+        subject.setCreatedBy(rs.getString(INDEX_5));
+        subject.setModifiedAt(rs.getObject(INDEX_6, LocalDateTime.class));
+        subject.setModifiedBy(rs.getString(INDEX_7));
         return subject;
     }
 
@@ -95,9 +95,9 @@ public class SubjectService {
      * @param subject  the subject
      * @return the subject
      */
-    public Subject create(final String userName,
+    public Subjects create(final String userName,
                           final Locale locale,
-                          final Subject subject) {
+                          final Subjects subject) {
         final String insertSubjectQuery = """
                 INSERT INTO %s(id, title, description, created_by)
                 VALUES (?, ?, ?, ?)
@@ -106,8 +106,8 @@ public class SubjectService {
         final UUID subjectId = UUID.randomUUID();
         jdbcClient.sql(insertSubjectQuery)
                 .param(INDEX_1, subjectId)
-                .param(INDEX_2, subject.title())
-                .param(INDEX_3, subject.description())
+                .param(INDEX_2, subject.getTitle())
+                .param(INDEX_3, subject.getDescription())
                 .param(INDEX_4, userName)
                 .update();
 
@@ -119,7 +119,7 @@ public class SubjectService {
     }
 
     private int createLocalizedSubject(final UUID subjectId,
-                                       final Subject subject,
+                                       final Subjects subject,
                                        final Locale locale) {
         final String insertLocalizedSubjectQuery = """
                 INSERT INTO %s(subject_id, locale, title, description)
@@ -129,8 +129,8 @@ public class SubjectService {
         return jdbcClient.sql(insertLocalizedSubjectQuery)
                 .param(INDEX_1, subjectId)
                 .param(INDEX_2, locale.getLanguage())
-                .param(INDEX_3, subject.title())
-                .param(INDEX_4, subject.description())
+                .param(INDEX_3, subject.getTitle())
+                .param(INDEX_4, subject.getDescription())
                 .update();
     }
 
@@ -142,7 +142,7 @@ public class SubjectService {
      * @param id       the id
      * @return the optional
      */
-    public Optional<Subject> read(final String userName,
+    public Optional<Subjects> read(final String userName,
                                   final Locale locale,
                                   final UUID id) {
         final String selectSubjectQuery = locale == null
@@ -207,11 +207,11 @@ public class SubjectService {
      * @param subject  the subject
      * @return the subject
      */
-    public Subject update(final UUID id,
+    public Subjects update(final UUID id,
                           final String userName,
                           final Locale locale,
-                          final Subject subject) {
-        logger.debug("Entering update for Subject {}", id);
+                          final Subjects subject) {
+        logger.debug("Entering update for Subjects {}", id);
         final String updateSubjectQuery = locale == null
                 ?
                 """
@@ -226,8 +226,8 @@ public class SubjectService {
         Integer updatedRows = locale == null
                 ?
                 jdbcClient.sql(updateSubjectQuery)
-                        .param(INDEX_1, subject.title())
-                        .param(INDEX_2, subject.description())
+                        .param(INDEX_1, subject.getTitle())
+                        .param(INDEX_2, subject.getDescription())
                         .param(INDEX_3, userName)
                         .param(INDEX_4, id)
                         .update()
@@ -239,7 +239,7 @@ public class SubjectService {
 
         if (updatedRows == 0) {
             logger.error("Update not found", id);
-            throw new IllegalArgumentException("Subject not found");
+            throw new IllegalArgumentException("Subjects not found");
         } else if (locale != null) {
             updatedRows = jdbcClient.sql("""
                             UPDATE %s
@@ -247,9 +247,9 @@ public class SubjectService {
                             WHERE subject_id = ?
                             AND locale = ?
                             """.formatted(SUBJECTS_LOCALIZED_TABLE))
-                    .param(INDEX_1, subject.title())
+                    .param(INDEX_1, subject.getTitle())
                     .param(INDEX_2, locale.getLanguage())
-                    .param(INDEX_3, subject.description())
+                    .param(INDEX_3, subject.getDescription())
                     .param(INDEX_4, id)
                     .param(INDEX_5, locale.getLanguage())
                     .update();
@@ -283,7 +283,7 @@ public class SubjectService {
      * @param locale   the locale
      * @return the list
      */
-    public List<Subject> list(final String userName,
+    public List<Subjects> list(final String userName,
                               final Locale locale) {
         final String listSubjectQuery = locale == null
                 ?
@@ -340,7 +340,7 @@ public class SubjectService {
      * @param gradeId  the grade id
      * @return the list
      */
-    public List<Subject> list(final String userName,
+    public List<Subjects> list(final String userName,
                               final Locale locale,
                               final UUID boardId,
                               final UUID gradeId) {

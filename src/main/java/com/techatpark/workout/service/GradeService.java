@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Grade;
+import com.gurukulams.core.model.Grades;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -74,16 +74,16 @@ public class GradeService {
         this.jdbcClient = aJdbcClient;
     }
 
-    private Grade rowMapper(final ResultSet rs, final Integer rowNum)
+    private Grades rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Grade grade = new Grade((UUID) rs.getObject(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDateTime.class),
-                rs.getString(INDEX_5),
-                rs.getObject(INDEX_6, LocalDateTime.class),
-                rs.getString(INDEX_7));
-
+        Grades grade = new Grades();
+        grade.setId((UUID) rs.getObject(INDEX_1));
+        grade.setTitle(rs.getString(INDEX_2));
+        grade.setDescription(rs.getString(INDEX_3));
+        grade.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
+        grade.setCreatedBy(rs.getString(INDEX_5));
+        grade.setModifiedAt(rs.getObject(INDEX_6,LocalDateTime.class));
+        grade.setModifiedBy(rs.getString(INDEX_5));
         return grade;
     }
 
@@ -95,9 +95,9 @@ public class GradeService {
      * @param grade    the grade
      * @return the grade
      */
-    public Grade create(final String userName,
+    public Grades create(final String userName,
                         final Locale locale,
-                        final Grade grade) {
+                        final Grades grade) {
         final String insertGradeQuery = """
                 INSERT INTO %s(id, title, description, created_by)
                 VALUES (?, ?, ?, ?)
@@ -106,8 +106,8 @@ public class GradeService {
         final UUID gradeId = UUID.randomUUID();
         jdbcClient.sql(insertGradeQuery)
                 .param(INDEX_1, gradeId)
-                .param(INDEX_2, grade.title())
-                .param(INDEX_3, grade.description())
+                .param(INDEX_2, grade.getTitle())
+                .param(INDEX_3, grade.getDescription())
                 .param(INDEX_4, userName)
                 .update();
 
@@ -119,7 +119,7 @@ public class GradeService {
     }
 
     private int createLocalizedGrade(final UUID gradeId,
-                                     final Grade grade,
+                                     final Grades grade,
                                      final Locale locale) {
         final String insertLocalizedGradeQuery = """
                 INSERT INTO %s(grade_id, locale, title, description)
@@ -129,8 +129,8 @@ public class GradeService {
         return jdbcClient.sql(insertLocalizedGradeQuery)
                 .param(INDEX_1, gradeId)
                 .param(INDEX_2, locale.getLanguage())
-                .param(INDEX_3, grade.title())
-                .param(INDEX_4, grade.description())
+                .param(INDEX_3, grade.getTitle())
+                .param(INDEX_4, grade.getDescription())
                 .update();
     }
 
@@ -142,7 +142,7 @@ public class GradeService {
      * @param id       the id
      * @return the optional
      */
-    public Optional<Grade> read(final String userName,
+    public Optional<Grades> read(final String userName,
                                 final Locale locale,
                                 final UUID id) {
         final String selectGradeQuery = locale == null
@@ -207,11 +207,11 @@ public class GradeService {
      * @param grade    the grade
      * @return the grade
      */
-    public Grade update(final UUID id,
+    public Grades update(final UUID id,
                         final String userName,
                         final Locale locale,
-                        final Grade grade) {
-        logger.debug("Entering update for Grade {}", id);
+                        final Grades grade) {
+        logger.debug("Entering update for Grades {}", id);
         final String updateGradeQuery = locale == null
                 ?
                 """
@@ -226,8 +226,8 @@ public class GradeService {
         Integer updatedRows = locale == null
                 ?
                 jdbcClient.sql(updateGradeQuery)
-                        .param(INDEX_1, grade.title())
-                        .param(INDEX_2, grade.description())
+                        .param(INDEX_1, grade.getTitle())
+                        .param(INDEX_2, grade.getDescription())
                         .param(INDEX_3, userName)
                         .param(INDEX_4, id)
                         .update()
@@ -239,7 +239,7 @@ public class GradeService {
 
         if (updatedRows == 0) {
             logger.error("Update not found", id);
-            throw new IllegalArgumentException("Grade not found");
+            throw new IllegalArgumentException("Grades not found");
         } else if (locale != null) {
             updatedRows = jdbcClient.sql("""
                             UPDATE %s
@@ -247,9 +247,9 @@ public class GradeService {
                             WHERE grade_id = ?
                             AND locale = ?
                             """.formatted(GRADES_LOCALIZED_TABLE))
-                    .param(INDEX_1, grade.title())
+                    .param(INDEX_1, grade.getTitle())
                     .param(INDEX_2, locale.getLanguage())
-                    .param(INDEX_3, grade.description())
+                    .param(INDEX_3, grade.getDescription())
                     .param(INDEX_4, id)
                     .param(INDEX_5, locale.getLanguage())
                     .update();
@@ -283,7 +283,7 @@ public class GradeService {
      * @param locale   the locale
      * @return the list
      */
-    public List<Grade> list(final String userName,
+    public List<Grades> list(final String userName,
                             final Locale locale) {
         final String listGradeQuery = locale == null
                 ?
@@ -339,9 +339,9 @@ public class GradeService {
      * @param boardId  the board id
      * @return the list
      */
-    public List<Grade> list(final String userName,
-                            final Locale locale,
-                            final UUID boardId) {
+    public List<Grades> list(final String userName,
+                             final Locale locale,
+                             final UUID boardId) {
         final String listGradeByBoardQuery = locale == null
                 ?
                 """

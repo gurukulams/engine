@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Degree;
+import com.gurukulams.core.model.Degree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -85,15 +85,14 @@ public final class DegreeService {
     private Degree rowMapper(final ResultSet rs,
                              final Integer rowNum)
             throws SQLException {
-        Degree degree = new Degree((UUID)
-                rs.getObject(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDateTime.class),
-                rs.getString(INDEX_5),
-                rs.getObject(INDEX_6, LocalDateTime.class),
-                rs.getString(INDEX_7));
-
+        Degree degree = new Degree();
+        degree.setId((UUID) rs.getObject(INDEX_1));
+        degree.setTitle(rs.getString(INDEX_2));
+        degree.setDescription(rs.getString(INDEX_3));
+        degree.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
+        degree.setCreatedBy(rs.getString(INDEX_5));
+        degree.setModifiedAt(rs.getObject(INDEX_6, LocalDateTime.class));
+        degree.setModifiedBy(rs.getString(INDEX_7));
         return degree;
     }
 
@@ -114,8 +113,8 @@ public final class DegreeService {
         final UUID degreeId = UUID.randomUUID();
         jdbcClient.sql(insertDegreeQuery)
                 .param(INDEX_1, degreeId)
-                .param(INDEX_2, degree.title())
-                .param(INDEX_3, degree.description())
+                .param(INDEX_2, degree.getTitle())
+                .param(INDEX_3, degree.getDescription())
                 .param(INDEX_4, userName)
                 .update();
 
@@ -168,8 +167,8 @@ public final class DegreeService {
                 """;
 
         Integer updatedRows = jdbcClient.sql(updateDegreeQuery)
-                .param(INDEX_1, degree.title())
-                .param(INDEX_2, degree.description())
+                .param(INDEX_1, degree.getTitle())
+                .param(INDEX_2, degree.getDescription())
                 .param(INDEX_3, userName)
                 .param(INDEX_4, id)
                 .update();

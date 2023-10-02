@@ -1,8 +1,5 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Board;
-import com.techatpark.workout.model.Grade;
-import com.techatpark.workout.model.Subject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

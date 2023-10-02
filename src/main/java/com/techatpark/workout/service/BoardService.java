@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Board;
+import com.gurukulams.core.model.Boards;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -75,17 +75,16 @@ public class BoardService {
      * @return p
      * @throws SQLException
      */
-    private Board rowMapper(final ResultSet rs,
-                            final Integer rowNum)
-            throws SQLException {
-        return new Board((UUID)
-                rs.getObject(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDateTime.class),
-                rs.getString(INDEX_5),
-                rs.getObject(INDEX_6, LocalDateTime.class),
-                rs.getString(INDEX_7));
+    private Boards rowMapper(final ResultSet rs, final Integer rowNum) throws SQLException {
+        Boards boards = new Boards();
+        boards.setId((UUID) rs.getObject(INDEX_1));
+        boards.setTitle(rs.getString(INDEX_2));
+        boards.setDescription(rs.getString(INDEX_3));
+        boards.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
+        boards.setCreatedBy(rs.getString(INDEX_5));
+        boards.setModifiedAt(rs.getObject(INDEX_6, LocalDateTime.class));
+        boards.setModifiedBy(rs.getString(INDEX_7));
+return  boards;
     }
 
     /**
@@ -96,9 +95,9 @@ public class BoardService {
      * @param locale   the locale
      * @return board optional
      */
-    public Board create(final String userName,
-                        final Locale locale,
-                        final Board board) {
+    public Boards create(final String userName,
+                         final Locale locale,
+                         final Boards board) {
 
         final UUID boardId = UUID.randomUUID();
 
@@ -107,8 +106,8 @@ public class BoardService {
                         + "created_by) values(?,?,?,?)";
         jdbcClient.sql(sql)
                 .param(INDEX_1, boardId)
-                .param(INDEX_2, board.title())
-                .param(INDEX_3, board.description())
+                .param(INDEX_2, board.getTitle())
+                .param(INDEX_3, board.getDescription())
                 .param(INDEX_4, userName)
                 .update();
 
@@ -116,16 +115,16 @@ public class BoardService {
             createLocalizedBoard(boardId, board, locale);
         }
 
-        final Optional<Board> createdBoard =
+        final Optional<Boards> createdBoard =
                 read(userName, locale, boardId);
 
-        logger.info("Board Created {}", boardId);
+        logger.info("Boards Created {}", boardId);
 
         return createdBoard.get();
     }
 
     /**
-     * Create Localized Board.
+     * Create Localized Boards.
      *
      * @param board
      * @param locale
@@ -133,7 +132,7 @@ public class BoardService {
      * @return noOfBoards
      */
     private int createLocalizedBoard(final UUID boardId,
-                                     final Board board,
+                                     final Boards board,
                                      final Locale locale) {
         String sql =
                 "INSERT INTO boards_localized(board_id, locale, title, "
@@ -141,8 +140,8 @@ public class BoardService {
         return jdbcClient.sql(sql)
                 .param(INDEX_1, boardId)
                 .param(INDEX_2, locale.getLanguage())
-                .param(INDEX_3, board.title())
-                .param(INDEX_4, board.description())
+                .param(INDEX_3, board.getTitle())
+                .param(INDEX_4, board.getDescription())
                 .update();
     }
 
@@ -154,7 +153,7 @@ public class BoardService {
      * @param userName the userName
      * @return board optional
      */
-    public Optional<Board> read(final String userName,
+    public Optional<Boards> read(final String userName,
                                 final Locale locale, final UUID id) {
 
         final String query = locale == null
@@ -201,29 +200,29 @@ public class BoardService {
      * @param locale   the locale
      * @return board optional
      */
-    public Board update(final UUID id,
+    public Boards update(final UUID id,
                         final String userName,
                         final Locale locale,
-                        final Board board) {
-        logger.debug("Entering update for Board {}", id);
+                        final Boards board) {
+        logger.debug("Entering update for Boards {}", id);
         final String query = locale == null
                 ? "UPDATE boards SET title=?,"
                 + "description=?,modified_by=? WHERE id=?"
                 : "UPDATE boards SET modified_by=? WHERE id=?";
         List params = locale == null ? List.of(
-                board.title(), board.description(), userName, id)
+                board.getTitle(), board.getDescription(), userName, id)
                 : List.of(userName, id);
         int updatedRows = jdbcClient.sql(query).params(params).update();
         if (updatedRows == 0) {
             logger.error("Update not found {}", id);
-            throw new IllegalArgumentException("Board not found");
+            throw new IllegalArgumentException("Boards not found");
         } else if (locale != null) {
             updatedRows = jdbcClient.sql(
                             "UPDATE boards_localized SET title=?,locale=?,"
                                     + "description=? WHERE board_id=? AND "
                                     + "locale=?")
-                    .params(List.of(board.title(), locale.getLanguage(),
-                            board.description(), id, locale.getLanguage()))
+                    .params(List.of(board.getTitle(), locale.getLanguage(),
+                            board.getDescription(), id, locale.getLanguage()))
                     .update();
             if (updatedRows == 0) {
                 createLocalizedBoard(id, board, locale);
@@ -251,7 +250,7 @@ public class BoardService {
      * @param locale   the locale
      * @return board optional
      */
-    public List<Board> list(final String userName,
+    public List<Boards> list(final String userName,
                             final Locale locale) {
         final String query = locale == null
                 ? "SELECT id,title,description,created_at,"

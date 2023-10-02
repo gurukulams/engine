@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.techatpark.workout.model.Subject;
+import com.gurukulams.core.model.Subjects;
 import com.techatpark.workout.service.SubjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/subjects")
-@Tag(name = "Subject", description = "Resource to manage Subject")
+@Tag(name = "Subjects", description = "Resource to manage Subjects")
 class SubjectAPIController {
     /**
      * declare a subjects service.
@@ -53,19 +53,19 @@ class SubjectAPIController {
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public final ResponseEntity<Subject> create(final Principal principal,
-                                          @RequestHeader
+    public final ResponseEntity<Subjects> create(final Principal principal,
+                                                 @RequestHeader
                                                   (name = "Accept-Language",
                                           required = false) final Locale locale,
-                                          final @RequestBody Subject subjects) {
-        Subject created = subjectsService.create(principal.getName(), locale,
+                                                 final @RequestBody Subjects subjects) {
+        Subjects created = subjectsService.create(principal.getName(), locale,
                 subjects);
         return ResponseEntity.created(
-                URI.create("/api/subjects" + created.id()))
+                URI.create("/api/subjects" + created.getId()))
                 .body(created);
     }
 
-    @Operation(summary = "Get the Subject with given id",
+    @Operation(summary = "Get the Subjects with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
             description = "getting subjects successfully"),
@@ -75,7 +75,7 @@ class SubjectAPIController {
                     description = "subjects not found")})
 
     @GetMapping("/{id}")
-    public final ResponseEntity<Subject> read(final @PathVariable UUID id,
+    public final ResponseEntity<Subjects> read(final @PathVariable UUID id,
                                         @RequestHeader
                                                 (name = "Accept-Language",
                                         required = false) final Locale locale,
@@ -98,17 +98,17 @@ class SubjectAPIController {
                     description = "subjects not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public final ResponseEntity<Subject> update(final @PathVariable UUID id,
+    public final ResponseEntity<Subjects> update(final @PathVariable UUID id,
                                           final Principal
                                                   principal,
                                           @RequestHeader
                                                   (name = "Accept-Language",
                                       required = false) final Locale locale,
                                           final @RequestBody
-                                                  Subject
+                                                  Subjects
                                                   subjects)
             throws JsonProcessingException {
-        final Subject updatedSubject =
+        final Subjects updatedSubject =
                 subjectsService.update(id, principal.getName(),
                         locale, subjects);
         return updatedSubject == null ? ResponseEntity.notFound().build()
@@ -142,12 +142,12 @@ class SubjectAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public final ResponseEntity<List<Subject>> list(final Principal
+    public final ResponseEntity<List<Subjects>> list(final Principal
                                                       principal,
                                               @RequestHeader
                                                       (name = "Accept-Language",
                                       required = false) final Locale locale) {
-        final List<Subject> subjectsList = subjectsService.list(
+        final List<Subjects> subjectsList = subjectsService.list(
                 principal.getName(), locale);
         return subjectsList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(subjectsList);

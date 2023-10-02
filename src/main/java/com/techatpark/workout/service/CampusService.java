@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Campus;
+import com.gurukulams.core.model.Campuses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * The type Campus service.
+ * The type Campuses service.
  */
 @Service
 public final class CampusService {
@@ -69,18 +69,18 @@ public final class CampusService {
         this.jdbcClient = aJdbcClient;
     }
 
-    private Campus rowMapper(final ResultSet rs,
-                             final Integer rowNum)
+    private Campuses rowMapper(final ResultSet rs,
+                               final Integer rowNum)
             throws SQLException {
-        return new Campus(
-                (UUID) rs.getObject(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDateTime.class),
-                rs.getString(INDEX_5),
-                rs.getObject(INDEX_6, LocalDateTime.class),
-                rs.getString(INDEX_7)
-        );
+        Campuses campuses = new Campuses();
+        campuses.setId((UUID) rs.getObject(INDEX_1));
+        campuses.setTitle(rs.getString(INDEX_2));
+        campuses.setDescription(rs.getString(INDEX_3));
+        campuses.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
+        campuses.setCreatedBy(rs.getString(INDEX_5));
+        campuses.setModifiedAt(rs.getObject(INDEX_6, LocalDateTime.class));
+        campuses.setModifiedBy(rs.getString(INDEX_7));
+        return  campuses;
     }
 
     /**
@@ -90,8 +90,8 @@ public final class CampusService {
      * @param campus   the campus
      * @return the campus
      */
-    public Campus create(final String userName,
-                         final Campus campus) {
+    public Campuses create(final String userName,
+                         final Campuses campus) {
         final String insertCampusQuery = """
                 INSERT INTO %s(id, title, description, created_by)
                 VALUES (?, ?, ?, ?)
@@ -100,8 +100,8 @@ public final class CampusService {
         final UUID campusId = UUID.randomUUID();
         jdbcClient.sql(insertCampusQuery)
                 .param(INDEX_1, campusId)
-                .param(INDEX_2, campus.title())
-                .param(INDEX_3, campus.description())
+                .param(INDEX_2, campus.getTitle())
+                .param(INDEX_3, campus.getDescription())
                 .param(INDEX_4, userName)
                 .update();
 
@@ -115,7 +115,7 @@ public final class CampusService {
      * @param id       the id
      * @return the optional
      */
-    public Optional<Campus> read(final String userName, final UUID id) {
+    public Optional<Campuses> read(final String userName, final UUID id) {
         final String selectCampusQuery = """
                 SELECT id, title, description, created_at,
                        created_by, modified_at, modified_by
@@ -139,10 +139,10 @@ public final class CampusService {
      * @param campus   the campus
      * @return the campus
      */
-    public Campus update(final UUID id,
+    public Campuses update(final UUID id,
                          final String userName,
-                         final Campus campus) {
-        logger.debug("Entering Update for Campus {}", id);
+                         final Campuses campus) {
+        logger.debug("Entering Update for Campuses {}", id);
         final String updateCampusQuery = """
                 UPDATE %s
                 SET title = ?, description = ?, modified_by = ?
@@ -150,15 +150,15 @@ public final class CampusService {
                 """.formatted(CAMPUSES_TABLE);
 
         Integer updatedRows = jdbcClient.sql(updateCampusQuery)
-                .param(INDEX_1, campus.title())
-                .param(INDEX_2, campus.description())
+                .param(INDEX_1, campus.getTitle())
+                .param(INDEX_2, campus.getDescription())
                 .param(INDEX_3, userName)
                 .param(INDEX_4, id)
                 .update();
 
         if (updatedRows == 0) {
             logger.error("Update not found {}", id);
-            throw new IllegalArgumentException("Campus not found");
+            throw new IllegalArgumentException("Campuses not found");
         }
 
         return read(userName, id).get();
@@ -185,7 +185,7 @@ public final class CampusService {
      * @param userName the user name
      * @return the list
      */
-    public List<Campus> list(final String userName) {
+    public List<Campuses> list(final String userName) {
         final String listCampusesQuery = """
                 SELECT id, title, description, created_at,
                        created_by, modified_at, modified_by

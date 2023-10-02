@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.techatpark.workout.model.Grade;
+import com.gurukulams.core.model.Grades;
 import com.techatpark.workout.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/grades")
-@Tag(name = "Grades", description = "Resource to manage Grade")
+@Tag(name = "Grades", description = "Resource to manage Grades")
 class GradeAPIController {
 
     /**
@@ -55,19 +55,19 @@ class GradeAPIController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json",
             consumes = "application/json")
-    public final ResponseEntity<Grade> create(final Principal principal,
-                                        @RequestHeader
+    public final ResponseEntity<Grades> create(final Principal principal,
+                                               @RequestHeader
                                                 (name = "Accept-Language",
                                     required = false) final Locale locale,
-                                        final @RequestBody Grade grade) {
-        Grade created = gradeService.create(principal.getName(), locale,
+                                               final @RequestBody Grades grade) {
+        Grades created = gradeService.create(principal.getName(), locale,
                 grade);
         return ResponseEntity.created(URI.create("/api/grade"
-                        + created.id()))
+                        + created.getId()))
                 .body(created);
     }
 
-    @Operation(summary = "Get the Grade with given id",
+    @Operation(summary = "Get the Grades with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
             description = "getting grade successfully"),
@@ -77,7 +77,7 @@ class GradeAPIController {
                     description = "grade not found")})
 
     @GetMapping("/{id}")
-    public final ResponseEntity<Grade> read(@PathVariable final UUID id,
+    public final ResponseEntity<Grades> read(@PathVariable final UUID id,
                                       @RequestHeader
                                               (name = "Accept-Language",
                                       required = false) final Locale locale,
@@ -100,17 +100,17 @@ class GradeAPIController {
                     description = "grade not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public final ResponseEntity<Grade> update(@PathVariable final UUID id,
+    public final ResponseEntity<Grades> update(@PathVariable final UUID id,
                                         final Principal
                                                 principal,
                                         @RequestHeader
                                                 (name = "Accept-Language",
                                     required = false) final Locale locale,
                                         final @RequestBody
-                                                Grade
+                                                Grades
                                                 grade)
             throws JsonProcessingException {
-        final Grade updatedGrade =
+        final Grades updatedGrade =
                 gradeService.update(id, principal.getName(), locale,
                         grade);
         return updatedGrade == null ? ResponseEntity.notFound().build()
@@ -144,12 +144,12 @@ class GradeAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public final ResponseEntity<List<Grade>> list(final Principal
+    public final ResponseEntity<List<Grades>> list(final Principal
                                                     principal,
                                             @RequestHeader
                                                     (name = "Accept-Language",
                                         required = false) final Locale locale) {
-        final List<Grade> gradeList = gradeService.list(principal
+        final List<Grades> gradeList = gradeService.list(principal
                 .getName(), locale);
         return gradeList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(gradeList);

@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Course;
+import com.gurukulams.core.model.Courses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -76,15 +76,16 @@ public final class CourseService {
      * @return course
      * @throws SQLException if a SQL exception occurs
      */
-    private Course rowMapper(final ResultSet rs, final Integer rowNum)
+    private Courses rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Course course = new Course((UUID) rs.getObject(INDEX_1),
-                rs.getString(INDEX_2),
-                rs.getString(INDEX_3),
-                rs.getObject(INDEX_4, LocalDateTime.class),
-                rs.getString(INDEX_5),
-                rs.getObject(INDEX_6, LocalDateTime.class),
-                rs.getString(INDEX_7));
+        Courses course = new Courses();
+        course.setId((UUID) rs.getObject(INDEX_1));
+        course.setTitle(rs.getString(INDEX_2));
+                course.setDescription(rs.getString(INDEX_3));
+                course.setCreatedAt(rs.getObject(INDEX_4, LocalDateTime.class));
+                course.setCreatedBy(rs.getString(INDEX_5));
+                course.setModifiedAt(rs.getObject(INDEX_6, LocalDateTime.class));
+                course.setModifiedBy(rs.getString(INDEX_7));
         return course;
     }
 
@@ -95,7 +96,7 @@ public final class CourseService {
      * @param course   the course
      * @return created course
      */
-    public Course create(final String userName, final Course course) {
+    public Courses create(final String userName, final Courses course) {
         String sql = """
                 INSERT INTO courses (id, title, description, created_at,
                 created_by)
@@ -104,15 +105,15 @@ public final class CourseService {
         final UUID courseId = UUID.randomUUID();
         jdbcClient.sql(sql)
                 .param(INDEX_1, courseId)
-                .param(INDEX_2, course.title())
-                .param(INDEX_3, course.description())
+                .param(INDEX_2, course.getTitle())
+                .param(INDEX_3, course.getDescription())
                 .param(INDEX_4, LocalDateTime.now())
                 .param(INDEX_5, userName)
                 .update();
 
-        final Optional<Course> createdCourse = read(userName, courseId);
+        final Optional<Courses> createdCourse = read(userName, courseId);
 
-        logger.info("Created Course {}", courseId);
+        logger.info("Created Courses {}", courseId);
 
         return createdCourse.get();
     }
@@ -124,7 +125,7 @@ public final class CourseService {
      * @param id       the id
      * @return course optional
      */
-    public Optional<Course> read(final String userName, final UUID id) {
+    public Optional<Courses> read(final String userName, final UUID id) {
         String sql = """
                 SELECT id, title, description, created_at, created_by,
                 modified_at, modified_by
@@ -147,23 +148,23 @@ public final class CourseService {
      * @param course   the course
      * @return updated course
      */
-    public Course update(final UUID id, final String userName,
-                         final Course course) {
-        logger.debug("Entering Update for Course {}", id);
+    public Courses update(final UUID id, final String userName,
+                         final Courses course) {
+        logger.debug("Entering Update for Courses {}", id);
         String sql = """
                 UPDATE courses
                 SET title = ?, description = ?, modified_by = ?
                 WHERE id = ?
                 """;
         final Integer updatedRows = jdbcClient.sql(sql)
-                .param(INDEX_1, course.title())
-                .param(INDEX_2, course.description())
+                .param(INDEX_1, course.getTitle())
+                .param(INDEX_2, course.getDescription())
                 .param(INDEX_3, userName)
                 .param(INDEX_4, id)
                 .update();
         if (updatedRows == 0) {
             logger.error("Update not found {}", id);
-            throw new IllegalArgumentException("Course not found");
+            throw new IllegalArgumentException("Courses not found");
         }
         return read(userName, id).get();
     }
@@ -192,7 +193,7 @@ public final class CourseService {
      * @param userName the userName
      * @return list of courses
      */
-    public List<Course> list(final String userName) {
+    public List<Courses> list(final String userName) {
         String sql = """
                 SELECT id, title, description, created_at, created_by,
                 modified_at, modified_by

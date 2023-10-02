@@ -1,9 +1,9 @@
 package com.techatpark.workout.controller;
 
-import com.techatpark.workout.model.Board;
+import com.gurukulams.core.model.Boards;
+import com.gurukulams.core.model.Grades;
+import com.gurukulams.core.model.Subjects;
 import com.techatpark.workout.model.Book;
-import com.techatpark.workout.model.Grade;
-import com.techatpark.workout.model.Subject;
 import com.techatpark.workout.service.BoardService;
 import com.techatpark.workout.service.BookService;
 import com.techatpark.workout.service.GradeService;
@@ -34,7 +34,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/boards")
-@Tag(name = "Boards", description = "Resource to manage Board")
+@Tag(name = "Boards", description = "Resource to manage Boards")
 class BoardAPIController {
 
     /**
@@ -87,12 +87,12 @@ class BoardAPIController {
                     description = "invalid credentials")})
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public final ResponseEntity<Board> create(final Principal principal,
+    public final ResponseEntity<Boards> create(final Principal principal,
                                 @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale,
-                                        @RequestBody final Board board) {
-        Board created = boardService.create(principal.getName(), locale, board);
-        return ResponseEntity.created(URI.create("/api/board" + created.id()))
+                                        @RequestBody final Boards board) {
+        Boards created = boardService.create(principal.getName(), locale, board);
+        return ResponseEntity.created(URI.create("/api/board" + created.getId()))
                 .body(created);
     }
 
@@ -104,7 +104,7 @@ class BoardAPIController {
      * @param locale    the locale
      * @return a board
      */
-    @Operation(summary = "Get the Board with given id",
+    @Operation(summary = "Get the Boards with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
             description = "getting board successfully"),
@@ -114,7 +114,7 @@ class BoardAPIController {
                     description = "syllabus not found")})
 
     @GetMapping("/{id}")
-    public final ResponseEntity<Board> read(@PathVariable final UUID id,
+    public final ResponseEntity<Boards> read(@PathVariable final UUID id,
                                       @RequestHeader(name = "Accept-Language",
                                           required = false) final Locale locale,
                                       final Principal principal) {
@@ -123,7 +123,7 @@ class BoardAPIController {
     }
 
     /**
-     * Update a Board.
+     * Update a Boards.
      *
      * @param id
      * @param principal
@@ -145,21 +145,21 @@ class BoardAPIController {
                     description = "syllabus not found")})
     @PutMapping(value = "/{id}", produces = "application/json", consumes =
             "application/json")
-    public final ResponseEntity<Board> update(@PathVariable final UUID id,
+    public final ResponseEntity<Boards> update(@PathVariable final UUID id,
                                         final Principal
                                                 principal,
                                         @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale,
-                                        @RequestBody final Board
+                                        @RequestBody final Boards
                                                 board) {
-        final Board updatedBoard =
+        final Boards updatedBoard =
                 boardService.update(id, principal.getName(), locale, board);
         return updatedBoard == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatedBoard);
     }
 
     /**
-     * Delete a Board.
+     * Delete a Boards.
      *
      * @param id
      * @param principal
@@ -199,11 +199,11 @@ class BoardAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping(produces = "application/json")
-    public final ResponseEntity<List<Board>> list(final Principal
+    public final ResponseEntity<List<Boards>> list(final Principal
                                                     principal,
                                         @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale) {
-        final List<Board> boardList = boardService.list(
+        final List<Boards> boardList = boardService.list(
                 principal.getName(), locale);
         return boardList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(boardList);
@@ -228,12 +228,12 @@ class BoardAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping("/{id}/grades")
-    public final ResponseEntity<List<Grade>> list(final Principal principal,
-                                            @RequestHeader
+    public final ResponseEntity<List<Grades>> list(final Principal principal,
+                                                   @RequestHeader
                                                 (name = "Accept-Language",
                                     required = false) final Locale locale,
-                                    @PathVariable final UUID id) {
-        final List<Grade> gradeList = gradeService.list(
+                                                   @PathVariable final UUID id) {
+        final List<Grades> gradeList = gradeService.list(
                 principal.getName(), locale, id);
         return gradeList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(gradeList);
@@ -261,12 +261,12 @@ class BoardAPIController {
             @ApiResponse(responseCode = "401",
                     description = "invalid credentials")})
     @GetMapping("/{boardId}/grades/{gradeId}/subjects")
-    public final ResponseEntity<List<Subject>> list(final Principal principal,
-                                              final Locale locale,
-                                          @PathVariable final UUID boardId,
-                                          @PathVariable final UUID gradeId) {
+    public final ResponseEntity<List<Subjects>> list(final Principal principal,
+                                                     final Locale locale,
+                                                     @PathVariable final UUID boardId,
+                                                     @PathVariable final UUID gradeId) {
 
-        final List<Subject> subjectList = subjectService.list(
+        final List<Subjects> subjectList = subjectService.list(
                 principal.getName(), locale, boardId, gradeId);
         return subjectList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(subjectList);
