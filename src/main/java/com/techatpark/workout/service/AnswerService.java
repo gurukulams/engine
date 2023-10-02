@@ -82,7 +82,9 @@ public class AnswerService {
                     if (!rightChoiceIds.isEmpty()) {
                         List<String> answerIds = List
                                 .of(answer.split(","));
-                        isRigntAnswer = answerIds.containsAll(rightChoiceIds);
+                        isRigntAnswer =
+                                answerIds.size() == rightChoiceIds.size()
+                                && answerIds.containsAll(rightChoiceIds);
                     }
                     break;
                 default:

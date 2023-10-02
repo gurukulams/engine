@@ -1,0 +1,15 @@
+{
+  "question" : "Multi C?",
+  "explanation" : "",
+  "choices" : [ {
+    "value" : "A",
+    "answer" : true
+  }, {
+    "value" : "B"
+  }, {
+    "value" : "C",
+    "answer" : true
+  }, {
+    "value" : "D"
+  } ]
+}

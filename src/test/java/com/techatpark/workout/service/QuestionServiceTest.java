@@ -99,12 +99,20 @@ class QuestionServiceTest {
                 "sathish",
                 newMCQ);
 
+        String rightAnswer = question.get().getChoices().stream()
+                .filter(Choice::isAnswer)
+                .map(choice -> choice.getId().toString())
+                .collect(Collectors.joining(","));
+
         // Right Answer
         Assertions.assertTrue(answerService.answer(question.get().getId(),
-                question.get().getChoices().stream()
-                        .filter(Choice::isAnswer)
-                        .map(choice -> choice.getId().toString())
-                        .collect(Collectors.joining(","))));
+                rightAnswer));
+
+        // Wrong Answer
+        Assertions.assertFalse(answerService.answer(question.get().getId(),
+                rightAnswer+ "," + question.get().getChoices().stream()
+                        .filter(choice -> !choice.isAnswer())
+                        .findFirst().get().getId()));
 
         // Wrong Answer
         Assertions.assertFalse(answerService.answer(question.get().getId(),
