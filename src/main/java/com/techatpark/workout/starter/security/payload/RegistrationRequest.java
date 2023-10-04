@@ -1,6 +1,7 @@
 package com.techatpark.workout.starter.security.payload;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
@@ -20,15 +21,15 @@ public class RegistrationRequest {
     /**
      * Date of Birth.
      */
-    @NotBlank
+    @Past
     private LocalDate dob;
 
     /**
      * imageUrl.
      */
     @NotBlank
-    @Pattern(regexp = "^[2-9]{1}[0-9]{3}\\\\s[0-9]{4}\\\\s[0-9]{4}$",
-            message = "Should be valid Aadhar number")
+    @Pattern(regexp = "^[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}$",
+            message = "Should be valid Aadhaar number")
     private String aadhar;
 
     /**

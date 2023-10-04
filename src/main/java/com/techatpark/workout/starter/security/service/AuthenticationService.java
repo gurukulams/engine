@@ -17,6 +17,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,12 +29,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 
 import java.security.Key;
 import java.security.Principal;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -54,6 +60,12 @@ public class AuthenticationService {
     private final ObjectMapper objectMapper;
 
     /**
+     * Validator.
+     */
+    @Autowired
+    private Validator validator;
+
+    /**
      * Cache to hold auth tokens.
      */
     private final Cache authCache;
@@ -75,17 +87,17 @@ public class AuthenticationService {
     /**
      * gg.
      *
-     * @param appPropertie  the app propertie
-     * @param aobjectMapper
+     * @param appPropertie           the app propertie
      * @param acacheManager
+     * @param aobjectMapper
      * @param auserDetailsService
      * @param alearnerProfileService
      */
     public AuthenticationService(final AppProperties appPropertie,
-                         final CacheManager acacheManager,
-                         final ObjectMapper aobjectMapper,
-                         final UserDetailsService auserDetailsService,
-                         final LearnerProfileService alearnerProfileService) {
+                     final CacheManager acacheManager,
+                     final ObjectMapper aobjectMapper,
+                     final UserDetailsService auserDetailsService,
+                     final LearnerProfileService alearnerProfileService) {
         this.objectMapper = aobjectMapper;
         this.appProperties = appPropertie;
         this.cacheManager = acacheManager;
@@ -310,9 +322,18 @@ public class AuthenticationService {
      * @param registrationRequest
      * @return authenticationResponse
      */
+    @Validated
     public AuthenticationResponse register(final String authHeader,
                               final Principal userName,
                               final RegistrationRequest registrationRequest) {
+
+        Set<ConstraintViolation<RegistrationRequest>> violations =
+                validator.validate(registrationRequest);
+
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
         String authToken = getBearer(authHeader);
         String[] parts = userName.getName().split("@");
         String userHandle = parts[0];

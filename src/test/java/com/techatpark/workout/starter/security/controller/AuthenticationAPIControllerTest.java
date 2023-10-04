@@ -203,8 +203,8 @@ class AuthenticationAPIControllerTest {
 
         RegistrationRequest registrationRequest = new RegistrationRequest();
         registrationRequest.setName("Sathish Kumar");
-        registrationRequest.setAadhar("Thiyagarajan");
-        registrationRequest.setDob(LocalDate.now());
+        registrationRequest.setAadhar("3675 9834 6012");
+        registrationRequest.setDob(LocalDate.now().minusYears(20L));
 
         return this.webTestClient
                 .post()
