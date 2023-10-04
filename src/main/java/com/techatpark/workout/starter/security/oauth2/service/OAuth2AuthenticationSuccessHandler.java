@@ -5,7 +5,7 @@ import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.exception.BadRequestException;
 import com.techatpark.workout.starter.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.techatpark.workout.starter.security.oauth2.util.CookieUtils;
-import com.techatpark.workout.starter.security.util.TokenProvider;
+import com.techatpark.workout.starter.security.service.AuthenticationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +27,7 @@ public class OAuth2AuthenticationSuccessHandler
     /**
      * declare a TokenProvider.
      */
-    private final TokenProvider tokenProvider;
+    private final AuthenticationService authenticationService;
 
     /**
      * declare a AppProperties.
@@ -53,11 +53,11 @@ public class OAuth2AuthenticationSuccessHandler
      */
     @Autowired
     public OAuth2AuthenticationSuccessHandler(
-            final TokenProvider atokenProvider,
+            final AuthenticationService atokenProvider,
             final AppProperties theappProperties,
             final HttpCookieOAuth2AuthorizationRequestRepository
                     ahttpCookieOAuth2AuthorizationRequestRepository) {
-        this.tokenProvider = atokenProvider;
+        this.authenticationService = atokenProvider;
         this.appProperties = theappProperties;
         this.httpCookieOAuth2AuthorizationRequestRepository =
                 ahttpCookieOAuth2AuthorizationRequestRepository;
@@ -118,7 +118,7 @@ public class OAuth2AuthenticationSuccessHandler
 
         final String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
 
-        final String token = tokenProvider
+        final String token = authenticationService
                 .generateWelcomeToken(anauthentication.getName());
 
         return UriComponentsBuilder.fromUriString(targetUrl)

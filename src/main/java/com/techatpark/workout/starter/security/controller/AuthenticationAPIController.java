@@ -78,7 +78,7 @@ class AuthenticationAPIController {
             RefreshToken
                     refreshToken) {
         return ResponseEntity.ok().body(authenticationService.refresh(
-                authHeader, refreshToken, principal));
+                authHeader, principal, refreshToken));
     }
 
     /**

@@ -10,7 +10,7 @@ import com.techatpark.workout.starter.security.oauth2.service.OAuth2Authenticati
 import com.techatpark.workout.starter.security.oauth2.service.OAuth2AuthenticationSuccessHandler;
 import com.techatpark.workout.service.LearnerProfileService;
 import com.techatpark.workout.service.LearnerService;
-import com.techatpark.workout.starter.security.util.TokenProvider;
+import com.techatpark.workout.starter.security.service.AuthenticationService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -70,7 +70,7 @@ public class SecurityConfig {
     /**
      * TokenProvider.
      */
-    private final TokenProvider tokenProvider;
+    private final AuthenticationService authenticationService;
 
     /**
      * inject the customOAuth2UserService object dependency.
@@ -121,19 +121,19 @@ public class SecurityConfig {
         this.learnerProfileService = alearnerProfileService;
 
         userDetailsService = auserDetailsService;
-        tokenProvider = new TokenProvider(appProperties,
+        authenticationService = new AuthenticationService(appProperties,
                 aCacheManager, objectMapper, userDetailsService,
                 learnerProfileService);
 
 
         tokenAuthenticationFilter = new TokenAuthenticationFilter(
-                tokenProvider);
+                authenticationService);
 
 
         cookieAuthRepo = new
                 HttpCookieOAuth2AuthorizationRequestRepository();
         oAuth2AuthenticationSuccessHandler = new
-                OAuth2AuthenticationSuccessHandler(tokenProvider,
+                OAuth2AuthenticationSuccessHandler(authenticationService,
                 appProperties,
                 cookieAuthRepo);
         oAuth2AuthenticationFailureHandler = new
@@ -152,8 +152,8 @@ public class SecurityConfig {
      * @return authenticationProvider
      */
     @Bean
-    public TokenProvider tokenProvider() {
-        return tokenProvider;
+    public AuthenticationService tokenProvider() {
+        return authenticationService;
     }
 
     /**

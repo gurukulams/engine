@@ -5,7 +5,6 @@ import com.techatpark.workout.service.LearnerService;
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.SignupRequest;
-import com.techatpark.workout.starter.security.util.TokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +37,7 @@ public class LoginService {
     /**
      * TokenProvider instance.
      */
-    private final TokenProvider tokenProvider;
+    private final AuthenticationService authenticationService;
 
     /**
      * Instantiates a new Login service.
@@ -46,16 +45,16 @@ public class LoginService {
      * @param aLearnerService        the a learner service
      * @param aPasswordEncoder       the a password encoder
      * @param aAuthenticationManager the a authentication manager
-     * @param aTokenProvider         the a token provider
+     * @param aAuthenticationService         the a token provider
      */
     public LoginService(final LearnerService aLearnerService,
                         final PasswordEncoder aPasswordEncoder,
                         final AuthenticationManager aAuthenticationManager,
-                        final TokenProvider aTokenProvider) {
+                        final AuthenticationService aAuthenticationService) {
         this.learnerService = aLearnerService;
         this.passwordEncoder = aPasswordEncoder;
         this.authenticationManager = aAuthenticationManager;
-        this.tokenProvider = aTokenProvider;
+        this.authenticationService = aAuthenticationService;
     }
 
     /**
@@ -86,7 +85,7 @@ public class LoginService {
     public AuthenticationResponse login(final AuthenticationRequest
                                     authenticationRequest) throws SQLException {
         try {
-            return tokenProvider.getAuthenticationResponse(
+            return authenticationService.getAuthenticationResponse(
                     this.authenticationManager
                     .authenticate(
                         new UsernamePasswordAuthenticationToken(

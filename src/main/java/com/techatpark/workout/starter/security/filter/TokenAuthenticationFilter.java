@@ -1,6 +1,6 @@
 package com.techatpark.workout.starter.security.filter;
 
-import com.techatpark.workout.starter.security.util.TokenProvider;
+import com.techatpark.workout.starter.security.service.AuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,16 +31,17 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     /**
      * tokenProvider.
      */
-    private final TokenProvider tokenProvider;
+    private final AuthenticationService authenticationService;
 
 
     /**
      * TokenAuthenticationFilter.
      *
-     * @param aTokenProvider            token provider
+     * @param aAuthenticationService            token provider
      */
-    public TokenAuthenticationFilter(final TokenProvider aTokenProvider) {
-        this.tokenProvider = aTokenProvider;
+    public TokenAuthenticationFilter(
+            final AuthenticationService aAuthenticationService) {
+        this.authenticationService = aAuthenticationService;
     }
 
     /**
@@ -60,7 +61,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt)) {
                 UsernamePasswordAuthenticationToken authentication =
-                        tokenProvider.getAuthentication(
+                        authenticationService.getAuthentication(
                                 request.getRequestURI(), jwt);
                 authentication.setDetails(new WebAuthenticationDetailsSource()
                         .buildDetails(request));
