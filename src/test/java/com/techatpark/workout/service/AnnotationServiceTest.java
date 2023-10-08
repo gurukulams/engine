@@ -1,7 +1,8 @@
 package com.techatpark.workout.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.techatpark.workout.model.Annotation;
+import com.gurukulams.core.model.Annotations;
+import io.swagger.v3.core.util.Json;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,68 +46,77 @@ class AnnotationServiceTest {
     }
 
     @Test
-    void create()  {
-        final Optional<Annotation> annotation = annotationService.create("mani", 
+    void create() {
+        final Optional<Annotations> annotation = annotationService.create(
+                "mani",
                 "mani",
                 anAnnotation(),
                 null,
                 "mani");
         Assertions.assertTrue(annotationService.read(annotation.get().getId(),
                         null).isPresent(),
-                "Created Annotation");
+                "Created Annotations");
     }
 
     @Test
-    void read()  {
-        final Optional<Annotation> annotation = annotationService.create("mani", 
+    void read() {
+        final Optional<Annotations> annotation = annotationService.create(
+                "mani",
                 "mani",
                 anAnnotation(),
                 null,
                 "mani");
         final UUID newAnnotationId = annotation.get().getId();
         Assertions.assertTrue(annotationService.read(newAnnotationId, null).isPresent(),
-                "Annotation Created");
+                "Annotations Created");
 
-        Assertions.assertTrue(annotationService.read(newAnnotationId, Locale.GERMAN).isEmpty(),
-                "Annotation Unavailable for Locale");
+        Assertions.assertTrue(annotationService.read(newAnnotationId,
+                        Locale.GERMAN).isEmpty(),
+                "Annotations Unavailable for Locale");
     }
 
     @Test
-    void readLocalized()  {
-        final Optional<Annotation> annotation = annotationService.create("mani",
+    void readLocalized() {
+        final Optional<Annotations> annotation = annotationService.create(
+                "mani",
                 "mani",
                 anAnnotation(),
                 Locale.GERMAN,
                 "mani");
         final UUID newAnnotationId = annotation.get().getId();
         Assertions.assertTrue(annotationService.read(newAnnotationId, null).isEmpty(),
-                "Annotation Unavailable for English");
+                "Annotations Unavailable for English");
 
-        Assertions.assertTrue(annotationService.read(newAnnotationId, Locale.GERMAN).isPresent(),
-                "Annotation Available for Locale");
+        Assertions.assertTrue(annotationService.read(newAnnotationId,
+                        Locale.GERMAN).isPresent(),
+                "Annotations Available for Locale");
     }
 
     @Test
-    void update()  {
+    void update() {
         testUpdate(null);
         testUpdate(Locale.GERMAN);
     }
 
     void testUpdate(Locale locale) {
-        final Optional<Annotation> annotation = annotationService.create("mani",
+        final Optional<Annotations> annotation = annotationService.create(
+                "mani",
                 "mani",
                 anAnnotation(),
                 locale,
                 "mani");
         final UUID newAnnotationId = annotation.get().getId();
 
-        Annotation newAnnotation = new Annotation();
-        newAnnotation.setValue(Map.of("a","a","b","b2"));
+        Annotations newAnnotation = new Annotations();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("a", "a");
+        jsonObject.put("b", "b2");
+        newAnnotation.setJsonValue(jsonObject);
 
-        Optional<Annotation> updatedAnnotation = annotationService
+        Optional<Annotations> updatedAnnotation = annotationService
                 .update(newAnnotationId, locale, newAnnotation);
         Assertions.assertEquals("b2", updatedAnnotation.get()
-                .getValue().get("b"), "Updated");
+                .getJsonValue().get("b"), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             annotationService
@@ -115,24 +125,25 @@ class AnnotationServiceTest {
     }
 
     @Test
-    void delete()  {
+    void delete() {
         testDelete(null);
         testDelete(Locale.GERMAN);
     }
 
     void testDelete(Locale locale) {
-        final Optional<Annotation> annotation = annotationService.create("mani",
+        final Optional<Annotations> annotation = annotationService.create(
+                "mani",
                 "mani",
                 anAnnotation(),
                 locale,
                 "mani");
         annotationService.delete(annotation.get().getId(), locale);
         Assertions.assertFalse(annotationService.read(annotation.get().getId(), locale).isPresent(),
-                "Deleted Annotation");
+                "Deleted Annotations");
     }
 
     @Test
-    void list()  {
+    void list() {
 
         testList(null);
         testList(Locale.GERMAN);
@@ -140,29 +151,37 @@ class AnnotationServiceTest {
     }
 
     void testList(Locale locale) {
-        final Optional<Annotation> annotation = annotationService.create("mani",
+        final Optional<Annotations> annotation = annotationService.create(
+                "mani",
                 "mani",
                 anAnnotation(),
                 locale,
                 "mani");
-        Annotation newAnnotation = new Annotation();
-        newAnnotation.setValue(Map.of("a","a","b","b2"));
+        Annotations newAnnotation = new Annotations();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("a", "a");
+        jsonObject.put("b", "b2");
+        newAnnotation.setJsonValue(jsonObject);
         annotationService.create("mani",
                 "mani",
                 newAnnotation,
                 locale,
                 "mani");
-        List<Annotation> listofannotation = annotationService.list("mani", locale,"mani",
+        List<Annotations> listofannotation = annotationService.list("mani",
+                locale, "mani",
                 "mani"
         );
         Assertions.assertEquals(2, listofannotation.size());
     }
 
 
-    private Annotation anAnnotation() {
-        Annotation annotation = new Annotation();
-        annotation.setValue(Map.of("a","a","b","b"));
+    private Annotations anAnnotation() {
+        Annotations annotation = new Annotations();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("a", "a");
+        jsonObject.put("b", "b");
+        annotation.setJsonValue(jsonObject);
         return annotation;
     }
-    
+
 }

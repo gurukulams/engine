@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.techatpark.workout.model.Annotation;
+import com.gurukulams.core.model.Annotations;
 import com.techatpark.workout.service.AnnotationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,6 +39,7 @@ class AnnotationAPIController {
 
     /**
      * Builds AnnotationAPIController.
+     *
      * @param anAnnotationService
      */
     AnnotationAPIController(final AnnotationService anAnnotationService) {
@@ -48,8 +49,8 @@ class AnnotationAPIController {
     /**
      * Create response entity.
      *
-     * @param principal the principal
-     * @param onType  the book name
+     * @param principal  the principal
+     * @param onType     the book name
      * @param onInstance
      * @param annotation the annotation
      * @param locale
@@ -66,14 +67,14 @@ class AnnotationAPIController {
             @ApiResponse(responseCode = "400",
                     description = "annotation is invalid")})
     @PostMapping("/{*onInstance}")
-    public final ResponseEntity<Optional<Annotation>> create(
+    public final ResponseEntity<Optional<Annotations>> create(
             final Principal principal,
             final @NotBlank @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
-            final @RequestBody Annotation annotation)
+            final @RequestBody Annotations annotation)
             throws JsonProcessingException {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 annotationService.create(onType,
@@ -81,14 +82,14 @@ class AnnotationAPIController {
                         annotation,
                         locale,
                         principal.getName()
-                        ));
+                ));
     }
 
     /**
      * Create response entity.
      *
-     * @param principal   the principal
-     * @param onType    the book name
+     * @param principal  the principal
+     * @param onType     the book name
      * @param onInstance the annotation
      * @param locale
      * @return the response entity
@@ -106,7 +107,7 @@ class AnnotationAPIController {
             @ApiResponse(responseCode = "404",
                     description = "annotation not found")})
     @GetMapping("/{*onInstance}")
-    public final ResponseEntity<List<Annotation>> list(
+    public final ResponseEntity<List<Annotations>> list(
             final Principal principal,
             final @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,
@@ -122,7 +123,7 @@ class AnnotationAPIController {
     /**
      * Update response entity.
      *
-     * @param id       the id
+     * @param id         the id
      * @param annotation the annotation
      * @param onType
      * @param locale
@@ -141,15 +142,15 @@ class AnnotationAPIController {
             @ApiResponse(responseCode = "404",
                     description = "note not found")})
     @PutMapping("/{id}")
-    public final ResponseEntity<Optional<Annotation>> update(
+    public final ResponseEntity<Optional<Annotations>> update(
             final @PathVariable String onType,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
             final @PathVariable UUID id,
-            final @RequestBody Annotation annotation)
+            final @RequestBody Annotations annotation)
             throws JsonProcessingException {
-        final Optional<Annotation> updatednote = annotationService.update(
+        final Optional<Annotations> updatednote = annotationService.update(
                 id, locale, annotation);
         return updatednote == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatednote);
@@ -158,7 +159,7 @@ class AnnotationAPIController {
     /**
      * Delete annotation by id response entity.
      *
-     * @param id       the id
+     * @param id     the id
      * @param onType
      * @param locale
      * @return the response entity

@@ -3,7 +3,8 @@ package com.techatpark.workout.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.techatpark.workout.model.Annotation;
+import com.gurukulams.core.model.Annotations;
+import org.json.JSONObject;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * The type User Annotation service.
+ * The type User Annotations service.
  */
 @Service
 public class AnnotationService {
@@ -77,11 +78,13 @@ public class AnnotationService {
      * @param rs
      * @return annotation
      */
-    private Annotation rowMapper(final ResultSet rs,
-                     final int rowNum) throws SQLException {
-        final Annotation annotation = new Annotation();
+    private Annotations rowMapper(final ResultSet rs,
+                                  final int rowNum) throws SQLException {
+        final Annotations annotation = new Annotations();
         annotation.setId((UUID) rs.getObject(INDEX_1));
-        annotation.setValue(getMap(rs.getString(INDEX_2)));
+        String jsonString = rs.getString(INDEX_2);
+        annotation.setJsonValue(new JSONObject(jsonString.substring(1,
+                jsonString.length() - 1).replace("\\", "")));
         return annotation;
     }
 
@@ -95,11 +98,11 @@ public class AnnotationService {
      * @param locale     tha language
      * @return the optional
      */
-    public final Optional<Annotation> create(final String onType,
-                                 final String onInstance,
-                                 final Annotation annotation,
-                                 final Locale locale,
-                                 final String userName) {
+    public final Optional<Annotations> create(final String onType,
+                                              final String onInstance,
+                                              final Annotations annotation,
+                                              final Locale locale,
+                                              final String userName) {
         final UUID id = UUID.randomUUID();
 
         String sql = "INSERT INTO annotations(id, created_by, on_type, "
@@ -110,7 +113,7 @@ public class AnnotationService {
                 .param(INDEX_3, onType)
                 .param(INDEX_4, onInstance)
                 .param(INDEX_5, locale == null ? null : locale.getLanguage())
-                .param(INDEX_6, getJsonText(annotation.getValue())).update();
+                .param(INDEX_6, annotation.getJsonValue().toString()).update();
 
         return read(id, locale);
     }
@@ -123,7 +126,8 @@ public class AnnotationService {
      * @param locale tha language
      * @return the optional
      */
-    public final Optional<Annotation> read(final UUID id, final Locale locale) {
+    public final Optional<Annotations> read(final UUID id,
+                                            final Locale locale) {
         final String query = "SELECT id,json_value"
                 + " FROM "
                 + "annotations WHERE"
@@ -153,10 +157,10 @@ public class AnnotationService {
      * @param locale     tha language
      * @return the list
      */
-    public final List<Annotation> list(final String userName,
-                                       final Locale locale,
-                                       final String onType,
-                                       final String onInstance) {
+    public final List<Annotations> list(final String userName,
+                                        final Locale locale,
+                                        final String onType,
+                                        final String onInstance) {
         final String query = "SELECT id,"
                 + "json_value FROM "
                 + "annotations WHERE"
@@ -178,29 +182,29 @@ public class AnnotationService {
     }
 
     /**
-     * Update Annotation optional.
+     * Update Annotations optional.
      *
      * @param id         the id
-     * @param annotation the user Annotation
+     * @param annotation the user Annotations
      * @param locale     tha language
      * @return the optional
      */
-    public final Optional<Annotation> update(final UUID id,
-                                 final Locale locale,
-                                 final Annotation annotation) {
+    public final Optional<Annotations> update(final UUID id,
+                                              final Locale locale,
+                                              final Annotations annotation) {
         final String query = "UPDATE annotations SET "
                 + "json_value = ? WHERE id = ? AND "
                 + ((locale == null) ? "locale IS NULL" : "locale = ?");
         final int updatedRows = (locale == null) ? jdbcClient
                 .sql(query)
-                .param(INDEX_1, getJsonText(annotation.getValue()))
+                .param(INDEX_1, annotation.getJsonValue().toString())
                 .param(INDEX_2, id).update()
                 : jdbcClient.sql(query)
-                .param(INDEX_1, getJsonText(annotation.getValue()))
+                .param(INDEX_1, annotation.getJsonValue().toString())
                 .param(INDEX_2, id).param(INDEX_3, locale.getLanguage())
                 .update();
         if (updatedRows == 0) {
-            throw new IllegalArgumentException("Annotation not found");
+            throw new IllegalArgumentException("Annotations not found");
         }
         return read(id, locale);
     }
@@ -215,7 +219,8 @@ public class AnnotationService {
     public final boolean delete(final UUID id, final Locale locale) {
         if (locale == null) {
             return jdbcClient
-                .sql("DELETE FROM annotations WHERE ID=? AND locale IS NULL")
+                    .sql("DELETE FROM annotations WHERE ID=? AND locale IS "
+                            + "NULL")
                     .param(INDEX_1, id)
                     .update() != 0;
         }
@@ -226,7 +231,7 @@ public class AnnotationService {
     }
 
     /**
-     * Deletes all Annotations.
+     * Deletes all Annotationss.
      */
     public void deleteAll() {
         jdbcClient.sql("DELETE FROM annotations").update();
