@@ -28,12 +28,6 @@ public class LearnerProfileService {
      */
     private static final int INDEX_3 = 3;
 
-
-    /**
-     * learner_profile table.
-     */
-    private static final String LEARNER_PROFILE_TABLE = "learner_profile";
-
     /**
      * jdbcClient.
      */
@@ -65,9 +59,9 @@ public class LearnerProfileService {
      */
     public LearnerProfile create(final LearnerProfile learnerProfile) {
         final String insertLearnerProfileQuery = """
-                INSERT INTO %s(user_handle, name, dob)
+                INSERT INTO learner_profile(user_handle, name, dob)
                 VALUES (?, ?, ?)
-                """.formatted(LEARNER_PROFILE_TABLE);
+                """;
 
         jdbcClient.sql(insertLearnerProfileQuery)
                 .param(INDEX_1, learnerProfile.userHandle())
@@ -87,9 +81,9 @@ public class LearnerProfileService {
     public Optional<LearnerProfile> read(final String userHandle) {
         final String selectLearnerProfileQuery = """
                 SELECT user_handle, name, dob
-                FROM %s
+                FROM learner_profile
                 WHERE user_handle = ?
-                """.formatted(LEARNER_PROFILE_TABLE);
+                """;
 
 
             return jdbcClient.sql(selectLearnerProfileQuery)
