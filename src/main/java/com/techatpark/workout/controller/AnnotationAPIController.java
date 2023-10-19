@@ -74,8 +74,7 @@ class AnnotationAPIController {
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
-            final @RequestBody Annotations annotation)
-            throws JsonProcessingException {
+            final @RequestBody Annotations annotation) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 annotationService.create(onType,
                         onInstance,
