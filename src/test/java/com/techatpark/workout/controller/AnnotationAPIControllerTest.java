@@ -178,9 +178,36 @@ class AnnotationAPIControllerTest {
 
     private Annotation anAnnotation() {
         Annotation annotation = new Annotation();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("a", "a");
-        jsonObject.put("b", "b");
+        JSONObject jsonObject = new JSONObject("""
+                {
+                	"value": {
+                		"@context": "http://www.w3.org/ns/anno.jsonld",
+                		"body": [
+                			{
+                				"purpose": "tagging",
+                				"type": "TextualBody",
+                				"value": "43434"
+                			}
+                		],
+                		"id": "#4c60efd1-78bd-4c51-b532-3f4b53c10ae1",
+                		"target": {
+                			"selector": [
+                				{
+                					"exact": "Reproduction also plays",
+                					"type": "TextQuoteSelector"
+                				},
+                				{
+                					"end": 1079,
+                					"start": 1056,
+                					"type": "TextPositionSelector"
+                				}
+                			]
+                		},
+                		"type": "Annotation"
+                	}
+                }
+                """);
+
         annotation.setValue(jsonObject);
         return annotation;
     }
