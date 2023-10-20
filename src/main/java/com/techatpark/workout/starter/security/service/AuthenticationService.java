@@ -2,10 +2,10 @@ package com.techatpark.workout.starter.security.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gurukulams.core.model.LearnerProfile;
 import com.techatpark.workout.service.LearnerProfileService;
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
-import com.techatpark.workout.model.LearnerProfile;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
@@ -33,6 +33,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.security.Key;
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -325,7 +326,8 @@ public class AuthenticationService {
     @Validated
     public AuthenticationResponse register(final String authHeader,
                               final Principal userName,
-                              final RegistrationRequest registrationRequest) {
+                              final RegistrationRequest registrationRequest)
+            throws SQLException {
 
         Set<ConstraintViolation<RegistrationRequest>> violations =
                 validator.validate(registrationRequest);
@@ -337,11 +339,10 @@ public class AuthenticationService {
         String authToken = getBearer(authHeader);
         String[] parts = userName.getName().split("@");
         String userHandle = parts[0];
-        LearnerProfile learnerProfile = new LearnerProfile(userHandle,
-                registrationRequest.getName(),
-                registrationRequest.getDob());
-
-
+        LearnerProfile learnerProfile = new LearnerProfile();
+        learnerProfile.setUserHandle(userHandle);
+        learnerProfile.setName(registrationRequest.getName());
+        learnerProfile.setDob(registrationRequest.getDob());
         learnerProfileService.create(learnerProfile);
 
         authCache.evict(authToken);

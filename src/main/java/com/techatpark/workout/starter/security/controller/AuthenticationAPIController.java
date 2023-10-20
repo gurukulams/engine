@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import java.security.Principal;
+import java.sql.SQLException;
 
 /**
  * The type Authentication api controller.
@@ -53,7 +54,8 @@ class AuthenticationAPIController {
     public final ResponseEntity<AuthenticationResponse> register(
             final Principal principal,
             @RequestHeader(name = "Authorization") final String authHeader,
-            final @RequestBody RegistrationRequest registrationRequest) {
+            final @RequestBody RegistrationRequest registrationRequest)
+            throws SQLException {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 authenticationService.register(authHeader, principal,

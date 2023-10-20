@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+
 /**
  * The type Custom user details service.
  */
@@ -102,8 +104,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                                 "User not found with email : " + email)
                 );
 
-        return UserPrincipal.create(user,
-                learnerProfileService.read(user.userHandle()));
+        try {
+            return UserPrincipal.create(user,
+                    learnerProfileService.read(user.userHandle()));
+        } catch (SQLException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
     }
 
 
