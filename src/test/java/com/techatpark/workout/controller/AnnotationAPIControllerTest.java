@@ -181,7 +181,7 @@ class AnnotationAPIControllerTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b");
-        annotation.setJsonValue(jsonObject);
+        annotation.setValue(jsonObject);
         return annotation;
     }
 
