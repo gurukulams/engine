@@ -109,7 +109,7 @@ class AnnotationServiceTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b2");
-        newAnnotation.setJsonValue(jsonObject);
+        newAnnotation.setValue(jsonObject);
         annotationService.create("mani",
                 "mani",
                 newAnnotation,
@@ -143,12 +143,12 @@ class AnnotationServiceTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b2");
-        newAnnotation.setJsonValue(jsonObject);
+        newAnnotation.setValue(jsonObject);
 
         Optional<Annotation> updatedAnnotation = annotationService
                 .update(newAnnotationId, locale, newAnnotation);
         Assertions.assertEquals("b2", updatedAnnotation.get()
-                .getJsonValue().get("b"), "Updated");
+                .getValue().get("b"), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             annotationService
@@ -178,7 +178,7 @@ class AnnotationServiceTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b");
-        annotation.setJsonValue(jsonObject);
+        annotation.setValue(jsonObject);
         return annotation;
     }
 

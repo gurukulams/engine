@@ -79,7 +79,7 @@ public class AnnotationService {
         final Annotation annotation = new Annotation();
         annotation.setId((UUID) rs.getObject(INDEX_1));
         String jsonString = rs.getString(INDEX_2);
-        annotation.setJsonValue(new JSONObject(jsonString.substring(1,
+        annotation.setValue(new JSONObject(jsonString.substring(1,
                 jsonString.length() - 1).replace("\\", "")));
         return annotation;
     }
@@ -102,14 +102,14 @@ public class AnnotationService {
         final UUID id = UUID.randomUUID();
 
         String sql = "INSERT INTO annotation(id, created_by, on_type, "
-                + "on_instance, locale, json_value) values(?,?,?,?,?,?)";
+                + "on_instance, locale, \"value\") values(?,?,?,?,?,?)";
         jdbcClient.sql(sql)
                 .param(INDEX_1, id)
                 .param(INDEX_2, userName)
                 .param(INDEX_3, onType)
                 .param(INDEX_4, onInstance)
                 .param(INDEX_5, locale == null ? null : locale.getLanguage())
-                .param(INDEX_6, annotation.getJsonValue().toString()).update();
+                .param(INDEX_6, annotation.getValue().toString()).update();
 
         return read(id, locale).get();
     }
@@ -124,7 +124,7 @@ public class AnnotationService {
      */
     public final Optional<Annotation> read(final UUID id,
                                             final Locale locale) {
-        final String query = "SELECT id,json_value"
+        final String query = "SELECT id,\"value\""
                 + " FROM "
                 + "annotation WHERE"
                 + " id = ? AND "
@@ -158,7 +158,7 @@ public class AnnotationService {
                                         final String onType,
                                         final String onInstance) {
         final String query = "SELECT id,"
-                + "json_value FROM "
+                + "\"value\" FROM "
                 + "annotation WHERE"
                 + " on_type = ? and on_instance = ? and created_by = ? AND "
                 + ((locale == null) ? "locale IS NULL" : "locale = ?");
@@ -189,14 +189,14 @@ public class AnnotationService {
                                               final Locale locale,
                                               final Annotation annotation) {
         final String query = "UPDATE annotation SET "
-                + "json_value = ? WHERE id = ? AND "
+                + "\"value\" = ? WHERE id = ? AND "
                 + ((locale == null) ? "locale IS NULL" : "locale = ?");
         final int updatedRows = (locale == null) ? jdbcClient
                 .sql(query)
-                .param(INDEX_1, annotation.getJsonValue().toString())
+                .param(INDEX_1, annotation.getValue().toString())
                 .param(INDEX_2, id).update()
                 : jdbcClient.sql(query)
-                .param(INDEX_1, annotation.getJsonValue().toString())
+                .param(INDEX_1, annotation.getValue().toString())
                 .param(INDEX_2, id).param(INDEX_3, locale.getLanguage())
                 .update();
         if (updatedRows == 0) {
