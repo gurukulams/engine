@@ -1,7 +1,5 @@
 package com.techatpark.workout.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.model.Annotations;
 import org.json.JSONObject;
@@ -10,10 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -98,7 +94,7 @@ public class AnnotationService {
      * @param locale     tha language
      * @return the optional
      */
-    public final Optional<Annotations> create(final String onType,
+    public final Annotations create(final String onType,
                                               final String onInstance,
                                               final Annotations annotation,
                                               final Locale locale,
@@ -115,7 +111,7 @@ public class AnnotationService {
                 .param(INDEX_5, locale == null ? null : locale.getLanguage())
                 .param(INDEX_6, annotation.getJsonValue().toString()).update();
 
-        return read(id, locale);
+        return read(id, locale).get();
     }
 
 
@@ -233,28 +229,9 @@ public class AnnotationService {
     /**
      * Deletes all Annotationss.
      */
-    public void deleteAll() {
+    public void delete() {
         jdbcClient.sql("DELETE FROM annotations").update();
     }
 
-    private Map<String, Object> getMap(final String jsonTxt) {
-        final TypeReference<HashMap<String, Object>> typeRef
-                = new TypeReference<>() {
-        };
-        try {
-            return objectMapper.readValue(objectMapper
-                    .readValue(jsonTxt, String.class), typeRef);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getJsonText(final Map<String, Object> value) {
-        try {
-            return objectMapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 }

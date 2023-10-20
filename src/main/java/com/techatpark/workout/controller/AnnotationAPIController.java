@@ -67,7 +67,7 @@ class AnnotationAPIController {
             @ApiResponse(responseCode = "400",
                     description = "annotation is invalid")})
     @PostMapping("/{*onInstance}")
-    public final ResponseEntity<Optional<Annotations>> create(
+    public final ResponseEntity<Annotations> create(
             final Principal principal,
             final @NotBlank @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,

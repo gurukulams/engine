@@ -15,9 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -69,27 +67,6 @@ public class LearnerService {
         this.learnerProfileStore = gurukulamsManager.getLearnerProfileStore();
     }
 
-    /**
-     * Maps the data from and to the database.
-     *
-     * @param rs
-     * @param rowNum
-     * @return p
-     * @throws SQLException
-     */
-    private Learner rowMapper(final ResultSet rs,
-                              final Integer rowNum)
-            throws SQLException {
-        return new Learner(
-                rs.getString("user_handle"),
-                rs.getString("email"),
-                rs.getString("pword"),
-                rs.getString("image_url"),
-                AuthProvider.valueOf(rs.getString("provider")),
-                rs.getObject("created_at", LocalDateTime.class),
-                rs.getObject("modified_at", LocalDateTime.class)
-        );
-    }
 
     /**
      * Sigup an User.
@@ -156,17 +133,9 @@ public class LearnerService {
      * @param email the email
      * @return learner optional
      */
-    public Optional<Learner> readByEmail(final String email) {
-        final String query = "SELECT user_handle,email,pword,image_url,"
-                + "provider"
-                + ",created_at, modified_at"
-                + " FROM learner WHERE email = ?";
-
-        try {
-            return getLearner(learnerStore.selectByEmail(email));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public Optional<Learner> readByEmail(final String email)
+            throws SQLException {
+        return getLearner(learnerStore.selectByEmail(email));
     }
 
     /**
@@ -205,11 +174,6 @@ public class LearnerService {
                 .values(handle).returning());
     }
 
-    private Optional<Handle> readHandle(
-            final String userHandle)
-            throws SQLException {
-        return this.handleStore.select(userHandle);
-    }
 
     /**
      * Deletes Learners.
