@@ -1,15 +1,15 @@
 package com.techatpark.workout.starter.security.oauth2.service;
 
 
+import com.gurukulams.core.payload.AuthProvider;
+import com.gurukulams.core.payload.Learner;
+import com.gurukulams.core.payload.SignupRequest;
+import com.gurukulams.core.service.LearnerProfileService;
+import com.gurukulams.core.service.LearnerService;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
 import com.techatpark.workout.starter.security.exception.OAuth2AuthenticationProcessingException;
 import com.techatpark.workout.starter.security.oauth2.user.OAuth2UserInfo;
 import com.techatpark.workout.starter.security.oauth2.user.OAuth2UserInfoFactory;
-import com.techatpark.workout.model.AuthProvider;
-import com.techatpark.workout.model.Learner;
-import com.techatpark.workout.starter.security.payload.SignupRequest;
-import com.techatpark.workout.service.LearnerProfileService;
-import com.techatpark.workout.service.LearnerService;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

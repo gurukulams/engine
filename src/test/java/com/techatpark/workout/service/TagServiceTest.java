@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.gurukulams.core.model.Tags;
+import com.gurukulams.core.model.Tag;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,36 +44,36 @@ class TagServiceTest {
 
     @Test
     void create() {
-        final Tags tag = tagService.create("hari"
+        final Tag tag = tagService.create("hari"
                 , null, anTag());
-        Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(), "Created Tags");
+        Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(), "Created Tag");
     }
 
     @Test
     void createLocalized() {
-        final Tags tag = tagService.create("hari"
+        final Tag tag = tagService.create("hari"
                 , Locale.GERMAN, anTag());
-        Assertions.assertTrue(tagService.read("hari", tag.getId(), Locale.GERMAN).isPresent(), "Created Localized Tags");
-        Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(), "Created Tags");
+        Assertions.assertTrue(tagService.read("hari", tag.getId(), Locale.GERMAN).isPresent(), "Created Localized Tag");
+        Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(), "Created Tag");
     }
 
     @Test
     void read() {
-        final Tags tag = tagService.create("hari",
+        final Tag tag = tagService.create("hari",
                 null, anTag());
         Assertions.assertTrue(tagService.read("hari", tag.getId(), null).isPresent(),
-                "Created Tags");
+                "Created Tag");
     }
 
     @Test
     void update() {
 
-        final Tags tag = tagService.create("hari",
+        final Tag tag = tagService.create("hari",
                 null, anTag());
-        Tags newTag = new Tags();
+        Tag newTag = new Tag();
         newTag.setId(tag.getId());
          newTag.setTitle("HansiTag");
-        Tags updatedTag = tagService
+        Tag updatedTag = tagService
                 .update(tag.getId(), "priya", null, newTag);
         Assertions.assertEquals("HansiTag", updatedTag.getTitle(), "Updated");
 
@@ -86,12 +86,12 @@ class TagServiceTest {
     @Test
     void updateLocalized() {
 
-        final Tags tag = tagService.create("hari",
+        final Tag tag = tagService.create("hari",
                 null, anTag());
-        Tags newTag = new Tags();
+        Tag newTag = new Tag();
         newTag.setId(tag.getId());
         newTag.setTitle("HansiTag");
-        Tags updatedTag = tagService
+        Tag updatedTag = tagService
                 .update(tag.getId(), "priya", Locale.GERMAN, newTag);
 
         Assertions.assertEquals("HansiTag", tagService.read("mani", tag.getId(), Locale.GERMAN).get().getTitle(), "Updated");
@@ -107,23 +107,23 @@ class TagServiceTest {
     @Test
     void delete() {
 
-        final Tags tag = tagService.create("hari", null,
+        final Tag tag = tagService.create("hari", null,
                 anTag());
         tagService.delete("mani", tag.getId());
-        Assertions.assertFalse(tagService.read("mani", tag.getId(), null).isPresent(), "Deleted Tags");
+        Assertions.assertFalse(tagService.read("mani", tag.getId(), null).isPresent(), "Deleted Tag");
     }
 
     @Test
     void list() {
 
-        final Tags tag = tagService.create("hari", null,
+        final Tag tag = tagService.create("hari", null,
                 anTag());
-        Tags newTag = new Tags();
+        Tag newTag = new Tag();
         newTag.setId(UUID.randomUUID().toString());
         newTag.setTitle("HansiTag");
         tagService.create("hari", null,
                 newTag);
-        List<Tags> listofcategories = tagService.list("hari", null);
+        List<Tag> listofcategories = tagService.list("hari", null);
         Assertions.assertEquals(2, listofcategories.size());
 
     }
@@ -131,14 +131,14 @@ class TagServiceTest {
     @Test
     void listLocalized() {
 
-        final Tags tag = tagService.create("hari", Locale.GERMAN,
+        final Tag tag = tagService.create("hari", Locale.GERMAN,
                 anTag());
-        Tags newTag = new Tags();
+        Tag newTag = new Tag();
         newTag.setId(UUID.randomUUID().toString());
         newTag.setTitle("HansiTag");
         tagService.create("hari", null,
                 newTag);
-        List<Tags> listofcategories = tagService.list("hari", null);
+        List<Tag> listofcategories = tagService.list("hari", null);
         Assertions.assertEquals(2, listofcategories.size());
 
         listofcategories = tagService.list("hari", Locale.GERMAN);
@@ -152,9 +152,9 @@ class TagServiceTest {
      *
      * @return the practice
      */
-    Tags anTag() {
+    Tag anTag() {
 
-        Tags tag = new Tags();
+        Tag tag = new Tag();
         tag.setId(UUID.randomUUID().toString());
         tag.setTitle("HariTag");
         return tag;

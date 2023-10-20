@@ -79,7 +79,7 @@ class OrgAPIController {
         Org createdOrg =
                 orgService.create(principal.getName(), org);
         return ResponseEntity.created(URI.create("/api/orgs/"
-                        + createdOrg.getId()))
+                        + createdOrg.getUserHandle()))
                 .body(createdOrg);
 
     }

@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.gurukulams.core.model.Categories;
+import com.gurukulams.core.model.Category;
 import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
@@ -156,9 +156,9 @@ public class QuestionService {
     /**
      * inserts data.
      *
-     * @param categories the categories
+     * @param categories the category
      * @param type       the type
-     * @param tags
+     * @param tag
      * @param locale     the locale
      * @param createdBy  the createdBy
      * @param question   the question
@@ -167,7 +167,7 @@ public class QuestionService {
     @Transactional
     public Optional<Question> create(
             final List<String> categories,
-            final List<String> tags,
+            final List<String> tag,
             final QuestionType type,
             final Locale locale,
             final String createdBy,
@@ -179,7 +179,7 @@ public class QuestionService {
             final UUID id = UUID.randomUUID();
 
             final String insertQuery = """
-                    INSERT INTO questions(id, question, explanation, type,
+                    INSERT INTO question(id, question, explanation, type,
                     created_By, answer)
                     VALUES(?, ?, ?, ?, ?, ?)
                     """;
@@ -194,7 +194,7 @@ public class QuestionService {
 
             if (locale != null) {
                 final String insertQueryLocalized = """
-                        INSERT INTO questions_localized(question_id, locale,
+                        INSERT INTO question_localized(question_id, locale,
                         question, explanation)
                         VALUES(?, ?, ?, ?)
                             """;
@@ -211,7 +211,7 @@ public class QuestionService {
                 createChoices(question.getChoices(), locale, id);
             }
 
-            categories.forEach(category -> attachCategories(createdBy,
+            categories.forEach(category -> attachCategory(createdBy,
                     id, category));
 
             return read(id, locale);
@@ -228,7 +228,7 @@ public class QuestionService {
 
 
         final String query = """
-                INSERT INTO question_choices(id, question_id, c_value,
+                INSERT INTO question_choice(id, question_id, c_value,
                 is_answer)
                 VALUES(?, ?, ?, ?)
                 """;
@@ -251,7 +251,7 @@ public class QuestionService {
     private void saveLocalizedChoice(final Locale locale,
                                      final Choice choice) {
         final String query = """
-                UPDATE question_choices_localized
+                UPDATE question_choice_localized
                 SET c_value = ?
                 WHERE choice_id = ? AND locale = ?
                 """;
@@ -268,7 +268,7 @@ public class QuestionService {
     private void createLocalizedChoice(final Locale locale,
                                        final Choice choice) {
         String query = """
-                INSERT INTO question_choices_localized(
+                INSERT INTO question_choice_localized(
                 choice_id, locale, c_value)
                 VALUES(?, ?, ?)
                 """;
@@ -302,7 +302,7 @@ public class QuestionService {
                 ? "SELECT id, c_value,"
                 + (isOwner ? "is_answer" : "NULL")
                 + " AS is_answer"
-                + " FROM question_choices WHERE"
+                + " FROM question_choice WHERE"
                 + " question_id = ?"
                 : "SELECT id,"
                 + "CASE WHEN qcl.LOCALE = ? "
@@ -311,13 +311,13 @@ public class QuestionService {
                 + "END AS c_value, "
                 + (isOwner ? "is_answer" : "NULL")
                 + " AS is_answer"
-                + " FROM question_choices qc "
-                + "LEFT JOIN question_choices_localized qcl ON"
+                + " FROM question_choice qc "
+                + "LEFT JOIN question_choice_localized qcl ON"
                 + " qc.ID = qcl.choice_id WHERE"
                 + " question_id = ? AND ( qcl.LOCALE IS NULL OR "
                 + "qcl.LOCALE = ? OR qc.ID "
                 + "NOT IN (SELECT choice_id FROM "
-                + "question_choices_localized WHERE "
+                + "question_choice_localized WHERE "
                 + "choice_id=qc.ID AND LOCALE = ?))";
         return locale == null
                 ?
@@ -344,7 +344,7 @@ public class QuestionService {
                 ? """
                 SELECT id, question, explanation, type, created_by, answer,
                 created_at, modified_at
-                FROM questions
+                FROM question
                 WHERE id = ?
                 """
                 : """
@@ -355,12 +355,12 @@ public class QuestionService {
                        THEN ql.explanation ELSE q.explanation
                        END AS explanation,
                        type, created_by, answer, created_at, modified_at
-                FROM questions q
-                LEFT JOIN questions_localized ql ON q.ID = ql.QUESTION_ID
+                FROM question q
+                LEFT JOIN question_localized ql ON q.ID = ql.QUESTION_ID
                 WHERE q.id = ?
                 AND (ql.LOCALE IS NULL OR ql.LOCALE = ? OR q.ID NOT IN (
                     SELECT question_id
-                    FROM questions_localized
+                    FROM question_localized
                     WHERE QUESTION_ID = q.ID AND LOCALE = ?
                 ))
                 """;
@@ -413,13 +413,13 @@ public class QuestionService {
         if (violations.isEmpty()) {
             final String query = locale == null
                     ? """
-                    UPDATE questions
+                    UPDATE question
                     SET question = ?, explanation = ?, answer = ?,
                     modified_at = CURRENT_TIMESTAMP
                     WHERE id = ? AND type = ?
                     """
                     : """
-                    UPDATE questions
+                    UPDATE question
                     SET answer = ?, modified_at = CURRENT_TIMESTAMP
                     WHERE id = ? AND type = ?
                     """;
@@ -439,12 +439,12 @@ public class QuestionService {
 
             if (locale != null) {
                 final String localizedUpdateQuery = """
-                        UPDATE QUESTIONS_LOCALIZED SET question = ?,
+                        UPDATE QUESTION_LOCALIZED SET question = ?,
                         explanation = ?
                             WHERE question_id = ? AND
                                     locale = ? AND
                                 question_id IN
-                                    ( SELECT id from questions
+                                    ( SELECT id from question
                                             where type
                                             = ?  )
                         """;
@@ -459,7 +459,7 @@ public class QuestionService {
 
                 if (updatedRows == 0) {
                     final String localizedInsertQuery = """
-                            INSERT INTO QUESTIONS_LOCALIZED
+                            INSERT INTO QUESTION_LOCALIZED
                                 ( question_id, locale, question, explanation )
                                 VALUES ( ?, ? , ?, ?)
                             """;
@@ -485,7 +485,7 @@ public class QuestionService {
 
                 if (!availableIds.isEmpty()) {
                     final String deletequestionChoice =
-                            "DELETE FROM question_choices "
+                            "DELETE FROM question_choice "
                                     + "WHERE question_id = ? AND id NOT IN ("
                                     + availableIds.stream()
                                     .map(aId -> "?")
@@ -518,13 +518,13 @@ public class QuestionService {
                               final Locale locale) {
         final String updatequestionChoice = locale == null
                 ? """
-                UPDATE question_choices
+                UPDATE question_choice
                 SET c_value = ?,
                     is_answer = ?
                 WHERE id = ?
                 """
                 : """
-                UPDATE question_choices
+                UPDATE question_choice
                 SET is_answer = ?
                 WHERE id = ?
                 """;
@@ -555,10 +555,10 @@ public class QuestionService {
     public Boolean delete(final UUID id) {
         final String queryL =
                 """
-                        DELETE FROM questions_localized WHERE question_id = ?
+                        DELETE FROM question_localized WHERE question_id = ?
                         """;
         jdbcClient.sql(queryL).param(INDEX_1, id).update();
-        String query = "DELETE FROM questions WHERE ID=?";
+        String query = "DELETE FROM question WHERE ID=?";
 
         final Integer updatedRows = jdbcClient.sql(query)
                 .param(INDEX_1, id).update();
@@ -574,14 +574,14 @@ public class QuestionService {
     public Boolean deleteQuestionChoice(final UUID questionId) {
         final String queryL =
                 """
-                        DELETE FROM question_choices_localized
+                        DELETE FROM question_choice_localized
                         WHERE choice_id IN
-                        (SELECT id FROM question_choices WHERE question_id = ?)
+                        (SELECT id FROM question_choice WHERE question_id = ?)
                                 """;
         jdbcClient.sql(queryL)
                 .param(INDEX_1, questionId).update();
         final String query =
-                "DELETE FROM question_choices WHERE question_id = ?";
+                "DELETE FROM question_choice WHERE question_id = ?";
         final Integer updatedRows = jdbcClient.sql(query)
                 .param(INDEX_1, questionId).update();
         return !(updatedRows == 0);
@@ -589,16 +589,16 @@ public class QuestionService {
 
 
     /**
-     * List questions of exam.
+     * List question of exam.
      *
      * @param userName   the user name
-     * @param categories the categories
+     * @param category the category
      * @param locale     the locale
      * @return quetions in given exam
      */
     public List<Question> list(final String userName,
                                final Locale locale,
-                               final List<String> categories) {
+                               final List<String> category) {
 
         boolean isOwner = true;
 
@@ -608,9 +608,9 @@ public class QuestionService {
                 + (isOwner ? "answer" : "NULL")
                 + " AS answer,"
                 + "created_at,modified_at"
-                + " FROM questions"
+                + " FROM question"
                 + " where "
-                + "id IN (" + getQuestionIdFilter(categories) + ") "
+                + "id IN (" + getQuestionIdFilter(category) + ") "
                 + " order by id"
                 : "SELECT id,"
                 + "CASE WHEN ql.LOCALE = ? "
@@ -625,23 +625,23 @@ public class QuestionService {
                 + (isOwner ? "q.answer" : "NULL")
                 + " AS answer"
                 + ",created_at,modified_at FROM "
-                + "questions q LEFT JOIN questions_localized ql ON "
+                + "question q LEFT JOIN question_localized ql ON "
                 + "q.ID = ql.QUESTION_ID WHERE"
-                + " q.ID IN (" + getQuestionIdFilter(categories) + ") "
+                + " q.ID IN (" + getQuestionIdFilter(category) + ") "
                 + "  AND"
                 + " (ql.LOCALE IS NULL "
                 + "OR ql.LOCALE = ? OR "
                 + "q.ID NOT IN "
-                + "(SELECT question_id FROM questions_localized "
+                + "(SELECT question_id FROM question_localized "
                 + "WHERE QUESTION_ID=q.ID AND LOCALE = ?))";
 
         List<Object> parameters = new ArrayList<>();
         if (locale == null) {
-            parameters.addAll(categories);
+            parameters.addAll(category);
         } else {
             parameters.add(locale.getLanguage());
             parameters.add(locale.getLanguage());
-            parameters.addAll(categories);
+            parameters.addAll(category);
             parameters.add(locale.getLanguage());
             parameters.add(locale.getLanguage());
         }
@@ -665,15 +665,15 @@ public class QuestionService {
         return questions;
     }
 
-    private String getQuestionIdFilter(final List<String> categories) {
+    private String getQuestionIdFilter(final List<String> category) {
         String builder = "SELECT QUESTION_ID FROM "
-                + "questions_categories WHERE category_id IN ("
-                + categories.stream().map(tag -> "?")
+                + "question_category WHERE category_id IN ("
+                + category.stream().map(tag -> "?")
                 .collect(Collectors.joining(","))
                 + ") "
                 + "GROUP BY QUESTION_ID "
                 + "HAVING COUNT(DISTINCT category_id) = "
-                + categories.size();
+                + category.size();
         return builder;
     }
 
@@ -690,7 +690,7 @@ public class QuestionService {
                                final Locale locale) {
         String query = """
                 SELECT id,question,explanation,type,created_by,
-                created_at,modified_at,answer FROM questions
+                created_at,modified_at,answer FROM question
                 """;
         query = query + " LIMIT " + pageSize + " OFFSET " + (pageNumber - 1);
         return jdbcClient.sql(query).query(rowMapper).list();
@@ -725,7 +725,7 @@ public class QuestionService {
                             = ConstraintViolationImpl.forBeanValidation(
                             messageTemplate, messageParameters,
                             expressionVariables,
-                            "Minimun 2 choices",
+                            "Minimun 2 choice",
                             rootBeanClass,
                             question, leafBeanInstance, cValue, propertyPath,
                             constraintDescriptor, elementType);
@@ -780,14 +780,14 @@ public class QuestionService {
 
         deleteQuestionChoice(id);
 
-        jdbcClient.sql("DELETE FROM QUESTIONS_LOCALIZED WHERE question_id=?")
+        jdbcClient.sql("DELETE FROM QUESTION_LOCALIZED WHERE question_id=?")
                 .param(id).update();
 
-        jdbcClient.sql("DELETE FROM QUESTIONS_CATEGORIES WHERE question_id=?")
+        jdbcClient.sql("DELETE FROM QUESTION_CATEGORY WHERE question_id=?")
                 .param(id).update();
 
         int updatedRow =
-                jdbcClient.sql("DELETE FROM questions WHERE ID=? and type = ?")
+                jdbcClient.sql("DELETE FROM question WHERE ID=? and type = ?")
                         .param(INDEX_1, id)
                         .param(INDEX_2, questionType.toString())
                         .update();
@@ -804,11 +804,11 @@ public class QuestionService {
      * @param categoryId the categoryId
      * @return grade optional
      */
-    private boolean attachCategories(final String userName,
+    private boolean attachCategory(final String userName,
                                      final UUID questionId,
                                      final String categoryId) {
         String insertQuery = """
-                INSERT INTO questions_categories(question_id, category_id)
+                INSERT INTO question_category(question_id, category_id)
                 VALUES(?, ?)
                 """;
 
@@ -822,13 +822,13 @@ public class QuestionService {
         } catch (final DataIntegrityViolationException e) {
             // Retry with Auto Create Category
 
-            Categories categories = new Categories();
-            categories.setId(categoryId);
-            categories.setTitle(categoryId.toUpperCase());
+            Category category = new Category();
+            category.setId(categoryId);
+            category.setTitle(categoryId.toUpperCase());
 
             if (this.categoryService.create(
-                    userName, null, categories) != null) {
-                return attachCategories(userName, questionId, categoryId);
+                    userName, null, category) != null) {
+                return attachCategory(userName, questionId, categoryId);
             }
         }
 
@@ -842,15 +842,15 @@ public class QuestionService {
      */
     public void deleteAll() {
 
-        jdbcClient.sql("DELETE FROM questions_categories").update();
+        jdbcClient.sql("DELETE FROM question_category").update();
 
-        jdbcClient.sql("DELETE FROM questions_tags").update();
+        jdbcClient.sql("DELETE FROM question_tag").update();
 
-        jdbcClient.sql("DELETE FROM question_choices_localized").update();
-        jdbcClient.sql("DELETE FROM question_choices").update();
+        jdbcClient.sql("DELETE FROM question_choice_localized").update();
+        jdbcClient.sql("DELETE FROM question_choice").update();
 
-        jdbcClient.sql("DELETE FROM QUESTIONS_LOCALIZED").update();
-        jdbcClient.sql("DELETE FROM QUESTIONS").update();
+        jdbcClient.sql("DELETE FROM QUESTION_LOCALIZED").update();
+        jdbcClient.sql("DELETE FROM QUESTION").update();
 
     }
 }

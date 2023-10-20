@@ -3,7 +3,7 @@ package com.techatpark.workout.starter.security.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.model.LearnerProfile;
-import com.techatpark.workout.service.LearnerProfileService;
+import com.gurukulams.core.service.LearnerProfileService;
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;

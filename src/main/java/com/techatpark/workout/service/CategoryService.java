@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.gurukulams.core.model.Categories;
+import com.gurukulams.core.model.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * The type Categories service.
+ * The type Category service.
  */
 @Service
 public class CategoryService {
@@ -53,17 +53,17 @@ public class CategoryService {
      */
     private final JdbcClient jdbcClient;
     /**
-     * categories table.
+     * category table.
      */
-    private static final String CATEGORIES_TABLE = "categories";
+    private static final String CATEGORIES_TABLE = "category";
     /**
-     * categories_localized table.
+     * category_localized table.
      */
     private static final String CATEGORIES_LOCALIZED_TABLE =
-            "categories_localized";
+            "category_localized";
 
     /**
-     * Instantiates a new Categories service.
+     * Instantiates a new Category service.
      *
      * @param aJdbcClient the jdbc client
      */
@@ -71,9 +71,9 @@ public class CategoryService {
         this.jdbcClient = aJdbcClient;
     }
 
-    private Categories rowMapper(final ResultSet rs, final Integer rowNum)
+    private Category rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Categories category = new Categories();
+        Category category = new Category();
         category.setId(rs.getString(INDEX_1));
         category.setTitle(rs.getString(INDEX_2));
         category.setCreatedAt(rs.getObject(INDEX_3, LocalDateTime.class));
@@ -91,37 +91,37 @@ public class CategoryService {
      * @param category the category
      * @return the category
      */
-    public Categories create(final String userName,
+    public Category create(final String userName,
                            final Locale locale,
-                           final Categories category) {
-        final String insertCategoriesQuery = """
+                           final Category category) {
+        final String insertCategoryQuery = """
                 INSERT INTO %s(id, title, created_by)
                 VALUES (?, ?, ?)
                 """.formatted(CATEGORIES_TABLE);
 
 
-        jdbcClient.sql(insertCategoriesQuery)
+        jdbcClient.sql(insertCategoryQuery)
                 .param(INDEX_1, category.getId())
                 .param(INDEX_2, category.getTitle())
                 .param(INDEX_3, userName)
                 .update();
 
         if (locale != null) {
-            createLocalizedCategories(category.getId(), category, locale);
+            createLocalizedCategory(category.getId(), category, locale);
         }
 
         return read(userName, category.getId(), locale).get();
     }
 
-    private int createLocalizedCategories(final String categoryId,
-                                        final Categories category,
+    private int createLocalizedCategory(final String categoryId,
+                                        final Category category,
                                         final Locale locale) {
-        final String insertLocalizedCategoriesQuery = """
+        final String insertLocalizedCategoryQuery = """
                 INSERT INTO %s(category_id, locale, title)
                 VALUES (?, ?, ?)
                 """.formatted(CATEGORIES_LOCALIZED_TABLE);
 
-        return jdbcClient.sql(insertLocalizedCategoriesQuery)
+        return jdbcClient.sql(insertLocalizedCategoryQuery)
                 .param(INDEX_1, categoryId)
                 .param(INDEX_2, locale.getLanguage())
                 .param(INDEX_3, category.getTitle())
@@ -136,10 +136,10 @@ public class CategoryService {
      * @param locale   the locale
      * @return the optional
      */
-    public Optional<Categories> read(final String userName,
+    public Optional<Category> read(final String userName,
                                      final String id,
                                      final Locale locale) {
-        final String selectCategoriesQuery = locale == null
+        final String selectCategoryQuery = locale == null
                 ?
                 """
                         SELECT id, title, created_at, created_by,
@@ -173,12 +173,12 @@ public class CategoryService {
 
             return locale == null
                     ?
-                    jdbcClient.sql(selectCategoriesQuery)
+                    jdbcClient.sql(selectCategoryQuery)
                             .param(INDEX_1, id)
                             .query(this::rowMapper)
                             .optional()
                     :
-                    jdbcClient.sql(selectCategoriesQuery)
+                    jdbcClient.sql(selectCategoryQuery)
                             .param(INDEX_1, locale.getLanguage())
                             .param(INDEX_2, id)
                             .param(INDEX_3, locale.getLanguage())
@@ -197,12 +197,12 @@ public class CategoryService {
      * @param category the category
      * @return the category
      */
-    public Categories update(final String id,
+    public Category update(final String id,
                            final String userName,
                            final Locale locale,
-                           final Categories category) {
-        logger.debug("Entering update for Categories {}", id);
-        final String updateCategoriesQuery = locale == null
+                           final Category category) {
+        logger.debug("Entering update for Category {}", id);
+        final String updateCategoryQuery = locale == null
                 ?
                 """
                         UPDATE %s
@@ -215,20 +215,20 @@ public class CategoryService {
 
         Integer updatedRows = locale == null
                 ?
-                jdbcClient.sql(updateCategoriesQuery)
+                jdbcClient.sql(updateCategoryQuery)
                         .param(INDEX_1, category.getTitle())
                         .param(INDEX_2, userName)
                         .param(INDEX_3, id)
                         .update()
                 :
-                jdbcClient.sql(updateCategoriesQuery)
+                jdbcClient.sql(updateCategoryQuery)
                         .param(INDEX_1, userName)
                         .param(INDEX_2, id)
                         .update();
 
         if (updatedRows == 0) {
             logger.error("Update not found", id);
-            throw new IllegalArgumentException("Categories not found");
+            throw new IllegalArgumentException("Category not found");
         } else if (locale != null) {
             updatedRows = jdbcClient.sql("""
                             UPDATE %s
@@ -242,7 +242,7 @@ public class CategoryService {
                     .param(INDEX_4, locale.getLanguage())
                     .update();
             if (updatedRows == 0) {
-                createLocalizedCategories(id, category, locale);
+                createLocalizedCategory(id, category, locale);
             }
         }
 
@@ -257,9 +257,9 @@ public class CategoryService {
      * @return the boolean
      */
     public Boolean delete(final String userName, final String id) {
-        final String deleteCategoriesQuery =
+        final String deleteCategoryQuery =
                 "DELETE FROM %s WHERE id = ?".formatted(CATEGORIES_TABLE);
-        return jdbcClient.sql(deleteCategoriesQuery)
+        return jdbcClient.sql(deleteCategoryQuery)
                 .param(INDEX_1, id)
                 .update() != 0;
     }
@@ -271,9 +271,9 @@ public class CategoryService {
      * @param locale   the locale
      * @return the list
      */
-    public List<Categories> list(final String userName,
+    public List<Category> list(final String userName,
                                  final Locale locale) {
-        final String listCategoriesQuery = locale == null
+        final String listCategoryQuery = locale == null
                 ?
                 """
                         SELECT id, title, created_at, created_by,
@@ -296,11 +296,11 @@ public class CategoryService {
 
         return locale == null
                 ?
-                jdbcClient.sql(listCategoriesQuery)
+                jdbcClient.sql(listCategoryQuery)
                         .query(this::rowMapper)
                         .list()
                 :
-                jdbcClient.sql(listCategoriesQuery)
+                jdbcClient.sql(listCategoryQuery)
                         .param(INDEX_1, locale.getLanguage())
                         .param(INDEX_2, locale.getLanguage())
                         .query(this::rowMapper)
@@ -308,11 +308,11 @@ public class CategoryService {
     }
 
     /**
-     * Cleaning up all categories.
+     * Cleaning up all category.
      */
     public void deleteAll() {
-        jdbcClient.sql("DELETE FROM questions_categories").update();
-        jdbcClient.sql("DELETE FROM categories_localized").update();
-        jdbcClient.sql("DELETE FROM categories").update();
+        jdbcClient.sql("DELETE FROM question_category").update();
+        jdbcClient.sql("DELETE FROM category_localized").update();
+        jdbcClient.sql("DELETE FROM category").update();
     }
 }

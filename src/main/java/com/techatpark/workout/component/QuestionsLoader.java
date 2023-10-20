@@ -2,7 +2,7 @@ package com.techatpark.workout.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurukulams.core.model.Categories;
+import com.gurukulams.core.model.Category;
 import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
@@ -64,7 +64,7 @@ public class QuestionsLoader {
     void load() throws IOException {
         if (seedFolder != null) {
             questionService.deleteAll();
-            createAllCategories(USER_NAME);
+            createAllCategory(USER_NAME);
             File questionsFolder = new File(seedFolder, "questions");
             Files.find(Path.of(questionsFolder.getPath()),
                         Integer.MAX_VALUE,
@@ -81,7 +81,7 @@ public class QuestionsLoader {
         }
     }
 
-    private void createAllCategories(final String userName) throws IOException {
+    private void createAllCategory(final String userName) throws IOException {
         if (seedFolder != null) {
             questionService.deleteAll();
             File questionsFolder = new File(seedFolder, "questions");
@@ -92,7 +92,7 @@ public class QuestionsLoader {
                     .forEach(tagFolder -> {
                         if (!tagFolder.equals(questionsFolder)) {
                             try {
-                                Categories categories = new Categories();
+                                Category categories = new Category();
                                 categories.setId(tagFolder
                                         .getFileName().toString());
                                 categories.setTitle(tagFolder

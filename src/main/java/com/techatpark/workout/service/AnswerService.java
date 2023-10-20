@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * The type Answer service.
@@ -44,9 +44,9 @@ public class AnswerService {
      * @param answer     the answer
      * @return true boolean
      */
-    public final Boolean answer(final UUID questionId,
+    public final boolean answer(final UUID questionId,
                                 final String answer) {
-        Boolean isRigntAnswer = false;
+        boolean isRigntAnswer = false;
         final Optional<Question> oQuestion = questionService
                 .read(questionId, null);
         if (oQuestion.isPresent()) {
@@ -78,10 +78,9 @@ public class AnswerService {
                             .stream()
                             .filter(Choice::isAnswer)
                             .map(choice -> choice.getId().toString())
-                            .collect(Collectors.toList());
+                            .toList();
                     if (!rightChoiceIds.isEmpty()) {
-                        List<String> answerIds = List
-                                .of(answer.split(","));
+                        Set<String> answerIds = Set.of(answer.split(","));
                         isRigntAnswer =
                                 answerIds.size() == rightChoiceIds.size()
                                 && answerIds.containsAll(rightChoiceIds);

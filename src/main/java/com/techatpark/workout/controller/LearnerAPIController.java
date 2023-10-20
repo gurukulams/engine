@@ -1,8 +1,8 @@
 package com.techatpark.workout.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.techatpark.workout.model.Learner;
-import com.techatpark.workout.service.LearnerService;
+import com.gurukulams.core.payload.Learner;
+import com.gurukulams.core.service.LearnerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

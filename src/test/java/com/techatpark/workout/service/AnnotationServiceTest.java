@@ -1,7 +1,7 @@
 package com.techatpark.workout.service;
 
 
-import com.gurukulams.core.model.Annotations;
+import com.gurukulams.core.model.Annotation;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +45,7 @@ class AnnotationServiceTest {
 
     @Test
     void create() throws SQLException {
-        final Annotations annotation = annotationService.create(
+        final Annotation annotation = annotationService.create(
                 "mani",
                 "mani",
                 anAnnotation(),
@@ -53,12 +53,12 @@ class AnnotationServiceTest {
                 "mani");
         Assertions.assertTrue(annotationService.read(annotation.getId(),
                         null).isPresent(),
-                "Created Annotations");
+                "Created Annotation");
     }
 
     @Test
     void read() throws SQLException {
-        final Annotations annotation = annotationService.create(
+        final Annotation annotation = annotationService.create(
                 "mani",
                 "mani",
                 anAnnotation(),
@@ -66,16 +66,16 @@ class AnnotationServiceTest {
                 "mani");
         final UUID newAnnotationId = annotation.getId();
         Assertions.assertTrue(annotationService.read(newAnnotationId, null).isPresent(),
-                "Annotations Created");
+                "Annotation Created");
 
         Assertions.assertTrue(annotationService.read(newAnnotationId,
                         Locale.GERMAN).isEmpty(),
-                "Annotations Unavailable for Locale");
+                "Annotation Unavailable for Locale");
     }
 
     @Test
     void readLocalized() throws SQLException {
-        final Annotations annotation = annotationService.create(
+        final Annotation annotation = annotationService.create(
                 "mani",
                 "mani",
                 anAnnotation(),
@@ -83,11 +83,11 @@ class AnnotationServiceTest {
                 "mani");
         final UUID newAnnotationId = annotation.getId();
         Assertions.assertTrue(annotationService.read(newAnnotationId, null).isEmpty(),
-                "Annotations Unavailable for English");
+                "Annotation Unavailable for English");
 
         Assertions.assertTrue(annotationService.read(newAnnotationId,
                         Locale.GERMAN).isPresent(),
-                "Annotations Available for Locale");
+                "Annotation Available for Locale");
     }
 
     @Test
@@ -105,7 +105,7 @@ class AnnotationServiceTest {
                 anAnnotation(),
                 locale,
                 "mani");
-        Annotations newAnnotation = new Annotations();
+        Annotation newAnnotation = new Annotation();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b2");
@@ -115,7 +115,7 @@ class AnnotationServiceTest {
                 newAnnotation,
                 locale,
                 "mani");
-        List<Annotations> listofannotation = annotationService.list("mani",
+        List<Annotation> listofannotation = annotationService.list("mani",
                 locale, "mani",
                 "mani"
         );
@@ -128,7 +128,7 @@ class AnnotationServiceTest {
     }
 
     void testUpdate(Locale locale) throws SQLException {
-        final Annotations annotation = annotationService.create(
+        final Annotation annotation = annotationService.create(
                 "mani",
                 "mani",
                 anAnnotation(),
@@ -136,7 +136,7 @@ class AnnotationServiceTest {
                 "mani");
         final UUID newAnnotationId = annotation.getId();
 
-        Annotations newAnnotation = new Annotations();
+        Annotation newAnnotation = new Annotation();
 
         newAnnotation.setId(newAnnotationId);
 
@@ -145,7 +145,7 @@ class AnnotationServiceTest {
         jsonObject.put("b", "b2");
         newAnnotation.setJsonValue(jsonObject);
 
-        Optional<Annotations> updatedAnnotation = annotationService
+        Optional<Annotation> updatedAnnotation = annotationService
                 .update(newAnnotationId, locale, newAnnotation);
         Assertions.assertEquals("b2", updatedAnnotation.get()
                 .getJsonValue().get("b"), "Updated");
@@ -162,7 +162,7 @@ class AnnotationServiceTest {
     }
 
     void testDelete(Locale locale) throws SQLException {
-        final Annotations annotation = annotationService.create(
+        final Annotation annotation = annotationService.create(
                 "mani",
                 "mani",
                 anAnnotation(),
@@ -170,11 +170,11 @@ class AnnotationServiceTest {
                 "mani");
         annotationService.delete(annotation.getId(), locale);
         Assertions.assertFalse(annotationService.read(annotation.getId(), locale).isPresent(),
-                "Deleted Annotations");
+                "Deleted Annotation");
     }
 
-    private Annotations anAnnotation() {
-        Annotations annotation = new Annotations();
+    private Annotation anAnnotation() {
+        Annotation annotation = new Annotation();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b");

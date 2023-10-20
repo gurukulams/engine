@@ -3,13 +3,13 @@ package com.techatpark.workout.starter.security.config;
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gurukulams.core.service.LearnerProfileService;
+import com.gurukulams.core.service.LearnerService;
 import com.techatpark.workout.starter.security.filter.TokenAuthenticationFilter;
 import com.techatpark.workout.starter.security.oauth2.service.CustomOAuth2UserService;
 import com.techatpark.workout.starter.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.techatpark.workout.starter.security.oauth2.service.OAuth2AuthenticationFailureHandler;
 import com.techatpark.workout.starter.security.oauth2.service.OAuth2AuthenticationSuccessHandler;
-import com.techatpark.workout.service.LearnerProfileService;
-import com.techatpark.workout.service.LearnerService;
 import com.techatpark.workout.starter.security.service.AuthenticationService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;

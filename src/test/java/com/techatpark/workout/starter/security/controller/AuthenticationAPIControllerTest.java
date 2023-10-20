@@ -1,12 +1,12 @@
 package com.techatpark.workout.starter.security.controller;
 
 
+import com.gurukulams.core.service.LearnerService;
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
-import com.techatpark.workout.service.LearnerService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

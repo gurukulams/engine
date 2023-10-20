@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gurukulams.core.model.Annotations;
+import com.gurukulams.core.model.Annotation;
 import com.techatpark.workout.service.AnnotationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/annotations/{onType}")
-@Tag(name = "Annotations", description = "Resource to manage Annotations")
+@Tag(name = "Annotation", description = "Resource to manage Annotation")
 class AnnotationAPIController {
 
     /**
@@ -67,14 +67,14 @@ class AnnotationAPIController {
             @ApiResponse(responseCode = "400",
                     description = "annotation is invalid")})
     @PostMapping("/{*onInstance}")
-    public final ResponseEntity<Annotations> create(
+    public final ResponseEntity<Annotation> create(
             final Principal principal,
             final @NotBlank @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
-            final @RequestBody Annotations annotation) {
+            final @RequestBody Annotation annotation) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 annotationService.create(onType,
                         onInstance,
@@ -106,7 +106,7 @@ class AnnotationAPIController {
             @ApiResponse(responseCode = "404",
                     description = "annotation not found")})
     @GetMapping("/{*onInstance}")
-    public final ResponseEntity<List<Annotations>> list(
+    public final ResponseEntity<List<Annotation>> list(
             final Principal principal,
             final @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,
@@ -141,15 +141,15 @@ class AnnotationAPIController {
             @ApiResponse(responseCode = "404",
                     description = "note not found")})
     @PutMapping("/{id}")
-    public final ResponseEntity<Optional<Annotations>> update(
+    public final ResponseEntity<Optional<Annotation>> update(
             final @PathVariable String onType,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
             final @PathVariable UUID id,
-            final @RequestBody Annotations annotation)
+            final @RequestBody Annotation annotation)
             throws JsonProcessingException {
-        final Optional<Annotations> updatednote = annotationService.update(
+        final Optional<Annotation> updatednote = annotationService.update(
                 id, locale, annotation);
         return updatednote == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatednote);

@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.gurukulams.core.model.Annotations;
-import com.techatpark.workout.service.LearnerService;
+import com.gurukulams.core.model.Annotation;
+import com.gurukulams.core.service.LearnerService;
 import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
@@ -87,16 +87,16 @@ class AnnotationAPIControllerTest {
         authenticationResponse = register(authenticationRequest,
                 authenticationResponse);
 
-        Annotations annotations = create(authenticationResponse);
+        Annotation annotations = create(authenticationResponse);
 
-        List<Annotations> annotationsList = list(authenticationResponse) ;
+        List<Annotation> annotationsList = list(authenticationResponse) ;
 
         logout(authenticationRequest, authenticationResponse).isEqualTo(HttpStatus.OK.value());
 
 
     }
 
-    private List<Annotations> list(final AuthenticationResponse authenticationResponse) {
+    private List<Annotation> list(final AuthenticationResponse authenticationResponse) {
 
         return this.webTestClient
                 .get()
@@ -105,23 +105,23 @@ class AnnotationAPIControllerTest {
                         "Bearer " + authenticationResponse.getAuthToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectBodyList(Annotations.class)
+                .expectBodyList(Annotation.class)
                 .returnResult()
                 .getResponseBody();
     }
 
-    private Annotations create(final AuthenticationResponse authenticationResponse) {
+    private Annotation create(final AuthenticationResponse authenticationResponse) {
 
         return this.webTestClient
                 .post()
                 .uri("/api/annotations/books/c-programing/foundations")
                 .body(Mono.just(anAnnotation()),
-                        Annotations.class)
+                        Annotation.class)
                 .header("Authorization",
                         "Bearer " + authenticationResponse.getAuthToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectBody(Annotations.class)
+                .expectBody(Annotation.class)
                 .returnResult()
                 .getResponseBody();
     }
@@ -176,8 +176,8 @@ class AnnotationAPIControllerTest {
         return authenticationResponse;
     }
 
-    private Annotations anAnnotation() {
-        Annotations annotation = new Annotations();
+    private Annotation anAnnotation() {
+        Annotation annotation = new Annotation();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b");

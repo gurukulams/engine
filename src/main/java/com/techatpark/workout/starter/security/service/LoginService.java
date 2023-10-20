@@ -1,10 +1,10 @@
 package com.techatpark.workout.starter.security.service;
 
-import com.techatpark.workout.model.AuthProvider;
-import com.techatpark.workout.service.LearnerService;
+import com.gurukulams.core.payload.AuthProvider;
+import com.gurukulams.core.payload.SignupRequest;
+import com.gurukulams.core.service.LearnerService;
 import com.techatpark.workout.starter.security.payload.AuthenticationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
-import com.techatpark.workout.starter.security.payload.SignupRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

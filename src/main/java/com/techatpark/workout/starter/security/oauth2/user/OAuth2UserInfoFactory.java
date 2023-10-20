@@ -1,7 +1,7 @@
 package com.techatpark.workout.starter.security.oauth2.user;
 
+import com.gurukulams.core.payload.AuthProvider;
 import com.techatpark.workout.starter.security.exception.OAuth2AuthenticationProcessingException;
-import com.techatpark.workout.model.AuthProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.gurukulams.core.model.Categories;
+import com.gurukulams.core.model.Category;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,86 +45,86 @@ class CategoryServiceTest {
 
     @Test
     void create() {
-        final Categories category = categoryService.create("hari"
-                , null, anCategories());
-        Assertions.assertTrue(categoryService.read("hari", category.getId(), null).isPresent(), "Created Categories");
+        final Category category = categoryService.create("hari"
+                , null, anCategory());
+        Assertions.assertTrue(categoryService.read("hari", category.getId(), null).isPresent(), "Created Category");
     }
 
     @Test
     void createLocalized() {
-        final Categories category = categoryService.create("hari"
-                , Locale.GERMAN, anCategories());
-        Assertions.assertTrue(categoryService.read("hari", category.getId(), Locale.GERMAN).isPresent(), "Created Localized Categories");
-        Assertions.assertTrue(categoryService.read("hari", category.getId(), null).isPresent(), "Created Categories");
+        final Category category = categoryService.create("hari"
+                , Locale.GERMAN, anCategory());
+        Assertions.assertTrue(categoryService.read("hari", category.getId(), Locale.GERMAN).isPresent(), "Created Localized Category");
+        Assertions.assertTrue(categoryService.read("hari", category.getId(), null).isPresent(), "Created Category");
     }
 
     @Test
     void read() {
-        final Categories category = categoryService.create("hari",
-                null, anCategories());
+        final Category category = categoryService.create("hari",
+                null, anCategory());
         Assertions.assertTrue(categoryService.read("hari", category.getId(), null).isPresent(),
-                "Created Categories");
+                "Created Category");
     }
 
     @Test
     void update() {
 
-        final Categories category = categoryService.create("hari",
-                null, anCategories());
-        Categories newCategories = new Categories();
-        newCategories.setId(UUID.randomUUID().toString());
-        newCategories.setTitle("HansiCategories");
-        Categories updatedCategories = categoryService
-                .update(category.getId(), "priya", null, newCategories);
-        Assertions.assertEquals("HansiCategories", updatedCategories.getTitle(), "Updated");
+        final Category category = categoryService.create("hari",
+                null, anCategory());
+        Category newCategory = new Category();
+        newCategory.setId(UUID.randomUUID().toString());
+        newCategory.setTitle("HansiCategory");
+        Category updatedCategory = categoryService
+                .update(category.getId(), "priya", null, newCategory);
+        Assertions.assertEquals("HansiCategory", updatedCategory.getTitle(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             categoryService
-                    .update(UUID.randomUUID().toString(), "priya", null, newCategories);
+                    .update(UUID.randomUUID().toString(), "priya", null, newCategory);
         });
     }
 
     @Test
     void updateLocalized() {
 
-        final Categories category = categoryService.create("hari",
-                null, anCategories());
-        Categories newCategories = new Categories();
-        newCategories.setId(category.getId());
-        newCategories.setTitle("HansiCategories");
-        Categories updatedCategories = categoryService
-                .update(category.getId(), "priya", Locale.GERMAN, newCategories);
+        final Category category = categoryService.create("hari",
+                null, anCategory());
+        Category newCategory = new Category();
+        newCategory.setId(category.getId());
+        newCategory.setTitle("HansiCategory");
+        Category updatedCategory = categoryService
+                .update(category.getId(), "priya", Locale.GERMAN, newCategory);
 
-        Assertions.assertEquals("HansiCategories", categoryService.read("mani", category.getId(), Locale.GERMAN).get().getTitle(), "Updated");
-        Assertions.assertNotEquals("HansiCategories", categoryService.read("mani", category.getId(), null).get().getTitle(), "Updated");
+        Assertions.assertEquals("HansiCategory", categoryService.read("mani", category.getId(), Locale.GERMAN).get().getTitle(), "Updated");
+        Assertions.assertNotEquals("HansiCategory", categoryService.read("mani", category.getId(), null).get().getTitle(), "Updated");
 
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             categoryService
-                    .update(UUID.randomUUID().toString(), "priya", null, newCategories);
+                    .update(UUID.randomUUID().toString(), "priya", null, newCategory);
         });
     }
 
     @Test
     void delete() {
 
-        final Categories category = categoryService.create("hari", null,
-                anCategories());
+        final Category category = categoryService.create("hari", null,
+                anCategory());
         categoryService.delete("mani", category.getId());
-        Assertions.assertFalse(categoryService.read("mani", category.getId(), null).isPresent(), "Deleted Categories");
+        Assertions.assertFalse(categoryService.read("mani", category.getId(), null).isPresent(), "Deleted Category");
     }
 
     @Test
     void list() {
 
-        final Categories category = categoryService.create("hari", null,
-                anCategories());
-        Categories newCategories = new Categories();
-        newCategories.setId(UUID.randomUUID().toString());
-        newCategories.setTitle("HansiCategories");
+        final Category category = categoryService.create("hari", null,
+                anCategory());
+        Category newCategory = new Category();
+        newCategory.setId(UUID.randomUUID().toString());
+        newCategory.setTitle("HansiCategory");
         categoryService.create("hari", null,
-                newCategories);
-        List<Categories> listofcategories = categoryService.list("hari", null);
+                newCategory);
+        List<Category> listofcategories = categoryService.list("hari", null);
         Assertions.assertEquals(2, listofcategories.size());
 
     }
@@ -132,14 +132,14 @@ class CategoryServiceTest {
     @Test
     void listLocalized() {
 
-        final Categories category = categoryService.create("hari", Locale.GERMAN,
-                anCategories());
-        Categories newCategories = new Categories();
-        newCategories.setId(UUID.randomUUID().toString());
-        newCategories.setTitle("HansiCategories");
+        final Category category = categoryService.create("hari", Locale.GERMAN,
+                anCategory());
+        Category newCategory = new Category();
+        newCategory.setId(UUID.randomUUID().toString());
+        newCategory.setTitle("HansiCategory");
         categoryService.create("hari", null,
-                newCategories);
-        List<Categories> listofcategories = categoryService.list("hari", null);
+                newCategory);
+        List<Category> listofcategories = categoryService.list("hari", null);
         Assertions.assertEquals(2, listofcategories.size());
 
         listofcategories = categoryService.list("hari", Locale.GERMAN);
@@ -153,10 +153,10 @@ class CategoryServiceTest {
      *
      * @return the practice
      */
-    Categories anCategories() {
-        Categories categories = new Categories();
+    Category anCategory() {
+        Category categories = new Category();
         categories.setId(UUID.randomUUID().toString());
-        categories.setTitle("HariCategories");
+        categories.setTitle("HariCategory");
         return categories;
     }
 }

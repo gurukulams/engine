@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.gurukulams.core.model.Tags;
+import com.gurukulams.core.model.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -44,13 +44,13 @@ public final class TagService {
      */
     private static final int INDEX_6 = 6;
     /**
-     * Tags table.
+     * Tag table.
      */
-    private static final String TAGS_TABLE = "tags";
+    private static final String TAGS_TABLE = "tag";
     /**
-     * Tags localized table.
+     * Tag localized table.
      */
-    private static final String TAGS_LOCALIZED_TABLE = "tags_localized";
+    private static final String TAGS_LOCALIZED_TABLE = "tag_localized";
 
     /**
      * Logger.
@@ -71,9 +71,9 @@ public final class TagService {
         this.jdbcClient = ajdbcClient;
     }
 
-    private Tags rowMapper(final ResultSet rs, final Integer rowNum)
+    private Tag rowMapper(final ResultSet rs, final Integer rowNum)
             throws SQLException {
-        Tags tag = new Tags();
+        Tag tag = new Tag();
         tag.setId(rs.getString(INDEX_1));
         tag.setTitle(rs.getString(INDEX_2));
         tag.setCreatedAt(rs.getObject(INDEX_3, LocalDateTime.class));
@@ -91,9 +91,9 @@ public final class TagService {
      * @param tag      the tag
      * @return the tag
      */
-    public Tags create(final String userName,
+    public Tag create(final String userName,
                       final Locale locale,
-                      final Tags tag) {
+                      final Tag tag) {
 
         final String insertTagQuery = """
                 INSERT INTO %s(id, title, created_by)
@@ -117,7 +117,7 @@ public final class TagService {
                     .update();
         }
 
-        final Optional<Tags> optionalTag = read(userName, tag.getId(), locale);
+        final Optional<Tag> optionalTag = read(userName, tag.getId(), locale);
 
         logger.info("Created Tag {}", tag.getId());
 
@@ -132,7 +132,7 @@ public final class TagService {
      * @param locale   the locale
      * @return the optional tag
      */
-    public Optional<Tags> read(final String userName,
+    public Optional<Tag> read(final String userName,
                               final String id,
                               final Locale locale) {
         final String query = locale == null
@@ -184,10 +184,10 @@ public final class TagService {
      * @param tag      the tag
      * @return the tag
      */
-    public Tags update(final String id,
+    public Tag update(final String id,
                       final String userName,
                       final Locale locale,
-                      final Tags tag) {
+                      final Tag tag) {
         logger.debug("Entering update for Tag {}", id);
         final String updateTagQuery = locale == null
                 ?
@@ -259,13 +259,13 @@ public final class TagService {
     }
 
     /**
-     * List of tags.
+     * List of tag.
      *
      * @param userName the user name
      * @param locale   the locale
-     * @return the list of tags
+     * @return the list of tag
      */
-    public List<Tags> list(final String userName, final Locale locale) {
+    public List<Tag> list(final String userName, final Locale locale) {
         final String query = locale == null
                 ? """
                 SELECT id, title, created_at, created_by, modified_at,
@@ -302,12 +302,12 @@ public final class TagService {
     }
 
     /**
-     * Cleaning up all tags.
+     * Cleaning up all tag.
      */
     public void deleteAll() {
         jdbcClient.sql("DELETE FROM %s".formatted(TAGS_LOCALIZED_TABLE))
                 .update();
-        final String deleteTagsQuery = "DELETE FROM %s".formatted(TAGS_TABLE);
-        jdbcClient.sql(deleteTagsQuery).update();
+        final String deleteTagQuery = "DELETE FROM %s".formatted(TAGS_TABLE);
+        jdbcClient.sql(deleteTagQuery).update();
     }
 }
