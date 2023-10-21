@@ -1,8 +1,8 @@
 package com.techatpark.workout.component;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonComponent
 public class JSONObjectConverter {
@@ -20,6 +22,7 @@ public class JSONObjectConverter {
 
         /**
          * Serialize to JSONObject.
+         *
          * @param jsonObject
          * @param jsonGenerator
          * @param serializerProvider
@@ -27,21 +30,15 @@ public class JSONObjectConverter {
          */
         @Override
         public void serialize(final JSONObject jsonObject,
-                  final JsonGenerator jsonGenerator,
-                  final SerializerProvider serializerProvider)
+                              final JsonGenerator jsonGenerator,
+                              final SerializerProvider serializerProvider)
                 throws IOException {
-            try {
-                if (jsonObject == null) {
-                    jsonGenerator.writeNull();
-                } else {
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode actualObj = mapper
-                            .readTree(jsonObject.toString());
-                    jsonGenerator.writeString(mapper
-                            .writeValueAsString(actualObj));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (jsonObject == null) {
+                jsonGenerator.writeNull();
+            } else {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode actualObj = mapper.readTree(jsonObject.toString());
+                jsonGenerator.writeString(mapper.writeValueAsString(actualObj));
             }
         }
     }
@@ -50,27 +47,24 @@ public class JSONObjectConverter {
 
         /**
          * Deserialize JSONObject.
+         *
          * @param jsonParser
          * @param deserializationContext
          * @return
          * @throws IOException
-         * @throws JacksonException
          */
         @Override
         public JSONObject deserialize(final JsonParser jsonParser,
                       final DeserializationContext deserializationContext)
-                throws IOException, JacksonException {
-            try {
-                String dateAsString = jsonParser.getText();
-                if (dateAsString == null) {
-                    return null;
-                } else {
-                    return new JSONObject(dateAsString);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+                throws IOException {
+            TypeReference<HashMap<String, Object>> typeRef =
+                    new TypeReference<>() { };
+            Map<String, Object> theValue = jsonParser.readValueAs(typeRef);
+            if (theValue == null) {
+                return null;
+            } else {
+                return new JSONObject(theValue);
             }
-            return null;
         }
     }
 }
