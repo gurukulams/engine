@@ -16,9 +16,9 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
 import java.lang.annotation.ElementType;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -81,10 +81,6 @@ public class QuestionService {
     private final Validator validator;
 
     /**
-     * this creates connection functionalities.
-     */
-    private final DataSource dataSource;
-    /**
      * JdbcClient.
      */
     private final JdbcClient jdbcClient;
@@ -140,15 +136,12 @@ public class QuestionService {
      * @param aJdbcClient      a jdbcClient
      * @param aCategoryService the practiceservice
      * @param aValidator       thevalidator
-     * @param aDataSource      the a data source
      */
     public QuestionService(final CategoryService aCategoryService,
                            final Validator aValidator,
-                           final DataSource aDataSource,
                            final JdbcClient aJdbcClient) {
         this.categoryService = aCategoryService;
         this.validator = aValidator;
-        this.dataSource = aDataSource;
         this.jdbcClient = aJdbcClient;
     }
 
@@ -211,8 +204,14 @@ public class QuestionService {
                 createChoices(question.getChoices(), locale, id);
             }
 
-            categories.forEach(category -> attachCategory(createdBy,
-                    id, category));
+            categories.forEach(category -> {
+                try {
+                    attachCategory(createdBy,
+                            id, category);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
             return read(id, locale);
         } else {
@@ -806,7 +805,8 @@ public class QuestionService {
      */
     private boolean attachCategory(final String userName,
                                      final UUID questionId,
-                                     final String categoryId) {
+                                     final String categoryId)
+            throws SQLException {
         String insertQuery = """
                 INSERT INTO question_category(question_id, category_id)
                 VALUES(?, ?)

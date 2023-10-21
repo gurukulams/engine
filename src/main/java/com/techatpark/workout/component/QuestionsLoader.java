@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -89,20 +90,25 @@ public class QuestionsLoader {
                             Integer.MAX_VALUE,
                             (filePath, fileAttr)
                                     -> fileAttr.isDirectory())
-                    .forEach(tagFolder -> {
-                        if (!tagFolder.equals(questionsFolder)) {
+                    .forEach(categoriesFolder -> {
+                        if (!categoriesFolder.equals(questionsFolder)) {
                             try {
                                 Category categories = new Category();
-                                categories.setId(tagFolder
+                                categories.setId(categoriesFolder
                                         .getFileName().toString());
-                                categories.setTitle(tagFolder
+                                categories.setTitle(categoriesFolder
                                         .getFileName().toString());
 
                                 tagService.create(userName, null,
                                         categories);
                             } catch (DuplicateKeyException e) {
                                 System.out.println("Duplicate Category "
-                                        + tagFolder.getFileName().toString());
+                                        + categoriesFolder
+                                        .getFileName().toString());
+                            } catch (SQLException e) {
+                                System.out.println("Duplicate Category "
+                                        + categoriesFolder
+                                        .getFileName().toString());
                             }
 
                         }

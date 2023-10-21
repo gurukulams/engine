@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -26,7 +27,7 @@ class CategoryServiceTest {
      * @throws IOException the io exception
      */
     @BeforeEach
-    void before() throws IOException {
+    void before() throws SQLException {
         cleanUp();
     }
 
@@ -34,24 +35,24 @@ class CategoryServiceTest {
      * After.
      */
     @AfterEach
-    void after() {
+    void after() throws SQLException {
         cleanUp();
     }
 
-    private void cleanUp() {
-        categoryService.deleteAll();
+    private void cleanUp() throws SQLException {
+        categoryService.delete();
     }
 
 
     @Test
-    void create() {
+    void create() throws SQLException {
         final Category category = categoryService.create("hari"
                 , null, anCategory());
         Assertions.assertTrue(categoryService.read("hari", category.getId(), null).isPresent(), "Created Category");
     }
 
     @Test
-    void createLocalized() {
+    void createLocalized() throws SQLException {
         final Category category = categoryService.create("hari"
                 , Locale.GERMAN, anCategory());
         Assertions.assertTrue(categoryService.read("hari", category.getId(), Locale.GERMAN).isPresent(), "Created Localized Category");
@@ -59,7 +60,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void read() {
+    void read() throws SQLException {
         final Category category = categoryService.create("hari",
                 null, anCategory());
         Assertions.assertTrue(categoryService.read("hari", category.getId(), null).isPresent(),
@@ -67,7 +68,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void update() {
+    void update() throws SQLException {
 
         final Category category = categoryService.create("hari",
                 null, anCategory());
@@ -85,7 +86,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void updateLocalized() {
+    void updateLocalized() throws SQLException {
 
         final Category category = categoryService.create("hari",
                 null, anCategory());
@@ -106,7 +107,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void delete() {
+    void delete() throws SQLException {
 
         final Category category = categoryService.create("hari", null,
                 anCategory());
@@ -115,7 +116,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void list() {
+    void list() throws SQLException {
 
         final Category category = categoryService.create("hari", null,
                 anCategory());
@@ -130,7 +131,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void listLocalized() {
+    void listLocalized() throws SQLException {
 
         final Category category = categoryService.create("hari", Locale.GERMAN,
                 anCategory());
