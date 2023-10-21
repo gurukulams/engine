@@ -1,5 +1,6 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.service.CategoryService;
 import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
