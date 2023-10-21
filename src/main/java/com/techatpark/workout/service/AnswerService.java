@@ -2,7 +2,6 @@ package com.techatpark.workout.service;
 
 import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
-import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,21 +19,14 @@ public class AnswerService {
      * question Service.
      */
     private final QuestionService questionService;
-    /**
-     * JdbcClient instance.
-     */
-    private final JdbcClient jdbcClient;
 
     /**
      * Constructs Answer Service.
      *
      * @param anQuestionService the an question service
-     * @param aJdbcClient       the a jdbc client
      */
-    AnswerService(final QuestionService anQuestionService,
-                  final JdbcClient aJdbcClient) {
+    AnswerService(final QuestionService anQuestionService) {
         this.questionService = anQuestionService;
-        this.jdbcClient = aJdbcClient;
     }
 
     /**
@@ -52,15 +44,6 @@ public class AnswerService {
         if (oQuestion.isPresent()) {
             final Question question = oQuestion.get();
             switch (question.getType()) {
-                case CODE_SQL:
-                    final String verificationSQL =
-                            "SELECT COUNT(*) FROM ( " + question.getAnswer()
-                                    + " except " + answer
-                                    + " ) AS TOTAL_ROWS";
-                    final Integer count = jdbcClient
-                            .sql(verificationSQL).query(Integer.class).single();
-                    isRigntAnswer = (count == 0);
-                    break;
                 case CHOOSE_THE_BEST:
                     Optional<Choice> rightChoice = question.getChoices()
                             .stream()
@@ -87,9 +70,6 @@ public class AnswerService {
                     }
                     break;
                 default:
-                    isRigntAnswer = answer.equalsIgnoreCase(
-                            question.getAnswer().toLowerCase()
-                    );
                     break;
             }
 
