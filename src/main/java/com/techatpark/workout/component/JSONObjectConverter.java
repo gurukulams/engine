@@ -36,9 +36,7 @@ public class JSONObjectConverter {
             if (jsonObject == null) {
                 jsonGenerator.writeNull();
             } else {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode actualObj = mapper.readTree(jsonObject.toString());
-                jsonGenerator.writeString(mapper.writeValueAsString(actualObj));
+                jsonGenerator.writeObject(jsonObject.toString());
             }
         }
     }
