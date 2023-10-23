@@ -1,6 +1,5 @@
 package com.techatpark.workout.component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.model.Category;
 import com.gurukulams.core.service.CategoryService;
@@ -23,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -72,13 +70,7 @@ public class QuestionsLoader {
                         (filePath, fileAttr)
                                 -> fileAttr.isRegularFile()
                                 && !filePath.toFile().getName().contains("-"))
-                    .forEach(path -> {
-                        try {
-                            createQuestion(USER_NAME, path.toFile());
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+                    .forEach(path -> createQuestion(USER_NAME, path.toFile()));
         }
     }
 
@@ -117,13 +109,12 @@ public class QuestionsLoader {
     }
 
     private Question createQuestion(final String userName,
-                                    final File questionFile)
-            throws JsonProcessingException {
+                                    final File questionFile) {
         Question question = getObject(questionFile, Question.class);
         final String nameOfQuestion = questionFile.getName()
                 .replaceFirst(".json", "");
         boolean isWindows = System
-                .getProperty("os.name").toLowerCase().indexOf("win") >= 0;
+                .getProperty("os.name").toLowerCase().contains("win");
         String regexForQuestions = isWindows
                 ? "\\\\questions\\\\" : "/questions/";
         String regexPath = isWindows
@@ -133,9 +124,8 @@ public class QuestionsLoader {
         List<String> tokens =
                 new ArrayList<>(List.of(thePath.split(regexPath)));
 
-
         tokens.remove(tokens.size() - 1);
-        String chapterPath = tokens.stream().collect(Collectors.joining("/"));
+
 
         Stream<Choice> rightAnswers = question.getChoices()
                 .stream()

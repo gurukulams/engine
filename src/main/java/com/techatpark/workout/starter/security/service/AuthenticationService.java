@@ -336,7 +336,7 @@ public class AuthenticationService {
             throw new ConstraintViolationException(violations);
         }
 
-        String authToken = getBearer(authHeader);
+        String registrationToken = getBearer(authHeader);
         String[] parts = userName.getName().split("@");
         String userHandle = parts[0];
         LearnerProfile learnerProfile = new LearnerProfile();
@@ -345,7 +345,7 @@ public class AuthenticationService {
         learnerProfile.setDob(registrationRequest.getDob());
         learnerProfileService.create(learnerProfile);
 
-        authCache.evict(authToken);
+        authCache.evict(registrationToken);
         return getAuthenticationResponse(userName.getName());
     }
 
