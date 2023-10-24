@@ -34,7 +34,7 @@ public class JSONObjectConverter {
             if (jsonObject == null) {
                 jsonGenerator.writeNull();
             } else {
-                jsonGenerator.writeObject(jsonObject.toString());
+                jsonGenerator.writeObject(jsonObject.toMap());
             }
         }
     }
