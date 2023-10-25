@@ -8,6 +8,7 @@ import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RegistrationRequest;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,8 @@ class AnnotationAPIControllerTest {
         Annotation annotations = create(authenticationResponse);
 
         List<Annotation> annotationsList = list(authenticationResponse) ;
+
+        Assertions.assertEquals(annotations.getId(), annotationsList.get(0).getId());
 
         logout(authenticationRequest, authenticationResponse).isEqualTo(HttpStatus.OK.value());
 
@@ -178,7 +181,10 @@ class AnnotationAPIControllerTest {
 
     private Annotation anAnnotation() {
         Annotation annotation = new Annotation();
-        JSONObject jsonObject = new JSONObject("""
+
+
+
+        JSONObject jsonObject = new JSONObject(JSONObject.stringToValue("""
                 {
                 	"value": {
                 		"@context": "http://www.w3.org/ns/anno.jsonld",
@@ -206,9 +212,9 @@ class AnnotationAPIControllerTest {
                 		"type": "Annotation"
                 	}
                 }
-                """);
+                """));
 
-        annotation.setValue(jsonObject);
+        annotation.setNote(jsonObject);
         return annotation;
     }
 

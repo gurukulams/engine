@@ -1,8 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gurukulams.core.model.Annotation;
-import com.techatpark.workout.service.AnnotationService;
+import com.gurukulams.core.service.AnnotationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -74,7 +74,8 @@ class AnnotationAPIController {
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
-            final @RequestBody Annotation annotation) {
+            final @RequestBody Annotation annotation)
+            throws SQLException {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 annotationService.create(onType,
                         onInstance,
@@ -112,7 +113,8 @@ class AnnotationAPIController {
             final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
                     name = "Accept-Language",
-                    required = false) final Locale locale) {
+                    required = false) final Locale locale)
+            throws SQLException {
         return ResponseEntity.status(HttpStatus.OK).body(
                 annotationService.list(principal.getName(), locale,
                         onType,
@@ -148,7 +150,7 @@ class AnnotationAPIController {
                     required = false) final Locale locale,
             final @PathVariable UUID id,
             final @RequestBody Annotation annotation)
-            throws JsonProcessingException {
+            throws SQLException {
         final Optional<Annotation> updatednote = annotationService.update(
                 id, locale, annotation);
         return updatednote == null ? ResponseEntity.notFound().build()
@@ -177,7 +179,8 @@ class AnnotationAPIController {
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
-            final @PathVariable UUID id) {
+            final @PathVariable UUID id)
+            throws SQLException {
         return annotationService.delete(id, locale)
                 ?
                 ResponseEntity.ok().build()

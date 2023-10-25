@@ -1,6 +1,7 @@
 package com.techatpark.workout.starter.business;
 
 import com.gurukulams.core.GurukulamsManager;
+import com.gurukulams.core.service.AnnotationService;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.gurukulams.core.service.LearnerService;
@@ -67,6 +68,17 @@ public class BusinessConfig {
     TagService tagService(
             final GurukulamsManager gurukulamsManager) {
         return new TagService(gurukulamsManager);
+    }
+
+    /**
+     * AnnotationService.
+     * @param gurukulamsManager
+     * @return annotationService
+     */
+    @Bean
+    AnnotationService annotationService(
+            final GurukulamsManager gurukulamsManager) {
+        return new AnnotationService(gurukulamsManager);
     }
 
 }
