@@ -1,9 +1,11 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.model.QuestionChoice;
 import com.gurukulams.core.service.CategoryService;
-import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,11 +56,27 @@ class QuestionServiceTest {
     }
 
     @Test
+    void testInvalidQuestion() {
+        Question newMCQ = newMCQ();
+
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                questionService.create(List.of("c1",
+                                "c2"),
+                        null,
+                        QuestionType.CHOOSE_THE_BEST,
+                        null,
+                        "sathish",
+                        newMCQ)
+                );
+
+    }
+
+    @Test
     void testChooseTheBest() {
 
         Question newMCQ = newMCQ();
 
-        newMCQ.getChoices().get(0).setAnswer(true);
+        newMCQ.getChoices().get(0).setIsAnswer(true);
 
         // Create a Question
         Optional<Question> question = questionService.create(List.of("c1",
@@ -71,13 +90,13 @@ class QuestionServiceTest {
         // Right Answer
         Assertions.assertTrue(answerService.answer(question.get().getId(),
                 question.get().getChoices().stream()
-                        .filter(Choice::isAnswer)
+                        .filter(QuestionChoice::getIsAnswer)
                         .findFirst().get().getId().toString()));
 
         // Wrong Answer
         Assertions.assertFalse(answerService.answer(question.get().getId(),
                 question.get().getChoices().stream()
-                        .filter(choice -> !choice.isAnswer())
+                        .filter(choice -> !choice.getIsAnswer())
                         .findFirst().get().getId().toString()));
 
 
@@ -88,8 +107,8 @@ class QuestionServiceTest {
 
         Question newMCQ = newMCQ();
 
-        newMCQ.getChoices().get(0).setAnswer(true);
-        newMCQ.getChoices().get(2).setAnswer(true);
+        newMCQ.getChoices().get(0).setIsAnswer(true);
+        newMCQ.getChoices().get(2).setIsAnswer(true);
 
         // Create a Question
         Optional<Question> question = questionService.create(List.of("c1",
@@ -101,7 +120,7 @@ class QuestionServiceTest {
                 newMCQ);
 
         String rightAnswer = question.get().getChoices().stream()
-                .filter(Choice::isAnswer)
+                .filter(QuestionChoice::getIsAnswer)
                 .map(choice -> choice.getId().toString())
                 .collect(Collectors.joining(","));
 
@@ -112,13 +131,13 @@ class QuestionServiceTest {
         // Wrong Answer
         Assertions.assertFalse(answerService.answer(question.get().getId(),
                 rightAnswer+ "," + question.get().getChoices().stream()
-                        .filter(choice -> !choice.isAnswer())
+                        .filter(choice -> !choice.getIsAnswer())
                         .findFirst().get().getId()));
 
         // Wrong Answer
         Assertions.assertFalse(answerService.answer(question.get().getId(),
                 question.get().getChoices().stream()
-                        .filter(choice -> !choice.isAnswer())
+                        .filter(choice -> !choice.getIsAnswer())
                         .findFirst().get().getId().toString()));
 
 
@@ -128,7 +147,7 @@ class QuestionServiceTest {
     void testDelete() {
         Question newMCQ = newMCQ();
 
-        newMCQ.getChoices().get(0).setAnswer(true);
+        newMCQ.getChoices().get(0).setIsAnswer(true);
 
         // Create a Question
         Optional<Question> question = questionService.create(List.of("c1",
@@ -150,7 +169,7 @@ class QuestionServiceTest {
     void testList() {
         Question newMCQ = newMCQ();
 
-        newMCQ.getChoices().get(0).setAnswer(true);
+        newMCQ.getChoices().get(0).setIsAnswer(true);
 
         // Create a Question
         questionService.create(List.of("c1",
@@ -185,20 +204,20 @@ class QuestionServiceTest {
         question.setExplanation("A Choose the best question");
         question.setChoices(new ArrayList<>());
 
-        Choice choice = new Choice();
-        choice.setValue("1");
+        QuestionChoice choice = new QuestionChoice();
+        choice.setCValue("1");
         question.getChoices().add(choice);
 
-        choice = new Choice();
-        choice.setValue("2");
+        choice = new QuestionChoice();
+        choice.setCValue("2");
         question.getChoices().add(choice);
 
-        choice = new Choice();
-        choice.setValue("3");
+        choice = new QuestionChoice();
+        choice.setCValue("3");
         question.getChoices().add(choice);
 
-        choice = new Choice();
-        choice.setValue("4");
+        choice = new QuestionChoice();
+        choice.setCValue("4");
         question.getChoices().add(choice);
 
         return question;

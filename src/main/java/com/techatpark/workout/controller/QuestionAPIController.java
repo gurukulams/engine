@@ -1,6 +1,6 @@
 package com.techatpark.workout.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import com.techatpark.workout.service.AnswerService;
@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
@@ -94,8 +92,7 @@ class QuestionAPIController {
                                                      name = "Accept-Language",
                                          required = false) final Locale locale,
                                                      final Principal principal,
-                                             final HttpServletRequest request)
-            throws ServletException, IOException {
+                                             final HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 questionService.create(
@@ -129,21 +126,20 @@ class QuestionAPIController {
                     description = "question not found")})
     @PutMapping("/{questionType}/{questionId}/**")
     public final ResponseEntity<Optional<Question>> update(
-                                                     final @PathVariable
-                                                             UUID questionId,
-                                                     @RequestHeader(
-                                                     name = "Accept-Language",
-                                         required = false) final Locale locale,
-                                                     final @PathVariable
-                                                             QuestionType
-                                                             questionType,
-                                                     final
-                                                     @RequestBody
-                                                             Question
-                                                             question,
-                                                     final
-                                                     HttpServletRequest request)
-            throws JsonProcessingException {
+                 final @PathVariable
+                         UUID questionId,
+                 @RequestHeader(
+                 name = "Accept-Language",
+     required = false) final Locale locale,
+                 final @PathVariable
+                         QuestionType
+                         questionType,
+                 final
+                 @RequestBody
+                         Question
+                         question,
+                 final
+                 HttpServletRequest request) {
 
         final Optional<Question> updatedQuestion =
                 questionService.update(

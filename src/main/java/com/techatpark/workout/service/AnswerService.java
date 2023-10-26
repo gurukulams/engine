@@ -1,6 +1,6 @@
 package com.techatpark.workout.service;
 
-import com.techatpark.workout.model.Choice;
+import com.gurukulams.core.model.QuestionChoice;
 import com.techatpark.workout.model.Question;
 import org.springframework.stereotype.Service;
 
@@ -45,9 +45,9 @@ public class AnswerService {
             final Question question = oQuestion.get();
             switch (question.getType()) {
                 case CHOOSE_THE_BEST:
-                    Optional<Choice> rightChoice = question.getChoices()
+                    Optional<QuestionChoice> rightChoice = question.getChoices()
                             .stream()
-                            .filter(Choice::isAnswer)
+                            .filter(QuestionChoice::getIsAnswer)
                             .findFirst();
                     if (rightChoice.isPresent()) {
                         isRigntAnswer = rightChoice.get()
@@ -59,7 +59,7 @@ public class AnswerService {
                 case MULTI_CHOICE:
                     List<String> rightChoiceIds = question.getChoices()
                             .stream()
-                            .filter(Choice::isAnswer)
+                            .filter(QuestionChoice::getIsAnswer)
                             .map(choice -> choice.getId().toString())
                             .toList();
                     if (!rightChoiceIds.isEmpty()) {

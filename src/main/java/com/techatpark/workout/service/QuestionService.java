@@ -1,8 +1,8 @@
 package com.techatpark.workout.service;
 
 import com.gurukulams.core.model.Category;
+import com.gurukulams.core.model.QuestionChoice;
 import com.gurukulams.core.service.CategoryService;
-import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import jakarta.validation.ConstraintViolation;
@@ -117,16 +117,16 @@ public class QuestionService {
     /**
      * Maps the data from and to the database. return question.
      */
-    private final RowMapper<Choice> rowMapperQuestionChoice = (
+    private final RowMapper<QuestionChoice> rowMapperQuestionChoice = (
             rs, rowNum) -> {
-        final Choice choice = new Choice();
+        final QuestionChoice choice = new QuestionChoice();
         choice.setId((UUID) rs.getObject(INDEX_1));
-        choice.setValue(rs.getString(INDEX_2));
-        choice.setAnswer(rs.getBoolean(INDEX_3));
+        choice.setCValue(rs.getString(INDEX_2));
+        choice.setIsAnswer(rs.getBoolean(INDEX_3));
         // https://docs.oracle.com/javase/7/docs/api/java/sql
         // /ResultSet.html#wasNull%28%29
         if (rs.wasNull()) {
-            choice.setAnswer(null);
+            choice.setIsAnswer(null);
         }
         return choice;
     };
@@ -221,7 +221,7 @@ public class QuestionService {
 
     }
 
-    private void createChoice(final Choice choice,
+    private void createChoice(final QuestionChoice choice,
                               final Locale locale,
                               final UUID questionId) {
         UUID choiceId = UUID.randomUUID();
@@ -235,9 +235,10 @@ public class QuestionService {
         jdbcClient.sql(query)
                 .param(INDEX_1, choiceId)
                 .param(INDEX_2, questionId)
-                .param(INDEX_3, choice.getValue())
+                .param(INDEX_3, choice.getCValue())
                 .param(INDEX_4,
-                        choice.isAnswer() != null && choice.isAnswer())
+                        choice.getIsAnswer() != null
+                                && choice.getIsAnswer())
                 .update();
 
         if (locale != null) {
@@ -249,7 +250,7 @@ public class QuestionService {
     }
 
     private void saveLocalizedChoice(final Locale locale,
-                                     final Choice choice) {
+                                     final QuestionChoice choice) {
         final String query = """
                 UPDATE question_choice_localized
                 SET c_value = ?
@@ -257,7 +258,7 @@ public class QuestionService {
                 """;
 
         int updatedRows = jdbcClient.sql(query)
-                .param(INDEX_1, choice.getValue())
+                .param(INDEX_1, choice.getCValue())
                 .param(INDEX_2, choice.getId())
                 .param(INDEX_3, locale.getLanguage()).update();
         if (updatedRows == 0) {
@@ -266,7 +267,7 @@ public class QuestionService {
     }
 
     private void createLocalizedChoice(final Locale locale,
-                                       final Choice choice) {
+                                       final QuestionChoice choice) {
         String query = """
                 INSERT INTO question_choice_localized(
                 choice_id, locale, c_value)
@@ -275,11 +276,11 @@ public class QuestionService {
         jdbcClient.sql(query)
                 .param(INDEX_1, choice.getId())
                 .param(INDEX_2, locale.getLanguage())
-                .param(INDEX_3, choice.getValue())
+                .param(INDEX_3, choice.getCValue())
                 .update();
     }
 
-    private void createChoices(final List<Choice> choices,
+    private void createChoices(final List<QuestionChoice> choices,
                                final Locale locale,
                                final UUID id) {
         if (choices != null) {
@@ -295,7 +296,7 @@ public class QuestionService {
      * @param locale
      * @return the list
      */
-    private List<Choice> listQuestionChoice(final boolean isOwner,
+    private List<QuestionChoice> listQuestionChoice(final boolean isOwner,
                                             final UUID questionId,
                                             final Locale locale) {
         final String query = locale == null
@@ -480,7 +481,7 @@ public class QuestionService {
                 List<UUID> availableIds = question.getChoices()
                         .stream()
                         .filter(choice -> choice.getId() != null)
-                        .map(Choice::getId)
+                        .map(QuestionChoice::getId)
                         .collect(Collectors.toList());
 
                 if (!availableIds.isEmpty()) {
@@ -514,7 +515,7 @@ public class QuestionService {
 
     }
 
-    private void updateChoice(final Choice choice,
+    private void updateChoice(final QuestionChoice choice,
                               final Locale locale) {
         final String updatequestionChoice = locale == null
                 ? """
@@ -530,15 +531,15 @@ public class QuestionService {
                 """;
         if (locale == null) {
             jdbcClient.sql(updatequestionChoice)
-                    .param(INDEX_1, choice.getValue())
-                    .param(INDEX_2,
-                            choice.isAnswer() != null && choice.isAnswer())
-                    .param(INDEX_3, choice.getId());
+                    .param(INDEX_1, choice.getCValue())
+            .param(INDEX_2,
+                    choice.getIsAnswer() != null && choice.getIsAnswer())
+            .param(INDEX_3, choice.getId());
         } else {
             jdbcClient.sql(updatequestionChoice)
-                    .param(INDEX_1,
-                            choice.isAnswer() != null && choice.isAnswer())
-                    .param(INDEX_2, choice.getId());
+                .param(INDEX_1,
+                        choice.getIsAnswer() != null && choice.getIsAnswer())
+                .param(INDEX_2, choice.getId());
 
             saveLocalizedChoice(locale, choice);
         }
@@ -719,13 +720,27 @@ public class QuestionService {
             if (question.getType().equals(QuestionType.MULTI_CHOICE)
                     || question.getType()
                     .equals(QuestionType.CHOOSE_THE_BEST)) {
-                if (question.getChoices() == null
-                        || question.getChoices().size() < 2) {
+                List<QuestionChoice> choices = question.getChoices();
+                if (choices == null
+                        || choices.size() < 2) {
                     ConstraintViolation<Question> violation
                             = ConstraintViolationImpl.forBeanValidation(
                             messageTemplate, messageParameters,
                             expressionVariables,
-                            "Minimun 2 choice",
+                            "Minimum 2 choices",
+                            rootBeanClass,
+                            question, leafBeanInstance, cValue, propertyPath,
+                            constraintDescriptor, elementType);
+                    violations.add(violation);
+                } else if (choices.stream()
+                        .filter(choice -> choice.getIsAnswer() != null
+                                && choice.getIsAnswer())
+                        .findFirst().isEmpty()) {
+                    ConstraintViolation<Question> violation
+                            = ConstraintViolationImpl.forBeanValidation(
+                            messageTemplate, messageParameters,
+                            expressionVariables,
+                            "At-least One Answer should be available",
                             rootBeanClass,
                             question, leafBeanInstance, cValue, propertyPath,
                             constraintDescriptor, elementType);

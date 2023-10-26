@@ -2,8 +2,8 @@ package com.techatpark.workout.component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.model.Category;
+import com.gurukulams.core.model.QuestionChoice;
 import com.gurukulams.core.service.CategoryService;
-import com.techatpark.workout.model.Choice;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import com.techatpark.workout.service.QuestionService;
@@ -127,11 +127,11 @@ public class QuestionsLoader {
         tokens.remove(tokens.size() - 1);
 
 
-        Stream<Choice> rightAnswers = question.getChoices()
+        Stream<QuestionChoice> rightAnswers = question.getChoices()
                 .stream()
                 .filter(choice
-                        -> choice.isAnswer() != null
-                        && choice.isAnswer());
+                        -> choice.getIsAnswer() != null
+                        && choice.getIsAnswer());
 
         QuestionType questionType = rightAnswers.count() == 1
                 ? QuestionType.CHOOSE_THE_BEST
@@ -158,8 +158,8 @@ public class QuestionsLoader {
                 questionLocalized.getChoices().get(i)
                         .setId(createdQuestion.getChoices().get(i).getId());
                 questionLocalized.getChoices().get(i)
-                        .setAnswer(
-                                createdQuestion.getChoices().get(i).isAnswer());
+                        .setIsAnswer(
+                            createdQuestion.getChoices().get(i).getIsAnswer());
             }
 
             questionService.update(

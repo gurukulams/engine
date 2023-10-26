@@ -1,6 +1,7 @@
 package com.techatpark.workout.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gurukulams.core.model.QuestionChoice;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.Instant;
@@ -61,7 +62,7 @@ public class Question {
     /**
      * tells the question choices available.
      */
-    private List<Choice> choices;
+    private List<QuestionChoice> choices;
 
     /**
      * gets the type of question.
@@ -158,7 +159,7 @@ public class Question {
      *
      * @return the question choice
      */
-    public List<Choice> getChoices() {
+    public List<QuestionChoice> getChoices() {
         return choices;
     }
 
@@ -167,7 +168,7 @@ public class Question {
      *
      * @param theChoice the question choice
      */
-    public void setChoices(final List<Choice> theChoice) {
+    public void setChoices(final List<QuestionChoice> theChoice) {
         this.choices = theChoice;
     }
 
