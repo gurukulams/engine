@@ -16,6 +16,8 @@ info:
   title: Petstore
 
 spring:
+  jackson:
+    default-property-inclusion: non_null
   datasource:
     url: jdbc:h2:mem:testdb
   h2:
