@@ -20,7 +20,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,33 +151,6 @@ public class QuestionService {
         this.questionTagStore = gurukulamsManager
                 .getQuestionTagStore();
     }
-
-
-    /**
-     * Maps the data from and to the database. return question.
-     */
-    private final RowMapper<Question> rowMapper = (rs, rowNum) -> {
-        final Question question = new Question();
-        question.setId((UUID) rs.getObject(INDEX_1));
-        question.setQuestion(rs.getString(INDEX_2));
-        question.setExplanation(rs.getString(INDEX_3));
-        question.setType(QuestionType.valueOf(rs.getString(INDEX_4)));
-        question.setCreatedBy(rs.getString(INDEX_5));
-        question.setAnswer(rs.getString(INDEX_6));
-
-
-        question.setCreatedAt(rs.getDate(INDEX_7)
-                .toLocalDate().atStartOfDay());
-        if (rs.getDate(INDEX_8) != null) {
-            question.setUpdatedAt(rs.getDate(INDEX_8)
-                    .toLocalDate().atStartOfDay());
-        }
-
-
-        return question;
-    };
-
-
 
     /**
      * inserts data.
@@ -632,9 +604,10 @@ public class QuestionService {
      * delete all records from questionchoice with the given question id.
      *
      * @param questionId
-     * @return successflag boolean
      */
-    public Boolean deleteQuestionChoice(final UUID questionId) {
+    public void deleteChoices(final UUID questionId)
+            throws SQLException {
+
         final String queryL =
                 """
                         DELETE FROM question_choice_localized
@@ -643,11 +616,10 @@ public class QuestionService {
                                 """;
         jdbcClient.sql(queryL)
                 .param(INDEX_1, questionId).update();
-        final String query =
-                "DELETE FROM question_choice WHERE question_id = ?";
-        final Integer updatedRows = jdbcClient.sql(query)
-                .param(INDEX_1, questionId).update();
-        return !(updatedRows == 0);
+
+        this.questionChoiceStore
+                .delete(QuestionChoiceStore.questionId().eq(questionId))
+                .execute();
     }
 
 
@@ -655,82 +627,105 @@ public class QuestionService {
      * List question of exam.
      *
      * @param userName   the user name
-     * @param category the category
+     * @param categories the categories
      * @param locale     the locale
      * @return quetions in given exam
      */
     public List<Question> list(final String userName,
                                final Locale locale,
-                               final List<String> category)
+                               final List<String> categories)
             throws SQLException {
 
         boolean isOwner = true;
 
-        final String query = locale == null
-                ? "SELECT id,question,explanation,type,"
-                + "created_by, "
-                + (isOwner ? "answer" : "NULL")
-                + " AS answer,"
-                + "created_at,modified_at"
-                + " FROM question"
-                + " where "
-                + "id IN (" + getQuestionIdFilter(category) + ") "
-                + " order by id"
-                : "SELECT id,"
-                + "CASE WHEN ql.LOCALE = ? "
-                + "THEN ql.question "
-                + "ELSE q.question "
-                + "END AS question,"
-                + "CASE WHEN ql.LOCALE = ? "
-                + "THEN ql.explanation "
-                + "ELSE q.explanation "
-                + "END AS explanation,"
-                + "type, created_by,"
-                + (isOwner ? "q.answer" : "NULL")
-                + " AS answer"
-                + ",created_at,modified_at FROM "
-                + "question q LEFT JOIN question_localized ql ON "
-                + "q.ID = ql.QUESTION_ID WHERE"
-                + " q.ID IN (" + getQuestionIdFilter(category) + ") "
-                + "  AND"
-                + " (ql.LOCALE IS NULL "
-                + "OR ql.LOCALE = ? OR "
-                + "q.ID NOT IN "
-                + "(SELECT question_id FROM question_localized "
-                + "WHERE QUESTION_ID=q.ID AND LOCALE = ?))";
+        List<com.gurukulams.core.model.Question> qms;
+        String query;
 
-        List<Object> parameters = new ArrayList<>();
         if (locale == null) {
-            parameters.addAll(category);
+            query = "SELECT id,question,explanation,type,"
+                    + (isOwner ? "answer" : "NULL")
+                    + " AS answer,"
+                    + "created_at,created_by,"
+                    + "modified_at,modified_by"
+                    + " FROM question"
+                    + " where "
+                    + "id IN (" + getQuestionIdFilter(categories) + ") "
+                    + " order by id";
+            QuestionStore.SelectStatement.SelectQuery queryBuilder
+                    = this.questionStore.select()
+                    .sql(query);
+
+            for (String category: categories) {
+                queryBuilder.param(QuestionCategoryStore.categoryId(category));
+            }
+
+            qms = queryBuilder
+                    .list();
         } else {
-            parameters.add(locale.getLanguage());
-            parameters.add(locale.getLanguage());
-            parameters.addAll(category);
-            parameters.add(locale.getLanguage());
-            parameters.add(locale.getLanguage());
+            query = "SELECT id,"
+                    + "CASE WHEN ql.LOCALE = ? "
+                    + "THEN ql.question "
+                    + "ELSE q.question "
+                    + "END AS question,"
+                    + "CASE WHEN ql.LOCALE = ? "
+                    + "THEN ql.explanation "
+                    + "ELSE q.explanation "
+                    + "END AS explanation,"
+                    + "type, created_by,"
+                    + (isOwner ? "q.answer" : "NULL")
+                    + " AS answer"
+                    + "created_at,created_by,"
+                    + "modified_at,modified_by"
+                    + " FROM "
+                    + "question q LEFT JOIN question_localized ql ON "
+                    + "q.ID = ql.QUESTION_ID WHERE"
+                    + " q.ID IN (" + getQuestionIdFilter(categories) + ") "
+                    + "  AND"
+                    + " (ql.LOCALE IS NULL "
+                    + "OR ql.LOCALE = ? OR "
+                    + "q.ID NOT IN "
+                    + "(SELECT question_id FROM question_localized "
+                    + "WHERE QUESTION_ID=q.ID AND LOCALE = ?))";
+
+            QuestionStore.SelectStatement.SelectQuery queryBuilder
+                    = this.questionStore.select()
+                    .sql(query)
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()));
+
+            for (String category: categories) {
+                queryBuilder.param(QuestionCategoryStore.categoryId(category));
+            }
+
+            qms = queryBuilder
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .list();
+
         }
 
-
-        List<Question> questions =
-                jdbcClient.sql(query).params(parameters).query(rowMapper)
-                        .list();
-
-        if (!questions.isEmpty()) {
-            for (Question question : questions) {
-                if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
-                        || question.getType()
-                        .equals(QuestionType.MULTI_CHOICE))) {
-                    question.setChoices(this
-                            .listQuestionChoice(isOwner,
-                                    question.getId(), locale));
+        if (qms != null) {
+            List<Question> questions = qms.stream().map(this::getQuestion)
+                    .toList();
+            if (!questions.isEmpty()) {
+                for (Question question : questions) {
+                    if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
+                            || question.getType()
+                            .equals(QuestionType.MULTI_CHOICE))) {
+                        question.setChoices(this
+                                .listQuestionChoice(isOwner,
+                                        question.getId(), locale));
+                    }
                 }
             }
+            return questions;
         }
-        return questions;
+
+        return new ArrayList<>();
     }
 
     private String getQuestionIdFilter(final List<String> category) {
-        String builder = "SELECT QUESTION_ID FROM "
+        return "SELECT QUESTION_ID FROM "
                 + "question_category WHERE category_id IN ("
                 + category.stream().map(tag -> "?")
                 .collect(Collectors.joining(","))
@@ -738,27 +733,8 @@ public class QuestionService {
                 + "GROUP BY QUESTION_ID "
                 + "HAVING COUNT(DISTINCT category_id) = "
                 + category.size();
-        return builder;
     }
 
-    /**
-     * list of question.
-     *
-     * @param pageNumber the page number
-     * @param pageSize   the page size
-     * @param locale     the locale
-     * @return question list
-     */
-    public List<Question> list(final Integer pageNumber,
-                               final Integer pageSize,
-                               final Locale locale) {
-        String query = """
-                SELECT id,question,explanation,type,created_by,
-                created_at,modified_at,answer FROM question
-                """;
-        query = query + " LIMIT " + pageSize + " OFFSET " + (pageNumber - 1);
-        return jdbcClient.sql(query).query(rowMapper).list();
-    }
 
     /**
      * Validate Question.
@@ -848,25 +824,26 @@ public class QuestionService {
     /**
      * deletes from database.
      *
-     * @param id           the id
+     * @param questionId           the questionId
      * @param questionType the questionType
      * @return successflag boolean
      */
     @Transactional
-    public Boolean deleteAQuestion(final UUID id,
-                                   final QuestionType questionType) {
+    public Boolean delete(final UUID questionId,
+                          final QuestionType questionType)
+            throws SQLException {
 
-        deleteQuestionChoice(id);
+        deleteChoices(questionId);
 
         jdbcClient.sql("DELETE FROM QUESTION_LOCALIZED WHERE question_id=?")
-                .param(id).update();
+                .param(questionId).update();
 
         jdbcClient.sql("DELETE FROM QUESTION_CATEGORY WHERE question_id=?")
-                .param(id).update();
+                .param(questionId).update();
 
         int updatedRow =
                 jdbcClient.sql("DELETE FROM question WHERE ID=? and type = ?")
-                        .param(INDEX_1, id)
+                        .param(INDEX_1, questionId)
                         .param(INDEX_2, questionType.toString())
                         .update();
         return !(updatedRow == 0);

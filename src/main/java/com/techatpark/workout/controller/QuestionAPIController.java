@@ -173,8 +173,9 @@ class QuestionAPIController {
                                                     final @PathVariable UUID id,
                                                     final @PathVariable
                                                             QuestionType
-                                                            questionType) {
-        questionService.deleteAQuestion(id, QuestionType.CHOOSE_THE_BEST);
+                                                            questionType)
+            throws SQLException {
+        questionService.delete(id, QuestionType.CHOOSE_THE_BEST);
         return null;
     }
 

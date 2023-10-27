@@ -155,7 +155,7 @@ class QuestionServiceTest {
                 newMCQ);
 
 
-        questionService.deleteAQuestion(question.get().getId(), QuestionType.CHOOSE_THE_BEST);
+        questionService.delete(question.get().getId(), QuestionType.CHOOSE_THE_BEST);
 
         Assertions.assertTrue(questionService.read(question.get().getId(), null).isEmpty());
 
