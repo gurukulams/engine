@@ -204,14 +204,10 @@ public class QuestionService {
                 createChoices(question.getChoices(), locale, id);
             }
 
-            categories.forEach(category -> {
-                try {
-                    attachCategory(createdBy,
+            for (String category : categories) {
+                attachCategory(createdBy,
                             id, category);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            }
 
             return read(id, locale);
         } else {
@@ -428,7 +424,8 @@ public class QuestionService {
 
         return Optional.empty();
     }
-/**
+
+    /**
      * updates question with id.
      *
      * @param id       the id
@@ -551,53 +548,21 @@ public class QuestionService {
 
     private void updateChoice(final QuestionChoice choice,
                               final Locale locale) throws SQLException {
-        final String updatequestionChoice = locale == null
-                ? """
-                UPDATE question_choice
-                SET c_value = ?,
-                    is_answer = ?
-                WHERE id = ?
-                """
-                : """
-                UPDATE question_choice
-                SET is_answer = ?
-                WHERE id = ?
-                """;
-        if (locale == null) {
-            jdbcClient.sql(updatequestionChoice)
-                    .param(INDEX_1, choice.getCValue())
-            .param(INDEX_2,
-                    choice.getIsAnswer() != null && choice.getIsAnswer())
-            .param(INDEX_3, choice.getId());
-        } else {
-            jdbcClient.sql(updatequestionChoice)
-                .param(INDEX_1,
-                        choice.getIsAnswer() != null && choice.getIsAnswer())
-                .param(INDEX_2, choice.getId());
 
+        if(locale == null) {
+            this.questionChoiceStore
+                    .update()
+                    .set(QuestionChoiceStore.cValue(choice.getCValue()),
+                            QuestionChoiceStore.isAnswer(choice.getIsAnswer()))
+                    .where(QuestionChoiceStore.id().eq(choice.getId())).execute();
+        }
+        else {
+            this.questionChoiceStore
+                    .update()
+                    .set(QuestionChoiceStore.isAnswer(choice.getIsAnswer()))
+                    .where(QuestionChoiceStore.id().eq(choice.getId())).execute();
             saveLocalizedChoice(locale, choice);
         }
-
-    }
-
-
-    /**
-     * deletes from database.
-     *
-     * @param id the id
-     * @return successflag boolean
-     */
-    public Boolean delete(final UUID id) {
-        final String queryL =
-                """
-                        DELETE FROM question_localized WHERE question_id = ?
-                        """;
-        jdbcClient.sql(queryL).param(INDEX_1, id).update();
-        String query = "DELETE FROM question WHERE ID=?";
-
-        final Integer updatedRows = jdbcClient.sql(query)
-                .param(INDEX_1, id).update();
-        return !(updatedRows == 0);
     }
 
     /**
