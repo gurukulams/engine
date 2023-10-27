@@ -204,7 +204,8 @@ class QuestionAPIController {
                            @RequestHeader(
                                    name = "Accept-Language",
                                    required = false) final Locale locale,
-                           final HttpServletRequest request) {
+                           final HttpServletRequest request)
+            throws SQLException {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(questionService.list(principal.getName(),
@@ -233,7 +234,8 @@ class QuestionAPIController {
     public final ResponseEntity<Void> answer(final @PathVariable
                                                UUID questionId,
                                        final @RequestBody
-                                               String answer) {
+                                               String answer)
+            throws SQLException {
         return answerService.answer(questionId, answer)
                 ? ResponseEntity.status(
                 HttpStatus.ACCEPTED).build()

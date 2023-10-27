@@ -4,6 +4,7 @@ import com.gurukulams.core.model.QuestionChoice;
 import com.techatpark.workout.model.Question;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +38,8 @@ public class AnswerService {
      * @return true boolean
      */
     public final boolean answer(final UUID questionId,
-                                final String answer) {
+                                final String answer)
+            throws SQLException {
         boolean isRigntAnswer = false;
         final Optional<Question> oQuestion = questionService
                 .read(questionId, null);

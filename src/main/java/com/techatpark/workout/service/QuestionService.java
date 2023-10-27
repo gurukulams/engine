@@ -177,22 +177,6 @@ public class QuestionService {
 
         return question;
     };
-    /**
-     * Maps the data from and to the database. return question.
-     */
-    private final RowMapper<QuestionChoice> rowMapperQuestionChoice = (
-            rs, rowNum) -> {
-        final QuestionChoice choice = new QuestionChoice();
-        choice.setId((UUID) rs.getObject(INDEX_1));
-        choice.setCValue(rs.getString(INDEX_2));
-        choice.setIsAnswer(rs.getBoolean(INDEX_3));
-        // https://docs.oracle.com/javase/7/docs/api/java/sql
-        // /ResultSet.html#wasNull%28%29
-        if (rs.wasNull()) {
-            choice.setIsAnswer(null);
-        }
-        return choice;
-    };
 
 
 
@@ -352,38 +336,49 @@ public class QuestionService {
      */
     private List<QuestionChoice> listQuestionChoice(final boolean isOwner,
                                             final UUID questionId,
-                                            final Locale locale) {
-        final String query = locale == null
-                ? "SELECT id, c_value,"
-                + (isOwner ? "is_answer" : "NULL")
-                + " AS is_answer"
-                + " FROM question_choice WHERE"
-                + " question_id = ?"
-                : "SELECT id,"
-                + "CASE WHEN qcl.LOCALE = ? "
-                + "THEN qcl.c_value "
-                + "ELSE qc.c_value "
-                + "END AS c_value, "
-                + (isOwner ? "is_answer" : "NULL")
-                + " AS is_answer"
-                + " FROM question_choice qc "
-                + "LEFT JOIN question_choice_localized qcl ON"
-                + " qc.ID = qcl.choice_id WHERE"
-                + " question_id = ? AND ( qcl.LOCALE IS NULL OR "
-                + "qcl.LOCALE = ? OR qc.ID "
-                + "NOT IN (SELECT choice_id FROM "
-                + "question_choice_localized WHERE "
-                + "choice_id=qc.ID AND LOCALE = ?))";
-        return locale == null
-                ?
-                jdbcClient.sql(query).param(INDEX_1, questionId)
-                        .query(rowMapperQuestionChoice).list()
-                : jdbcClient.sql(query)
-                .param(INDEX_1, locale.getLanguage())
-                .param(INDEX_2, questionId)
-                .param(INDEX_3, locale.getLanguage())
-                .param(INDEX_4, locale.getLanguage())
-                .query(rowMapperQuestionChoice).list();
+                                            final Locale locale)
+            throws SQLException {
+        if (locale == null) {
+            List<QuestionChoice> choices = this.questionChoiceStore
+                    .select(QuestionChoiceStore.questionId().eq(questionId))
+                    .execute();
+
+            if (!isOwner) {
+                choices.forEach(choice
+                        -> choice.setIsAnswer(null));
+            }
+            return choices;
+        } else {
+            final String query =  "SELECT id,question_id,"
+                    + "CASE WHEN qcl.LOCALE = ? "
+                    + "THEN qcl.c_value "
+                    + "ELSE qc.c_value "
+                    + "END AS c_value, "
+                    + (isOwner ? "is_answer" : "NULL")
+                    + " AS is_answer"
+                    + " FROM question_choice qc "
+                    + "LEFT JOIN question_choice_localized qcl ON"
+                    + " qc.ID = qcl.choice_id WHERE"
+                    + " question_id = ? AND ( qcl.LOCALE IS NULL OR "
+                    + "qcl.LOCALE = ? OR qc.ID "
+                    + "NOT IN (SELECT choice_id FROM "
+                    + "question_choice_localized WHERE "
+                    + "choice_id=qc.ID AND LOCALE = ?))";
+
+            return this.questionChoiceStore
+                    .select()
+                    .sql(query)
+                    .param(QuestionChoiceLocalizedStore
+                            .locale(locale.getLanguage()))
+                    .param(QuestionChoiceStore
+                            .questionId(questionId))
+                    .param(QuestionChoiceLocalizedStore
+                            .locale(locale.getLanguage()))
+                    .param(QuestionChoiceLocalizedStore
+                            .locale(locale.getLanguage()))
+                    .list();
+
+        }
     }
 
     /**
@@ -394,7 +389,7 @@ public class QuestionService {
      * @return question optional
      */
     public Optional<Question> read(final UUID id,
-                                   final Locale locale) {
+                                   final Locale locale) throws SQLException {
         final String query = locale == null
                 ? """
                 SELECT id, question, explanation, type, created_by, answer,
@@ -653,7 +648,8 @@ public class QuestionService {
      */
     public List<Question> list(final String userName,
                                final Locale locale,
-                               final List<String> category) {
+                               final List<String> category)
+            throws SQLException {
 
         boolean isOwner = true;
 
@@ -707,7 +703,7 @@ public class QuestionService {
                         .list();
 
         if (!questions.isEmpty()) {
-            questions.forEach(question -> {
+            for (Question question : questions) {
                 if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
                         || question.getType()
                         .equals(QuestionType.MULTI_CHOICE))) {
@@ -715,7 +711,7 @@ public class QuestionService {
                             .listQuestionChoice(isOwner,
                                     question.getId(), locale));
                 }
-            });
+            }
         }
         return questions;
     }
