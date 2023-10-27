@@ -1,4 +1,4 @@
-package com.techatpark.workout.model;
+package com.techatpark.workout.payload;
 
 /**
  * Type of questions.

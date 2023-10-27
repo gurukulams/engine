@@ -1,4 +1,4 @@
-package com.techatpark.workout.model;
+package com.techatpark.workout.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gurukulams.core.model.QuestionChoice;

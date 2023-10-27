@@ -11,8 +11,8 @@ import com.gurukulams.core.store.QuestionChoiceStore;
 import com.gurukulams.core.store.QuestionLocalizedStore;
 import com.gurukulams.core.store.QuestionStore;
 import com.gurukulams.core.store.QuestionTagStore;
-import com.techatpark.workout.model.Question;
-import com.techatpark.workout.model.QuestionType;
+import com.techatpark.workout.payload.Question;
+import com.techatpark.workout.payload.QuestionType;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -262,6 +262,21 @@ public class QuestionService {
         return questionModel;
     }
 
+    private Question
+    getQuestion(final com.gurukulams.core.model.Question questionModel) {
+        Question question
+                = new Question();
+        question.setQuestion(questionModel.getQuestion());
+        question.setExplanation(questionModel.getExplanation());
+        question.setId(questionModel.getId());
+        question.setAnswer(questionModel.getAnswer());
+        question.setType(QuestionType.valueOf(questionModel.getType()));
+        question.setCreatedBy(questionModel.getCreatedBy());
+        question.setCreatedAt(questionModel.getCreatedAt());
+        question.setUpdatedAt(questionModel.getModifiedAt());
+        return question;
+    }
+
     private void createChoice(final QuestionChoice choice,
                               final Locale locale,
                               final UUID questionId) throws SQLException {
@@ -390,21 +405,21 @@ public class QuestionService {
      */
     public Optional<Question> read(final UUID id,
                                    final Locale locale) throws SQLException {
-        final String query = locale == null
-                ? """
-                SELECT id, question, explanation, type, created_by, answer,
-                created_at, modified_at
-                FROM question
-                WHERE id = ?
-                """
-                : """
+
+        Optional<com.gurukulams.core.model.Question> qm;
+
+        if (locale == null) {
+            qm = this.questionStore.select(id);
+        } else {
+            final String query = """
                 SELECT id,
                        CASE WHEN ql.LOCALE = ?
                        THEN ql.question ELSE q.question END AS question,
                        CASE WHEN ql.LOCALE = ?
                        THEN ql.explanation ELSE q.explanation
                        END AS explanation,
-                       type, created_by, answer, created_at, modified_at
+                       type, answer, created_at,created_by,
+                       modified_at,modified_by
                 FROM question q
                 LEFT JOIN question_localized ql ON q.ID = ql.QUESTION_ID
                 WHERE q.id = ?
@@ -415,35 +430,33 @@ public class QuestionService {
                 ))
                 """;
 
+            qm = this.questionStore.select()
+                    .sql(query)
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .param(QuestionStore.id(id))
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .optional();
 
+        }
 
-            Optional<Question> question = locale == null ? jdbcClient
-                    .sql(query).param(INDEX_1, id).query(rowMapper).optional()
-                    : jdbcClient
-                    .sql(query).param(INDEX_1, locale.getLanguage())
-                    .param(INDEX_2, locale.getLanguage())
-                    .param(INDEX_3, id)
-                    .param(INDEX_4, locale.getLanguage())
-                    .param(INDEX_5, locale.getLanguage())
-                    .query(rowMapper).optional();
-
-            if (question.isPresent()) {
-                if ((question.get().getType()
-                        .equals(QuestionType.CHOOSE_THE_BEST)
-                        || question.get().getType()
-                        .equals(QuestionType.MULTI_CHOICE))) {
-                    question.get().setChoices(
-                            listQuestionChoice(true,
-                                    question.get().getId(), locale));
-                }
+        if (qm.isPresent()) {
+            Optional<Question> question = qm.map(this::getQuestion);
+            if ((question.get().getType()
+                    .equals(QuestionType.CHOOSE_THE_BEST)
+                    || question.get().getType()
+                    .equals(QuestionType.MULTI_CHOICE))) {
+                question.get().setChoices(
+                        listQuestionChoice(true,
+                                question.get().getId(), locale));
             }
-
-
             return question;
+        }
 
+        return Optional.empty();
     }
-
-    /**
+/**
      * updates question with id.
      *
      * @param id       the id

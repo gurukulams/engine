@@ -1,8 +1,8 @@
 package com.techatpark.workout.controller;
 
 
-import com.techatpark.workout.model.Question;
-import com.techatpark.workout.model.QuestionType;
+import com.techatpark.workout.payload.Question;
+import com.techatpark.workout.payload.QuestionType;
 import com.techatpark.workout.service.AnswerService;
 import com.techatpark.workout.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;

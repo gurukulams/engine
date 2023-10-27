@@ -2,8 +2,8 @@ package com.techatpark.workout.service;
 
 import com.gurukulams.core.model.QuestionChoice;
 import com.gurukulams.core.service.CategoryService;
-import com.techatpark.workout.model.Question;
-import com.techatpark.workout.model.QuestionType;
+import com.techatpark.workout.payload.Question;
+import com.techatpark.workout.payload.QuestionType;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -56,8 +56,6 @@ class QuestionServiceTest {
 
     @Test
     void testInvalidQuestion() {
-        Question newMCQ = newMCQ();
-
         Assertions.assertThrows(ConstraintViolationException.class, () ->
                 questionService.create(List.of("c1",
                                 "c2"),
@@ -65,9 +63,8 @@ class QuestionServiceTest {
                         QuestionType.CHOOSE_THE_BEST,
                         null,
                         "sathish",
-                        newMCQ)
+                        newMCQ())
                 );
-
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.techatpark.workout.service;
 
 import com.gurukulams.core.model.QuestionChoice;
-import com.techatpark.workout.model.Question;
+import com.techatpark.workout.payload.Question;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
