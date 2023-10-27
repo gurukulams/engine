@@ -5,7 +5,6 @@ import com.gurukulams.core.service.CategoryService;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.awt.*;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -39,7 +38,7 @@ class QuestionServiceTest {
      * @throws IOException the io exception
      */
     @BeforeEach
-    void before() throws IOException {
+    void before() throws IOException, SQLException {
         cleanUp();
     }
 
@@ -47,12 +46,12 @@ class QuestionServiceTest {
      * After.
      */
     @AfterEach
-    void after() {
+    void after() throws SQLException {
         cleanUp();
     }
 
-    private void cleanUp() {
-        questionService.deleteAll();
+    private void cleanUp() throws SQLException {
+        questionService.delete();
     }
 
     @Test
@@ -72,7 +71,7 @@ class QuestionServiceTest {
     }
 
     @Test
-    void testChooseTheBest() {
+    void testChooseTheBest() throws SQLException {
 
         Question newMCQ = newMCQ();
 
@@ -103,7 +102,7 @@ class QuestionServiceTest {
     }
 
     @Test
-    void testMultiChoice() {
+    void testMultiChoice() throws SQLException {
 
         Question newMCQ = newMCQ();
 
@@ -144,7 +143,7 @@ class QuestionServiceTest {
     }
 
     @Test
-    void testDelete() {
+    void testDelete() throws SQLException {
         Question newMCQ = newMCQ();
 
         newMCQ.getChoices().get(0).setIsAnswer(true);
@@ -166,7 +165,7 @@ class QuestionServiceTest {
     }
 
     @Test
-    void testList() {
+    void testList() throws SQLException {
         Question newMCQ = newMCQ();
 
         newMCQ.getChoices().get(0).setIsAnswer(true);

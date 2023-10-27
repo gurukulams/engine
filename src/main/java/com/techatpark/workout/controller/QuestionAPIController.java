@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -92,7 +93,8 @@ class QuestionAPIController {
                                                      name = "Accept-Language",
                                          required = false) final Locale locale,
                                                      final Principal principal,
-                                             final HttpServletRequest request) {
+                                             final HttpServletRequest request)
+            throws SQLException {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 questionService.create(
@@ -139,7 +141,8 @@ class QuestionAPIController {
                          Question
                          question,
                  final
-                 HttpServletRequest request) {
+                 HttpServletRequest request)
+            throws SQLException {
 
         final Optional<Question> updatedQuestion =
                 questionService.update(

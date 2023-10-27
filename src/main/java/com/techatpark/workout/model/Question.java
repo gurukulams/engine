@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gurukulams.core.model.QuestionChoice;
 import jakarta.validation.constraints.NotBlank;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,14 +44,14 @@ public class Question {
      * created_at of question.
      */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
 
     /**
      * updated_at of question.
      */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     /**
      * tells the type of question being created.
@@ -195,7 +195,7 @@ public class Question {
      *
      * @return createdAt
      */
-    public Instant getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
@@ -204,7 +204,7 @@ public class Question {
      *
      * @param aCreatedAt the created at
      */
-    public void setCreatedAt(final Instant aCreatedAt) {
+    public void setCreatedAt(final LocalDateTime aCreatedAt) {
         this.createdAt = aCreatedAt;
     }
 
@@ -213,7 +213,7 @@ public class Question {
      *
      * @return updatedAt
      */
-    public Instant getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
@@ -222,7 +222,7 @@ public class Question {
      *
      * @param aupdatedAt
      */
-    public void setUpdatedAt(final Instant aupdatedAt) {
+    public void setUpdatedAt(final LocalDateTime aupdatedAt) {
         this.updatedAt = aupdatedAt;
     }
 }

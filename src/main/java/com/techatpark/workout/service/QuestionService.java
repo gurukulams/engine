@@ -1,8 +1,16 @@
 package com.techatpark.workout.service;
 
+import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.model.Category;
 import com.gurukulams.core.model.QuestionChoice;
+import com.gurukulams.core.model.QuestionChoiceLocalized;
 import com.gurukulams.core.service.CategoryService;
+import com.gurukulams.core.store.QuestionCategoryStore;
+import com.gurukulams.core.store.QuestionChoiceLocalizedStore;
+import com.gurukulams.core.store.QuestionChoiceStore;
+import com.gurukulams.core.store.QuestionLocalizedStore;
+import com.gurukulams.core.store.QuestionStore;
+import com.gurukulams.core.store.QuestionTagStore;
 import com.techatpark.workout.model.Question;
 import com.techatpark.workout.model.QuestionType;
 import jakarta.validation.ConstraintViolation;
@@ -18,11 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.annotation.ElementType;
-import java.sql.Date;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,6 +90,70 @@ public class QuestionService {
      * JdbcClient.
      */
     private final JdbcClient jdbcClient;
+
+    /**
+     * QuestionStore.
+     */
+    private final QuestionStore questionStore;
+
+    /**
+     * QuestionLocalized.
+     */
+    private final QuestionLocalizedStore questionLocalizedStore;
+
+    /**
+     * QuestionChoiceStore.
+     */
+    private final QuestionChoiceStore questionChoiceStore;
+
+    /**
+     * QuestionChoiceLocalized.
+     */
+    private final QuestionChoiceLocalizedStore questionChoiceLocalizedStore;
+
+
+    /**
+     * QuestionCategoryStore.
+     */
+    private final QuestionCategoryStore questionCategoryStore;
+
+
+    /**
+     * QuestionTagStore.
+     */
+    private final QuestionTagStore questionTagStore;
+
+
+    /**
+     * initializes.
+     *
+     * @param aJdbcClient      a jdbcClient
+     * @param aCategoryService the practiceservice
+     * @param aValidator       thevalidator
+     * @param gurukulamsManager
+     */
+    public QuestionService(final CategoryService aCategoryService,
+                           final Validator aValidator,
+                           final JdbcClient aJdbcClient,
+                           final GurukulamsManager gurukulamsManager) {
+        this.categoryService = aCategoryService;
+        this.validator = aValidator;
+        this.jdbcClient = aJdbcClient;
+        this.questionStore = gurukulamsManager
+                .getQuestionStore();
+        this.questionLocalizedStore = gurukulamsManager
+                .getQuestionLocalizedStore();
+        this.questionChoiceStore = gurukulamsManager
+                .getQuestionChoiceStore();
+        this.questionChoiceLocalizedStore = gurukulamsManager
+                .getQuestionChoiceLocalizedStore();
+        this.questionCategoryStore = gurukulamsManager
+                .getQuestionCategoryStore();
+        this.questionTagStore = gurukulamsManager
+                .getQuestionTagStore();
+    }
+
+
     /**
      * Maps the data from and to the database. return question.
      */
@@ -98,20 +167,14 @@ public class QuestionService {
         question.setAnswer(rs.getString(INDEX_6));
 
 
-        LocalDate calendarDate = rs.getDate(INDEX_7)
-                .toLocalDate();
-        ZonedDateTime zdt = calendarDate.atStartOfDay(ZoneId
-                .of("Europe/Paris"));
-
-
-        question.setCreatedAt(zdt.toInstant());
-        Date sqlDate = rs.getDate(INDEX_8);
-
-        if (sqlDate != null) {
-            calendarDate = sqlDate.toLocalDate();
-            zdt = calendarDate.atStartOfDay(ZoneId.of("Europe/Paris"));
-            question.setUpdatedAt(zdt.toInstant());
+        question.setCreatedAt(rs.getDate(INDEX_7)
+                .toLocalDate().atStartOfDay());
+        if (rs.getDate(INDEX_8) != null) {
+            question.setUpdatedAt(rs.getDate(INDEX_8)
+                    .toLocalDate().atStartOfDay());
         }
+
+
         return question;
     };
     /**
@@ -131,20 +194,6 @@ public class QuestionService {
         return choice;
     };
 
-    /**
-     * initializes.
-     *
-     * @param aJdbcClient      a jdbcClient
-     * @param aCategoryService the practiceservice
-     * @param aValidator       thevalidator
-     */
-    public QuestionService(final CategoryService aCategoryService,
-                           final Validator aValidator,
-                           final JdbcClient aJdbcClient) {
-        this.categoryService = aCategoryService;
-        this.validator = aValidator;
-        this.jdbcClient = aJdbcClient;
-    }
 
 
     /**
@@ -165,27 +214,21 @@ public class QuestionService {
             final QuestionType type,
             final Locale locale,
             final String createdBy,
-            final Question question) {
+            final Question question) throws SQLException {
         question.setType(type);
         Set<ConstraintViolation<Question>> violations =
                 getViolations(question);
         if (violations.isEmpty()) {
             final UUID id = UUID.randomUUID();
 
-            final String insertQuery = """
-                    INSERT INTO question(id, question, explanation, type,
-                    created_By, answer)
-                    VALUES(?, ?, ?, ?, ?, ?)
-                    """;
-            jdbcClient.sql(insertQuery)
-                    .param(INDEX_1, id)
-                    .param(INDEX_2, question.getQuestion())
-                    .param(INDEX_3, question.getExplanation())
-                    .param(INDEX_4, type.toString())
-                    .param(INDEX_5, createdBy)
-                    .param(INDEX_6, question.getAnswer())
-                    .update();
+            question.setId(id);
+            question.setType(type);
+            question.setCreatedAt(LocalDateTime.now());
 
+            this.questionStore
+                    .insert()
+                    .values(getQuestionModel(createdBy, question))
+                    .execute();
             if (locale != null) {
                 final String insertQueryLocalized = """
                         INSERT INTO question_localized(question_id, locale,
@@ -221,25 +264,32 @@ public class QuestionService {
 
     }
 
+    private com.gurukulams.core.model.Question
+    getQuestionModel(final String createdBy, final Question question) {
+        com.gurukulams.core.model.Question questionModel
+                = new com.gurukulams.core.model.Question();
+        questionModel.setQuestion(question.getQuestion());
+        questionModel.setExplanation(question.getExplanation());
+        questionModel.setId(question.getId());
+        questionModel.setAnswer(question.getAnswer());
+        questionModel.setType(question.getType().name());
+        questionModel.setCreatedBy(createdBy);
+        questionModel.setCreatedAt(question.getCreatedAt());
+        return questionModel;
+    }
+
     private void createChoice(final QuestionChoice choice,
                               final Locale locale,
-                              final UUID questionId) {
+                              final UUID questionId) throws SQLException {
         UUID choiceId = UUID.randomUUID();
 
-
-        final String query = """
-                INSERT INTO question_choice(id, question_id, c_value,
-                is_answer)
-                VALUES(?, ?, ?, ?)
-                """;
-        jdbcClient.sql(query)
-                .param(INDEX_1, choiceId)
-                .param(INDEX_2, questionId)
-                .param(INDEX_3, choice.getCValue())
-                .param(INDEX_4,
-                        choice.getIsAnswer() != null
-                                && choice.getIsAnswer())
-                .update();
+        choice.setId(choiceId);
+        choice.setQuestionId(questionId);
+        if (choice.getIsAnswer() == null) {
+            choice.setIsAnswer(Boolean.FALSE);
+        }
+        this.questionChoiceStore.insert().values(choice)
+                .execute();
 
         if (locale != null) {
             choice.setId(choiceId);
@@ -249,42 +299,46 @@ public class QuestionService {
 
     }
 
-    private void saveLocalizedChoice(final Locale locale,
-                                     final QuestionChoice choice) {
-        final String query = """
-                UPDATE question_choice_localized
-                SET c_value = ?
-                WHERE choice_id = ? AND locale = ?
-                """;
+    private void createLocalizedChoice(final Locale locale,
+                                       final QuestionChoice choice)
+            throws SQLException {
+        QuestionChoiceLocalized questionChoiceLocalized
+                = new QuestionChoiceLocalized();
 
-        int updatedRows = jdbcClient.sql(query)
-                .param(INDEX_1, choice.getCValue())
-                .param(INDEX_2, choice.getId())
-                .param(INDEX_3, locale.getLanguage()).update();
+        questionChoiceLocalized.setChoiceId(choice.getId());
+        questionChoiceLocalized.setLocale(locale.getLanguage());
+        questionChoiceLocalized.setCValue(choice.getCValue());
+
+        this.questionChoiceLocalizedStore
+                .insert()
+                .values(questionChoiceLocalized).execute();
+    }
+
+    private void saveLocalizedChoice(final Locale locale,
+                                     final QuestionChoice choice)
+            throws SQLException {
+
+        int updatedRows = this.questionChoiceLocalizedStore
+                .update()
+                .set(QuestionChoiceLocalizedStore
+                        .cValue(choice.getCValue()))
+                .where(QuestionChoiceLocalizedStore
+                        .choiceId().eq(choice.getId())
+                        .and(QuestionChoiceLocalizedStore
+                                .locale().eq(locale.getLanguage())))
+                .execute();
         if (updatedRows == 0) {
             createLocalizedChoice(locale, choice);
         }
     }
 
-    private void createLocalizedChoice(final Locale locale,
-                                       final QuestionChoice choice) {
-        String query = """
-                INSERT INTO question_choice_localized(
-                choice_id, locale, c_value)
-                VALUES(?, ?, ?)
-                """;
-        jdbcClient.sql(query)
-                .param(INDEX_1, choice.getId())
-                .param(INDEX_2, locale.getLanguage())
-                .param(INDEX_3, choice.getCValue())
-                .update();
-    }
-
     private void createChoices(final List<QuestionChoice> choices,
                                final Locale locale,
-                               final UUID id) {
+                               final UUID id) throws SQLException {
         if (choices != null) {
-            choices.forEach(choice -> createChoice(choice, locale, id));
+            for (QuestionChoice choice : choices) {
+                createChoice(choice, locale, id);
+            }
         }
     }
 
@@ -407,7 +461,7 @@ public class QuestionService {
             final QuestionType type,
             final UUID id,
             final Locale locale,
-            final Question question) {
+            final Question question) throws SQLException {
         question.setType(type);
         Set<ConstraintViolation<Question>> violations =
                 getViolations(question);
@@ -498,13 +552,13 @@ public class QuestionService {
                 }
 
 
-                question.getChoices().forEach(choice -> {
+                for (QuestionChoice choice : question.getChoices()) {
                     if (choice.getId() == null) {
                         createChoice(choice, locale, id);
                     } else {
                         updateChoice(choice, locale);
                     }
-                });
+                }
 
             }
             return updatedRows == 0 ? null : read(id, locale);
@@ -516,7 +570,7 @@ public class QuestionService {
     }
 
     private void updateChoice(final QuestionChoice choice,
-                              final Locale locale) {
+                              final Locale locale) throws SQLException {
         final String updatequestionChoice = locale == null
                 ? """
                 UPDATE question_choice
@@ -856,17 +910,14 @@ public class QuestionService {
     /**
      * Deletes Questions.
      */
-    public void deleteAll() {
+    public void delete() throws SQLException {
+        this.questionCategoryStore.delete().execute();
+        this.questionTagStore.delete().execute();
 
-        jdbcClient.sql("DELETE FROM question_category").update();
+        this.questionChoiceLocalizedStore.delete().execute();
+        this.questionChoiceStore.delete().execute();
 
-        jdbcClient.sql("DELETE FROM question_tag").update();
-
-        jdbcClient.sql("DELETE FROM question_choice_localized").update();
-        jdbcClient.sql("DELETE FROM question_choice").update();
-
-        jdbcClient.sql("DELETE FROM QUESTION_LOCALIZED").update();
-        jdbcClient.sql("DELETE FROM QUESTION").update();
-
+        this.questionLocalizedStore.delete().execute();
+        this.questionStore.delete().execute();
     }
 }

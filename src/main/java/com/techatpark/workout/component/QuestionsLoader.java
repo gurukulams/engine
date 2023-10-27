@@ -60,23 +60,28 @@ public class QuestionsLoader {
      * Loads Questions.
      */
     @PostConstruct
-    void load() throws IOException {
+    void load() throws IOException, SQLException {
         if (seedFolder != null) {
-            questionService.deleteAll();
+            questionService.delete();
             createAllCategory(USER_NAME);
             File questionsFolder = new File(seedFolder, "questions");
-            Files.find(Path.of(questionsFolder.getPath()),
-                        Integer.MAX_VALUE,
-                        (filePath, fileAttr)
-                                -> fileAttr.isRegularFile()
-                                && !filePath.toFile().getName().contains("-"))
-                    .forEach(path -> createQuestion(USER_NAME, path.toFile()));
+
+            for (Path path:Files.find(Path.of(questionsFolder.getPath()),
+                                    Integer.MAX_VALUE,
+                                    (filePath, fileAttr)
+                            -> fileAttr.isRegularFile()
+                            && !filePath.toFile().getName().contains("-"))
+                            .toList()) {
+                createQuestion(USER_NAME, path.toFile());
+            }
+
         }
     }
 
-    private void createAllCategory(final String userName) throws IOException {
+    private void createAllCategory(final String userName)
+            throws IOException, SQLException {
         if (seedFolder != null) {
-            questionService.deleteAll();
+            questionService.delete();
             File questionsFolder = new File(seedFolder, "questions");
             Files.find(Path.of(questionsFolder.getPath()),
                             Integer.MAX_VALUE,
@@ -109,7 +114,8 @@ public class QuestionsLoader {
     }
 
     private Question createQuestion(final String userName,
-                                    final File questionFile) {
+                                    final File questionFile)
+            throws SQLException {
         Question question = getObject(questionFile, Question.class);
         final String nameOfQuestion = questionFile.getName()
                 .replaceFirst(".json", "");
@@ -147,8 +153,8 @@ public class QuestionsLoader {
                         .listFiles((dir, name) -> name.endsWith(".json")
                                 && name.contains(nameOfQuestion + "-"))));
 
-        questionLocalizedFiles.forEach(questionLocalizedFile -> {
-            Locale locale =  Locale.of(questionLocalizedFile.getName()
+        for (File questionLocalizedFile : questionLocalizedFiles) {
+            Locale locale = Locale.of(questionLocalizedFile.getName()
                     .replaceFirst(nameOfQuestion + "-", "")
                     .replaceFirst(".json", ""));
             final Question questionLocalized =
@@ -166,7 +172,7 @@ public class QuestionsLoader {
                     questionType,
                     createdQuestion.getId(), locale, questionLocalized).get();
 
-        });
+        }
 
         return createdQuestion;
     }
