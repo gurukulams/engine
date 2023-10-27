@@ -62,6 +62,10 @@ public class QuestionService {
      * Index.
      */
     private static final int INDEX_5 = 5;
+    /**
+     * Owner of QB.
+     */
+    public static final String OWNER_USER = "tom@email.com";
 
     /**
      * this helps to practiceService.
@@ -586,7 +590,7 @@ public class QuestionService {
                                final List<String> categories)
             throws SQLException {
 
-        boolean isOwner = true;
+        boolean isOwner = userName.equals(OWNER_USER);
 
         List<com.gurukulams.core.model.Question> qms;
         String query;

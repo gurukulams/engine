@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.techatpark.workout.service.QuestionService.OWNER_USER;
+
 @SpringBootTest
 class QuestionServiceTest {
 
@@ -67,7 +69,7 @@ class QuestionServiceTest {
                         null,
                         QuestionType.CHOOSE_THE_BEST,
                         null,
-                        "sathish",
+                        OWNER_USER,
                         newMCQ())
                 );
 
@@ -82,7 +84,7 @@ class QuestionServiceTest {
                         null,
                         QuestionType.CHOOSE_THE_BEST,
                         null,
-                        "sathish",
+                        OWNER_USER,
                         newMCQ())
         );
     }
@@ -100,7 +102,7 @@ class QuestionServiceTest {
                 null,
                 QuestionType.CHOOSE_THE_BEST,
                 null,
-                "sathish",
+                OWNER_USER,
                 newMCQ);
 
         // Right Answer
@@ -193,7 +195,7 @@ class QuestionServiceTest {
                 null,
                 QuestionType.MULTI_CHOICE,
                 null,
-                "sathish",
+                OWNER_USER,
                 newMCQ);
 
         String rightAnswer = question.get().getChoices().stream()
@@ -233,7 +235,7 @@ class QuestionServiceTest {
                 null,
                 QuestionType.CHOOSE_THE_BEST,
                 null,
-                "sathish",
+                OWNER_USER,
                 newMCQ);
 
 
@@ -255,7 +257,7 @@ class QuestionServiceTest {
                 null,
                 QuestionType.CHOOSE_THE_BEST,
                 null,
-                "sathish",
+                OWNER_USER,
                 newMCQ);
 
         questionService.create(List.of("c1",
@@ -263,15 +265,23 @@ class QuestionServiceTest {
                 null,
                 QuestionType.CHOOSE_THE_BEST,
                 Locale.FRENCH,
-                "sathish",
+                OWNER_USER,
                 newMCQ);
 
         Assertions.assertEquals(2,
-                questionService.list("mani", null, List.of("c1",
+                questionService.list(OWNER_USER, null, List.of("c1",
                 "c2")).size());
 
         Assertions.assertEquals(2,
-                questionService.list("mani", Locale.FRENCH, List.of("c1",
+                questionService.list(OWNER_USER, Locale.FRENCH, List.of("c1",
+                        "c2")).size());
+
+        Assertions.assertEquals(2,
+                questionService.list("NEW_USER", null, List.of("c1",
+                        "c2")).size());
+
+        Assertions.assertEquals(2,
+                questionService.list("NEW_USER", Locale.FRENCH, List.of("c1",
                         "c2")).size());
 
     }
