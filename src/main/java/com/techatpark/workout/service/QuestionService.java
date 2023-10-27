@@ -178,17 +178,7 @@ public class QuestionService {
                     .execute();
             if (locale != null) {
 
-                QuestionLocalized questionLocalized = new QuestionLocalized();
-
-                questionLocalized.setQuestionId(id);
-                questionLocalized.setQuestion(question.getQuestion());
-                questionLocalized.setExplanation(question.getExplanation());
-                questionLocalized.setLocale(locale.getLanguage());
-
-                this.questionLocalizedStore
-                        .insert()
-                        .values(questionLocalized)
-                        .execute();
+                createLocalized(locale, question, id);
             }
 
             if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
@@ -206,6 +196,23 @@ public class QuestionService {
             throw new ConstraintViolationException(violations);
         }
 
+    }
+
+    private int createLocalized(final Locale locale,
+                                final Question question,
+                                final UUID id)
+            throws SQLException {
+        QuestionLocalized questionLocalized = new QuestionLocalized();
+
+        questionLocalized.setQuestionId(id);
+        questionLocalized.setQuestion(question.getQuestion());
+        questionLocalized.setExplanation(question.getExplanation());
+        questionLocalized.setLocale(locale.getLanguage());
+
+        return this.questionLocalizedStore
+                .insert()
+                .values(questionLocalized)
+                .execute();
     }
 
     private com.gurukulams.core.model.Question
@@ -479,17 +486,7 @@ public class QuestionService {
 
                 if (updatedRows == 0) {
 
-                    final String localizedInsertQuery = """
-                            INSERT INTO QUESTION_LOCALIZED
-                                ( question_id, locale, question, explanation )
-                                VALUES ( ?, ? , ?, ?)
-                            """;
-                    updatedRows = jdbcClient.sql(localizedInsertQuery)
-                            .param(INDEX_1, id)
-                            .param(INDEX_2, locale.getLanguage())
-                            .param(INDEX_3, question.getQuestion())
-                            .param(INDEX_4, question.getExplanation())
-                            .update();
+                    updatedRows = createLocalized(locale, question, id);
 
                 }
             }
