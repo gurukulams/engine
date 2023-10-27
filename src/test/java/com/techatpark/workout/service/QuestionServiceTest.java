@@ -56,6 +56,9 @@ class QuestionServiceTest {
 
     @Test
     void testInvalidQuestion() {
+        Question newMCQ = newMCQ();
+
+        // No Answer
         Assertions.assertThrows(ConstraintViolationException.class, () ->
                 questionService.create(List.of("c1",
                                 "c2"),
@@ -65,6 +68,21 @@ class QuestionServiceTest {
                         "sathish",
                         newMCQ())
                 );
+
+        newMCQ.getChoices().remove(0);
+        newMCQ.getChoices().remove(0);
+        newMCQ.getChoices().remove(0);
+
+        // No Answer
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                questionService.create(List.of("c1",
+                                "c2"),
+                        null,
+                        QuestionType.CHOOSE_THE_BEST,
+                        null,
+                        "sathish",
+                        newMCQ())
+        );
     }
 
     @Test

@@ -22,12 +22,10 @@ import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.annotation.ElementType;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,18 +61,7 @@ public class QuestionService {
      * Index.
      */
     private static final int INDEX_5 = 5;
-    /**
-     * Index.
-     */
-    private static final int INDEX_6 = 6;
-    /**
-     * Index.
-     */
-    private static final int INDEX_7 = 7;
-    /**
-     * Index.
-     */
-    private static final int INDEX_8 = 8;
+
     /**
      * this helps to practiceService.
      */
@@ -163,7 +150,6 @@ public class QuestionService {
      * @param question   the question
      * @return question optional
      */
-    @Transactional
     public Optional<Question> create(
             final List<String> categories,
             final List<String> tag,
@@ -549,18 +535,18 @@ public class QuestionService {
     private void updateChoice(final QuestionChoice choice,
                               final Locale locale) throws SQLException {
 
-        if(locale == null) {
+        if (locale == null) {
             this.questionChoiceStore
-                    .update()
-                    .set(QuestionChoiceStore.cValue(choice.getCValue()),
-                            QuestionChoiceStore.isAnswer(choice.getIsAnswer()))
-                    .where(QuestionChoiceStore.id().eq(choice.getId())).execute();
-        }
-        else {
+                .update()
+                .set(QuestionChoiceStore.cValue(choice.getCValue()),
+                        QuestionChoiceStore.isAnswer(choice.getIsAnswer()))
+                .where(QuestionChoiceStore.id().eq(choice.getId())).execute();
+        } else {
             this.questionChoiceStore
-                    .update()
-                    .set(QuestionChoiceStore.isAnswer(choice.getIsAnswer()))
-                    .where(QuestionChoiceStore.id().eq(choice.getId())).execute();
+                .update()
+                .set(QuestionChoiceStore.isAnswer(choice.getIsAnswer()))
+                .where(QuestionChoiceStore.id().eq(choice.getId()))
+                    .execute();
             saveLocalizedChoice(locale, choice);
         }
     }
@@ -669,24 +655,21 @@ public class QuestionService {
 
         }
 
-        if (qms != null) {
-            List<Question> questions = qms.stream().map(this::getQuestion)
-                    .toList();
-            if (!questions.isEmpty()) {
-                for (Question question : questions) {
-                    if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
-                            || question.getType()
-                            .equals(QuestionType.MULTI_CHOICE))) {
-                        question.setChoices(this
-                                .listQuestionChoice(isOwner,
-                                        question.getId(), locale));
-                    }
+        List<Question> questions = qms.stream().map(this::getQuestion)
+                .toList();
+        if (!questions.isEmpty()) {
+            for (Question question : questions) {
+                if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
+                        || question.getType()
+                        .equals(QuestionType.MULTI_CHOICE))) {
+                    question.setChoices(this
+                            .listQuestionChoice(isOwner,
+                                    question.getId(), locale));
                 }
             }
-            return questions;
         }
+        return questions;
 
-        return new ArrayList<>();
     }
 
     private String getQuestionIdFilter(final List<String> category) {
@@ -749,15 +732,6 @@ public class QuestionService {
                             question, leafBeanInstance, cValue, propertyPath,
                             constraintDescriptor, elementType);
                     violations.add(violation);
-                } else if (question.getAnswer() != null) {
-                    ConstraintViolation<Question> violation
-                            = ConstraintViolationImpl.forBeanValidation(
-                            messageTemplate, messageParameters,
-                            expressionVariables,
-                            "Answer should be empty", rootBeanClass,
-                            question, leafBeanInstance, cValue, propertyPath,
-                            constraintDescriptor, elementType);
-                    violations.add(violation);
                 }
             } else {
                 if (question.getAnswer() == null) {
@@ -766,16 +740,6 @@ public class QuestionService {
                             messageTemplate, messageParameters,
                             expressionVariables,
                             "Answer should not be empty",
-                            rootBeanClass,
-                            question, leafBeanInstance, cValue, propertyPath,
-                            constraintDescriptor, elementType);
-                    violations.add(violation);
-                } else if (question.getChoices() != null) {
-                    ConstraintViolation<Question> violation
-                            = ConstraintViolationImpl.forBeanValidation(
-                            messageTemplate, messageParameters,
-                            expressionVariables,
-                            "Choiced should not be aavailable",
                             rootBeanClass,
                             question, leafBeanInstance, cValue, propertyPath,
                             constraintDescriptor, elementType);
@@ -789,30 +753,27 @@ public class QuestionService {
     /**
      * deletes from database.
      *
-     * @param questionId           the questionId
+     * @param questionId   the questionId
      * @param questionType the questionType
-     * @return successflag boolean
      */
-    @Transactional
-    public Boolean delete(final UUID questionId,
-                          final QuestionType questionType)
+    public void delete(final UUID questionId,
+                       final QuestionType questionType)
             throws SQLException {
 
         deleteChoices(questionId);
 
-        jdbcClient.sql("DELETE FROM QUESTION_LOCALIZED WHERE question_id=?")
-                .param(questionId).update();
+        this.questionLocalizedStore
+                .delete(QuestionLocalizedStore.questionId().eq(questionId))
+                .execute();
 
-        jdbcClient.sql("DELETE FROM QUESTION_CATEGORY WHERE question_id=?")
-                .param(questionId).update();
+        this.questionCategoryStore
+                .delete(QuestionCategoryStore.questionId().eq(questionId))
+                .execute();
 
-        int updatedRow =
-                jdbcClient.sql("DELETE FROM question WHERE ID=? and type = ?")
-                        .param(INDEX_1, questionId)
-                        .param(INDEX_2, questionType.toString())
-                        .update();
-        return !(updatedRow == 0);
-
+        this.questionStore
+                .delete(QuestionStore.id().eq(questionId)
+                        .and().type().eq(questionType.toString()))
+                .execute();
     }
 
 
