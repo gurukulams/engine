@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -59,8 +58,8 @@ class QuestionServiceTest {
     }
 
     @Test
-    void testInvalidQuestion() {
-        Question newMCQ = newMCQ();
+    void testInvalidQuestionCreation() {
+        Question question = newMCQ();
 
         // No Answer
         Assertions.assertThrows(ConstraintViolationException.class, () ->
@@ -70,12 +69,12 @@ class QuestionServiceTest {
                         QuestionType.CHOOSE_THE_BEST,
                         null,
                         OWNER_USER,
-                        newMCQ())
+                        question)
                 );
 
-        newMCQ.getChoices().remove(0);
-        newMCQ.getChoices().remove(0);
-        newMCQ.getChoices().remove(0);
+        question.getChoices().remove(0);
+        question.getChoices().remove(0);
+        question.getChoices().remove(0);
 
         // No Answer
         Assertions.assertThrows(ConstraintViolationException.class, () ->
@@ -85,8 +84,44 @@ class QuestionServiceTest {
                         QuestionType.CHOOSE_THE_BEST,
                         null,
                         OWNER_USER,
-                        newMCQ())
+                        question)
         );
+
+        question.setChoices(null);
+        // No Answer
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                questionService.create(List.of("c1",
+                                "c2"),
+                        null,
+                        QuestionType.SINGLE_LINE,
+                        null,
+                        OWNER_USER,
+                        question)
+        );
+    }
+
+    @Test
+    void testInvalidQuestionUpdate() throws SQLException {
+        Question newMCQ = newMCQ();
+
+        newMCQ.getChoices().get(0).setIsAnswer(true);
+
+        // Create a Question
+        Optional<Question> question = questionService.create(List.of("c1",
+                        "c2"),
+                null,
+                QuestionType.CHOOSE_THE_BEST,
+                null,
+                OWNER_USER,
+                newMCQ);
+
+        question.get().setChoices(null);
+
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                questionService.update(question.get().getType(), question.get().getId(), null, question.get())
+        );
+
+
     }
 
     @Test
@@ -260,10 +295,12 @@ class QuestionServiceTest {
                 OWNER_USER,
                 newMCQ);
 
+        newMCQ.getChoices().get(1).setIsAnswer(true);
+
         questionService.create(List.of("c1",
                         "c2"),
                 null,
-                QuestionType.CHOOSE_THE_BEST,
+                QuestionType.MULTI_CHOICE,
                 Locale.FRENCH,
                 OWNER_USER,
                 newMCQ);
