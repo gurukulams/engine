@@ -4,6 +4,7 @@ import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.model.Category;
 import com.gurukulams.core.model.QuestionChoice;
 import com.gurukulams.core.model.QuestionChoiceLocalized;
+import com.gurukulams.core.model.QuestionLocalized;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.store.QuestionCategoryStore;
 import com.gurukulams.core.store.QuestionChoiceLocalizedStore;
@@ -172,17 +173,18 @@ public class QuestionService {
                     .values(getQuestionModel(createdBy, question))
                     .execute();
             if (locale != null) {
-                final String insertQueryLocalized = """
-                        INSERT INTO question_localized(question_id, locale,
-                        question, explanation)
-                        VALUES(?, ?, ?, ?)
-                            """;
-                jdbcClient.sql(insertQueryLocalized)
-                        .param(INDEX_1, id)
-                        .param(INDEX_2, locale.getLanguage())
-                        .param(INDEX_3, question.getQuestion())
-                        .param(INDEX_4, question.getExplanation())
-                        .update();
+
+                QuestionLocalized questionLocalized = new QuestionLocalized();
+
+                questionLocalized.setQuestionId(id);
+                questionLocalized.setQuestion(question.getQuestion());
+                questionLocalized.setExplanation(question.getExplanation());
+                questionLocalized.setLocale(locale.getLanguage());
+
+                this.questionLocalizedStore
+                        .insert()
+                        .values(questionLocalized)
+                        .execute();
             }
 
             if ((question.getType().equals(QuestionType.CHOOSE_THE_BEST)
@@ -303,9 +305,9 @@ public class QuestionService {
      * @param locale
      * @return the list
      */
-    private List<QuestionChoice> listQuestionChoice(final boolean isOwner,
-                                            final UUID questionId,
-                                            final Locale locale)
+    private List<QuestionChoice> listChoices(final boolean isOwner,
+                                             final UUID questionId,
+                                             final Locale locale)
             throws SQLException {
         if (locale == null) {
             List<QuestionChoice> choices = this.questionChoiceStore
@@ -402,7 +404,7 @@ public class QuestionService {
                     || question.get().getType()
                     .equals(QuestionType.MULTI_CHOICE))) {
                 question.get().setChoices(
-                        listQuestionChoice(true,
+                        listChoices(true,
                                 question.get().getId(), locale));
             }
             return question;
@@ -429,31 +431,27 @@ public class QuestionService {
         Set<ConstraintViolation<Question>> violations =
                 getViolations(question);
         if (violations.isEmpty()) {
-            final String query = locale == null
-                    ? """
-                    UPDATE question
-                    SET question = ?, explanation = ?, answer = ?,
-                    modified_at = CURRENT_TIMESTAMP
-                    WHERE id = ? AND type = ?
-                    """
-                    : """
-                    UPDATE question
-                    SET answer = ?, modified_at = CURRENT_TIMESTAMP
-                    WHERE id = ? AND type = ?
-                    """;
 
-            Integer updatedRows = locale == null
-                    ? jdbcClient.sql(query)
-                    .param(INDEX_1, question.getQuestion())
-                    .param(INDEX_2, question.getExplanation())
-                    .param(INDEX_3, question.getAnswer())
-                    .param(INDEX_4, id)
-                    .param(INDEX_5, type.toString()).update()
-                    : jdbcClient.sql(query)
-                    .param(INDEX_1, question.getAnswer())
-                    .param(INDEX_2, id).param(INDEX_3, type.toString())
-                    .update();
-
+            int updatedRows = 0;
+            if (locale == null) {
+                updatedRows = this.questionStore
+                        .update()
+                        .set(QuestionStore.question(question.getQuestion()),
+                        QuestionStore.explanation(question.getExplanation()),
+                        QuestionStore.answer(question.getAnswer()),
+                        QuestionStore.modifiedAt(LocalDateTime.now()))
+                        .where(QuestionStore.id().eq(id)
+                                .and().type().eq(type.toString()))
+                        .execute();
+            } else {
+                updatedRows = this.questionStore
+                        .update()
+                        .set(QuestionStore.answer(question.getAnswer()),
+                                QuestionStore.modifiedAt(LocalDateTime.now()))
+                        .where(QuestionStore.id().eq(id)
+                                .and().type().eq(type.toString()))
+                        .execute();
+            }
 
             if (locale != null) {
                 final String localizedUpdateQuery = """
@@ -476,6 +474,7 @@ public class QuestionService {
                         .update();
 
                 if (updatedRows == 0) {
+
                     final String localizedInsertQuery = """
                             INSERT INTO QUESTION_LOCALIZED
                                 ( question_id, locale, question, explanation )
@@ -663,7 +662,7 @@ public class QuestionService {
                         || question.getType()
                         .equals(QuestionType.MULTI_CHOICE))) {
                     question.setChoices(this
-                            .listQuestionChoice(isOwner,
+                            .listChoices(isOwner,
                                     question.getId(), locale));
                 }
             }

@@ -12,12 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @SpringBootTest
@@ -114,6 +116,67 @@ class QuestionServiceTest {
                         .findFirst().get().getId().toString()));
 
 
+        testUpdates(question);
+
+    }
+
+    private void testUpdates(final Optional<Question> question) throws SQLException {
+        Question questionToUpdate = question.get();
+
+        questionToUpdate.setQuestion("Updated");
+
+        this.questionService.update(questionToUpdate.getType(),
+                questionToUpdate.getId(),null, questionToUpdate);
+
+        Assertions.assertEquals("Updated",
+                this.questionService.read(questionToUpdate.getId(),null)
+                        .get().getQuestion());
+
+        QuestionChoice questionChoice = question.get().getChoices().get(0);
+
+        questionChoice.setCValue("Updated");
+
+        this.questionService.update(questionToUpdate.getType(),
+                questionToUpdate.getId(),null, questionToUpdate);
+
+        Assertions.assertEquals("Updated",
+                this.questionService.read(questionToUpdate.getId(),null).get()
+                    .getChoices().stream()
+                    .filter(questionChoice1 -> questionChoice1.getId().equals(questionChoice.getId()))
+                    .findFirst().get().getCValue());
+
+        int existingQuestions = question.get().getChoices().size();
+
+        String cValue = UUID.randomUUID().toString();
+        QuestionChoice choice = new QuestionChoice();
+        choice.setIsAnswer(Boolean.FALSE);
+        choice.setCValue(cValue);
+        questionToUpdate.getChoices().add(choice);
+
+        this.questionService.update(questionToUpdate.getType(),
+                questionToUpdate.getId(),null, questionToUpdate);
+
+        QuestionChoice choiceReturned = this.questionService.read(questionToUpdate.getId(),null).get()
+                .getChoices().stream()
+                .filter(questionChoice1 -> questionChoice1.getCValue().equals(cValue))
+                        .findFirst().get();
+
+        Assertions.assertTrue(
+                choiceReturned.getCValue().equals(cValue));
+
+        questionToUpdate.setChoices(this.questionService.read(questionToUpdate.getId(),null)
+                .get()
+                .getChoices().stream()
+                .filter(questionChoice1 -> !questionChoice1.getCValue().equals(cValue)).toList());
+
+        this.questionService.update(questionToUpdate.getType(),
+                questionToUpdate.getId(),null, questionToUpdate);
+
+        Assertions.assertEquals(existingQuestions,
+                this.questionService.read(questionToUpdate.getId(),null).get()
+                        .getChoices().size());
+
+
     }
 
     @Test
@@ -154,6 +217,7 @@ class QuestionServiceTest {
                         .filter(choice -> !choice.getIsAnswer())
                         .findFirst().get().getId().toString()));
 
+        testUpdates(question);
 
     }
 
