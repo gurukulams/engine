@@ -1,14 +1,17 @@
 package com.techatpark.workout.starter.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.service.AnnotationService;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.gurukulams.core.service.LearnerService;
 import com.gurukulams.core.service.TagService;
+import com.techatpark.workout.component.QuestionsLoader;
 import com.techatpark.workout.service.AnswerService;
 import com.techatpark.workout.service.QuestionService;
 import jakarta.validation.Validator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -111,6 +114,24 @@ public class BusinessConfig {
     @Bean
     AnswerService answerService(final QuestionService questionService) {
         return new AnswerService(questionService);
+    }
+
+    /**
+     * questionsLoader.
+     * @param tagService
+     * @param objectMapper
+     * @param seedFolder
+     * @param questionService
+     * @return questionsLoader
+     */
+    @Bean
+    QuestionsLoader questionsLoader(final CategoryService tagService,
+                    final ObjectMapper objectMapper,
+                    @Value("${app.seed.folder:src/test/resources}")
+                    final String seedFolder,
+                    final QuestionService questionService) {
+        return new QuestionsLoader(tagService, objectMapper,
+                seedFolder, questionService);
     }
 
 }

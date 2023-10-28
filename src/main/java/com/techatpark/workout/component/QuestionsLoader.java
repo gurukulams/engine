@@ -7,10 +7,6 @@ import com.gurukulams.core.service.CategoryService;
 import com.techatpark.workout.payload.Question;
 import com.techatpark.workout.payload.QuestionType;
 import com.techatpark.workout.service.QuestionService;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,43 +19,53 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@Component
 public class QuestionsLoader {
-
-
     /**
      * Quetion Owner.
      */
     public static final String USER_NAME = "tom@email.com";
+
     /**
      * Category Service.
      */
-    @Autowired
-    private CategoryService tagService;
+    private final CategoryService categoryService;
 
     /**
      * Json Mapper.
      */
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     /**
      * Seed Folder.
      */
-    @Value("${app.seed.folder:src/test/resources}")
-    private String seedFolder;
+    private final String seedFolder;
 
     /**
      * Question Service.
      */
-    @Autowired
-    private QuestionService questionService;
+    private final QuestionService questionService;
+
+    /**
+     * QuestionsLoader.
+     * @param theCategoryService
+     * @param theObjectMapper
+     * @param theSeedFolder
+     * @param theQuestionService
+     */
+    public QuestionsLoader(final CategoryService theCategoryService,
+                           final ObjectMapper theObjectMapper,
+                           final String theSeedFolder,
+                           final QuestionService theQuestionService) {
+        this.categoryService = theCategoryService;
+        this.objectMapper = theObjectMapper;
+        this.seedFolder = theSeedFolder;
+        this.questionService = theQuestionService;
+    }
 
     /**
      * Loads Questions.
      */
-    @PostConstruct
-    void load() throws IOException, SQLException {
+    public void load() throws IOException, SQLException {
         if (seedFolder != null) {
             questionService.delete();
             createAllCategory(USER_NAME);
@@ -95,7 +101,7 @@ public class QuestionsLoader {
                                 categories.setTitle(categoriesFolder
                                         .getFileName().toString());
 
-                                tagService.create(userName, null,
+                                categoryService.create(userName, null,
                                         categories);
                             } catch (SQLException e) {
                                 System.out.println("Duplicate Category "

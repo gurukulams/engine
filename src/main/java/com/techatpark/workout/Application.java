@@ -1,11 +1,15 @@
 package com.techatpark.workout;
 
+import com.techatpark.workout.component.QuestionsLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 
 /**
@@ -35,8 +39,13 @@ public class Application {
      * @param event
      */
     @EventListener
-    public void onApplicationEvent(final ContextRefreshedEvent event) {
+    public void onApplicationEvent(final ContextRefreshedEvent event)
+            throws SQLException, IOException {
         logger.info("Application Started at {}", event.getTimestamp());
+        QuestionsLoader questionsLoader
+                = event.getApplicationContext().getBean(QuestionsLoader.class);
+        questionsLoader.load();
+
     }
 }
 
