@@ -2,6 +2,7 @@ package com.techatpark.workout.service;
 
 import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.model.Category;
+import com.gurukulams.core.model.QuestionCategory;
 import com.gurukulams.core.model.QuestionChoice;
 import com.gurukulams.core.model.QuestionChoiceLocalized;
 import com.gurukulams.core.model.QuestionLocalized;
@@ -20,12 +21,12 @@ import jakarta.validation.Path;
 import jakarta.validation.Validator;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 
 import java.lang.annotation.ElementType;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -789,19 +790,21 @@ public class QuestionService {
                                      final UUID questionId,
                                      final String categoryId)
             throws SQLException {
-        String insertQuery = """
-                INSERT INTO question_category(question_id, category_id)
-                VALUES(?, ?)
-                """;
+
+
 
         int noOfRowsInserted = 0;
 
         try {
-            noOfRowsInserted = jdbcClient.sql(insertQuery)
-                    .param(INDEX_1, questionId)
-                    .param(INDEX_2, categoryId)
-                    .update();
-        } catch (final DataIntegrityViolationException e) {
+            QuestionCategory questionCategory = new QuestionCategory();
+            questionCategory.setQuestionId(questionId);
+            questionCategory.setCategoryId(categoryId);
+
+            noOfRowsInserted = this.questionCategoryStore
+                    .insert()
+                    .values(questionCategory)
+                    .execute();
+        } catch (final SQLIntegrityConstraintViolationException e) {
             // Retry with Auto Create Category
 
             Category category = new Category();
