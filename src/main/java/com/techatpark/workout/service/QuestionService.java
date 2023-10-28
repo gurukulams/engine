@@ -43,30 +43,17 @@ import java.util.stream.Collectors;
  */
 @Service
 public class QuestionService {
-    /**
-     * Index.
-     */
-    private static final int INDEX_1 = 1;
-    /**
-     * Index.
-     */
-    private static final int INDEX_2 = 2;
-    /**
-     * Index.
-     */
-    private static final int INDEX_3 = 3;
-    /**
-     * Index.
-     */
-    private static final int INDEX_4 = 4;
-    /**
-     * Index.
-     */
-    private static final int INDEX_5 = 5;
+
     /**
      * Owner of QB.
      */
     public static final String OWNER_USER = "tom@email.com";
+
+    /**
+     * JdbcClient.
+     */
+    private final JdbcClient jdbcClient;
+
 
     /**
      * this helps to practiceService.
@@ -77,11 +64,6 @@ public class QuestionService {
      * Validator.
      */
     private final Validator validator;
-
-    /**
-     * JdbcClient.
-     */
-    private final JdbcClient jdbcClient;
 
     /**
      * QuestionStore.
@@ -119,9 +101,9 @@ public class QuestionService {
     /**
      * initializes.
      *
-     * @param aJdbcClient      a jdbcClient
      * @param aCategoryService the practiceservice
      * @param aValidator       thevalidator
+     * @param aJdbcClient
      * @param gurukulamsManager
      */
     public QuestionService(final CategoryService aCategoryService,
@@ -466,6 +448,8 @@ public class QuestionService {
             }
 
             if (locale != null) {
+
+
                 final String localizedUpdateQuery = """
                         UPDATE QUESTION_LOCALIZED SET question = ?,
                         explanation = ?
@@ -477,13 +461,18 @@ public class QuestionService {
                                             = ?  )
                         """;
 
-                updatedRows = jdbcClient.sql(localizedUpdateQuery)
-                        .param(INDEX_1, question.getQuestion())
-                        .param(INDEX_2, question.getExplanation())
-                        .param(INDEX_3, id)
-                        .param(INDEX_4, locale.getLanguage())
-                        .param(INDEX_5, type.toString())
-                        .update();
+                updatedRows = this.questionLocalizedStore
+                    .update()
+                    .sql(localizedUpdateQuery)
+                    .param(QuestionLocalizedStore
+                            .question(question.getQuestion()))
+                    .param(QuestionLocalizedStore
+                            .explanation(question.getExplanation()))
+                    .param(QuestionLocalizedStore
+                            .questionId(id))
+                    .param(QuestionLocalizedStore.locale(locale.getLanguage()))
+                    .param(QuestionStore.type(type.toString()))
+                    .execute();
 
                 if (updatedRows == 0) {
 
@@ -511,8 +500,18 @@ public class QuestionService {
                                     .collect(Collectors.joining(","))
                                     + ")";
                     availableIds.add(0, id);
-                    jdbcClient.sql(deletequestionChoice).params(availableIds)
-                            .update();
+
+                    QuestionChoiceStore.DeleteStatement.DeleteQuery deleteQuery
+                            = this.questionChoiceStore
+                            .delete()
+                            .sql(deletequestionChoice);
+
+                    for (UUID cId: availableIds) {
+                        deleteQuery.param(QuestionChoiceStore.id(cId));
+                    }
+
+                    deleteQuery
+                            .execute();
                 }
 
 
@@ -566,8 +565,10 @@ public class QuestionService {
                         WHERE choice_id IN
                         (SELECT id FROM question_choice WHERE question_id = ?)
                                 """;
-        jdbcClient.sql(queryL)
-                .param(INDEX_1, questionId).update();
+        this.questionChoiceLocalizedStore
+                .delete()
+                .sql(queryL)
+                .param(QuestionChoiceStore.questionId(questionId)).execute();
 
         this.questionChoiceStore
                 .delete(QuestionChoiceStore.questionId().eq(questionId))
