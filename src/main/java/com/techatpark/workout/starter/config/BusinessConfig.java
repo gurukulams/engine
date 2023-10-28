@@ -1,4 +1,4 @@
-package com.techatpark.workout.starter.business;
+package com.techatpark.workout.starter.config;
 
 import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.service.AnnotationService;
@@ -6,9 +6,12 @@ import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.gurukulams.core.service.LearnerService;
 import com.gurukulams.core.service.TagService;
+import com.techatpark.workout.service.AnswerService;
+import com.techatpark.workout.service.QuestionService;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 import javax.sql.DataSource;
 
@@ -79,6 +82,35 @@ public class BusinessConfig {
     AnnotationService annotationService(
             final GurukulamsManager gurukulamsManager) {
         return new AnnotationService(gurukulamsManager);
+    }
+
+    /**
+     * QuestionService.
+     * @param aCategoryService
+     * @param aJdbcClient
+     * @param aValidator
+     * @param gurukulamsManager
+     * @return questionService
+     */
+    @Bean
+    QuestionService questionService(final CategoryService aCategoryService,
+                            final Validator aValidator,
+                            final JdbcClient aJdbcClient,
+                            final GurukulamsManager gurukulamsManager) {
+        return new QuestionService(aCategoryService,
+                aValidator,
+                aJdbcClient,
+                gurukulamsManager);
+    }
+
+    /**
+     * AnswerService.
+     * @param questionService
+     * @return answerService
+     */
+    @Bean
+    AnswerService answerService(final QuestionService questionService) {
+        return new AnswerService(questionService);
     }
 
 }

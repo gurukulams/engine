@@ -2,7 +2,6 @@ package com.techatpark.workout.service;
 
 import com.gurukulams.core.model.QuestionChoice;
 import com.techatpark.workout.payload.Question;
-import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.UUID;
 /**
  * The type Answer service.
  */
-@Service
+
 public class AnswerService {
 
     /**
@@ -26,7 +25,7 @@ public class AnswerService {
      *
      * @param anQuestionService the an question service
      */
-    AnswerService(final QuestionService anQuestionService) {
+    public AnswerService(final QuestionService anQuestionService) {
         this.questionService = anQuestionService;
     }
 
@@ -74,7 +73,6 @@ public class AnswerService {
                 default:
                     break;
             }
-
         }
         return isRigntAnswer;
     }

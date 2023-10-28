@@ -83,14 +83,16 @@ public class ArchUnitTest {
                 .consideringAllDependencies()
                 .layer("Controller").definedBy("..controller..")
                 .layer("Service").definedBy("..service..")
+                .layer("Service").definedBy("..service..")
                 .layer("Util").definedBy("..util..")
                 .layer("Component").definedBy("..component..")
+                .layer("Config").definedBy("..config..")
                 .layer("Security").definedBy("..security.config..", "." +
                         ".security.filter..")
 
                 .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
                 .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller"
-                        , "Component", "Security", "Util")
+                        , "Component", "Security", "Util", "Config")
                 .check(allClasses);
 
         fields().that().areDeclaredInClassesThat().areAnnotatedWith(RestController.class)

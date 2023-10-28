@@ -10,7 +10,6 @@ import com.techatpark.workout.service.QuestionService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -98,10 +97,6 @@ public class QuestionsLoader {
 
                                 tagService.create(userName, null,
                                         categories);
-                            } catch (DuplicateKeyException e) {
-                                System.out.println("Duplicate Category "
-                                        + categoriesFolder
-                                        .getFileName().toString());
                             } catch (SQLException e) {
                                 System.out.println("Duplicate Category "
                                         + categoriesFolder

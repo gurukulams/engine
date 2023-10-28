@@ -22,7 +22,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.stereotype.Service;
 
 import java.lang.annotation.ElementType;
 import java.sql.SQLException;
@@ -41,7 +40,6 @@ import java.util.stream.Collectors;
 /**
  * The type Question service.
  */
-@Service
 public class QuestionService {
 
     /**
