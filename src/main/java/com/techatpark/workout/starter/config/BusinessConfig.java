@@ -14,7 +14,6 @@ import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.simple.JdbcClient;
 
 import javax.sql.DataSource;
 
@@ -90,7 +89,6 @@ public class BusinessConfig {
     /**
      * QuestionService.
      * @param aCategoryService
-     * @param aJdbcClient
      * @param aValidator
      * @param gurukulamsManager
      * @return questionService
@@ -98,11 +96,9 @@ public class BusinessConfig {
     @Bean
     QuestionService questionService(final CategoryService aCategoryService,
                             final Validator aValidator,
-                            final JdbcClient aJdbcClient,
                             final GurukulamsManager gurukulamsManager) {
         return new QuestionService(aCategoryService,
                 aValidator,
-                aJdbcClient,
                 gurukulamsManager);
     }
 

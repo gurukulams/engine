@@ -21,7 +21,6 @@ import jakarta.validation.Path;
 import jakarta.validation.Validator;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
-import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.lang.annotation.ElementType;
 import java.sql.SQLException;
@@ -46,11 +45,6 @@ public class QuestionService {
      * Owner of QB.
      */
     public static final String OWNER_USER = "tom@email.com";
-
-    /**
-     * JdbcClient.
-     */
-    private final JdbcClient jdbcClient;
 
 
     /**
@@ -101,16 +95,13 @@ public class QuestionService {
      *
      * @param aCategoryService the practiceservice
      * @param aValidator       thevalidator
-     * @param aJdbcClient
      * @param gurukulamsManager
      */
     public QuestionService(final CategoryService aCategoryService,
                            final Validator aValidator,
-                           final JdbcClient aJdbcClient,
                            final GurukulamsManager gurukulamsManager) {
         this.categoryService = aCategoryService;
         this.validator = aValidator;
-        this.jdbcClient = aJdbcClient;
         this.questionStore = gurukulamsManager
                 .getQuestionStore();
         this.questionLocalizedStore = gurukulamsManager
