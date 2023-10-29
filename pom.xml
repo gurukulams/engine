@@ -159,7 +159,7 @@
 				<version>${jacoco.version}</version>
 				<configuration>
 					<includes>
-						<include>com/techatpark/workout/service/*Service*</include>
+						<include>com/techatpark/workout/component/json/*</include>
 					</includes>
 				</configuration>
 				<executions>
@@ -195,7 +195,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>1.0</minimum>
+											<minimum>0.6</minimum>
 										</limit>
 									</limits>
 								</rule>

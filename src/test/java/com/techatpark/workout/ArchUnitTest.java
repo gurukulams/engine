@@ -32,16 +32,6 @@ public class ArchUnitTest {
     }
 
     @Test
-    void servicesAreSecureByDesign() {
-        ArchRule no_access_to_jdbc = ArchRuleDefinition.noClasses().that()
-                .resideInAPackage("com.techatpark.workout.service")
-                .should().accessClassesThat()
-                .belongToAnyOf(JdbcTemplate.class)
-                .because("we should not use JDBC Template");
-        no_access_to_jdbc.check(allClasses);
-    }
-
-    @Test
     public void controllerMethodsReturnOnlyResponseEntities() {
         methods().that().arePublic().and().areDeclaredInClassesThat()
                 .areAnnotatedWith(RestController.class)

@@ -1,10 +1,9 @@
 package com.techatpark.workout.controller;
 
-
-import com.techatpark.workout.payload.Question;
-import com.techatpark.workout.payload.QuestionType;
-import com.techatpark.workout.service.AnswerService;
-import com.techatpark.workout.service.QuestionService;
+import com.gurukulams.core.payload.Question;
+import com.gurukulams.core.payload.QuestionType;
+import com.gurukulams.core.service.AnswerService;
+import com.gurukulams.core.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -87,7 +86,7 @@ class QuestionAPIController {
                                                              questionType,
                                                      final
                                                      @RequestBody
-                                                             Question
+                                                     Question
                                                              question,
                                                      @RequestHeader(
                                                      name = "Accept-Language",

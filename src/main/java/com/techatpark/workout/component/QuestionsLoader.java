@@ -3,10 +3,11 @@ package com.techatpark.workout.component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.model.Category;
 import com.gurukulams.core.model.QuestionChoice;
+import com.gurukulams.core.payload.Question;
+import com.gurukulams.core.payload.QuestionType;
 import com.gurukulams.core.service.CategoryService;
-import com.techatpark.workout.payload.Question;
-import com.techatpark.workout.payload.QuestionType;
-import com.techatpark.workout.service.QuestionService;
+import com.gurukulams.core.service.QuestionService;
+
 
 import java.io.File;
 import java.io.IOException;
