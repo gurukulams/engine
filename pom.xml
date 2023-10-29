@@ -18,8 +18,6 @@
 	<properties>
 		<java.version>21</java.version>
 
-		<json.version>20230618</json.version>
-
 		<!-- Version of Dependencies -->
 		<springdoc.version>2.2.0</springdoc.version>
 		<jsonwebtoken.version>0.11.5</jsonwebtoken.version>
@@ -34,6 +32,7 @@
 
 		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
 		<gurukulams-core.version>0.0.1-SNAPSHOT</gurukulams-core.version>
+		<archunit.version>1.1.0</archunit.version>
 	</properties>
 	<dependencies>
 
@@ -66,10 +65,21 @@
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson
-			</artifactId> <!-- or jjwt-gson if Gson is preferred -->
+			<artifactId>jjwt-jackson</artifactId>
 			<version>${jsonwebtoken.version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
 		</dependency>
 
 		<dependency>
@@ -82,24 +92,6 @@
 			<groupId>com.gurukulams</groupId>
 			<artifactId>core</artifactId>
 			<version>${gurukulams-core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>${json.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
 		</dependency>
 
 		<dependency>
@@ -117,7 +109,7 @@
 		<dependency>
 			<groupId>com.tngtech.archunit</groupId>
 			<artifactId>archunit</artifactId>
-			<version>1.1.0</version>
+			<version>${archunit.version}</version>
 			<scope>test</scope>
 		</dependency>
 
