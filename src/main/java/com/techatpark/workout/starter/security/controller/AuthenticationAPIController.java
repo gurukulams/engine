@@ -1,8 +1,8 @@
 package com.techatpark.workout.starter.security.controller;
 
+import com.gurukulams.core.payload.RegistrationRequest;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
-import com.techatpark.workout.starter.security.payload.RegistrationRequest;
 import com.techatpark.workout.starter.security.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
