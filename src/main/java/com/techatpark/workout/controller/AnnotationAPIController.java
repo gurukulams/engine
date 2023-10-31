@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.List;
@@ -75,13 +76,13 @@ class AnnotationAPIController {
                     name = "Accept-Language",
                     required = false) final Locale locale,
             final @RequestBody Annotation annotation)
-            throws SQLException {
+            throws SQLException, IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                annotationService.create(onType,
+                annotationService.create(principal.getName(),
                         onInstance,
                         annotation,
                         locale,
-                        principal.getName()
+                        onType
                 ));
     }
 
@@ -114,7 +115,7 @@ class AnnotationAPIController {
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale)
-            throws SQLException {
+            throws SQLException, IOException {
         return ResponseEntity.status(HttpStatus.OK).body(
                 annotationService.list(principal.getName(), locale,
                         onType,
@@ -123,7 +124,7 @@ class AnnotationAPIController {
 
     /**
      * Update response entity.
-     *
+     * @param principal
      * @param id         the id
      * @param annotation the annotation
      * @param onType
@@ -144,14 +145,16 @@ class AnnotationAPIController {
                     description = "note not found")})
     @PutMapping("/{id}")
     public final ResponseEntity<Optional<Annotation>> update(
+            final Principal principal,
             final @PathVariable String onType,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
             final @PathVariable UUID id,
             final @RequestBody Annotation annotation)
-            throws SQLException {
+            throws SQLException, IOException {
         final Optional<Annotation> updatednote = annotationService.update(
+                principal.getName(),
                 id, locale, annotation);
         return updatednote == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatednote);
@@ -159,7 +162,7 @@ class AnnotationAPIController {
 
     /**
      * Delete annotation by id response entity.
-     *
+     * @param principal
      * @param id     the id
      * @param onType
      * @param locale
@@ -175,13 +178,15 @@ class AnnotationAPIController {
                     description = "note not found")})
     @DeleteMapping("/{id}")
     public final ResponseEntity<Void> delete(
+            final Principal principal,
             final @PathVariable String onType,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
             final @PathVariable UUID id)
-            throws SQLException {
-        return annotationService.delete(id, locale)
+            throws SQLException, IOException {
+        return annotationService.delete(
+                principal.getName(), id, locale)
                 ?
                 ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();

@@ -77,13 +77,11 @@ public class BusinessConfig {
 
     /**
      * AnnotationService.
-     * @param gurukulamsManager
      * @return annotationService
      */
     @Bean
-    AnnotationService annotationService(
-            final GurukulamsManager gurukulamsManager) {
-        return new AnnotationService(gurukulamsManager);
+    AnnotationService annotationService() {
+        return new AnnotationService();
     }
 
     /**
