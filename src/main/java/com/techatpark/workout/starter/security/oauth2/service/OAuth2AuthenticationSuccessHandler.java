@@ -9,6 +9,8 @@ import com.techatpark.workout.starter.security.service.AuthenticationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -28,6 +30,12 @@ public class OAuth2AuthenticationSuccessHandler
      * declare a TokenProvider.
      */
     private final AuthenticationService authenticationService;
+
+    /**
+     * logger.
+     */
+    private static final Logger LOG =
+            LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
 
     /**
      * declare a AppProperties.
@@ -80,7 +88,7 @@ public class OAuth2AuthenticationSuccessHandler
                 determineTargetUrl(arequest, aresponse, anauthentication);
 
         if (aresponse.isCommitted()) {
-            logger.debug(
+            LOG.debug(
                     "Response has already been committed."
                             + " Unable to redirect to "
                             + targetUrl);
