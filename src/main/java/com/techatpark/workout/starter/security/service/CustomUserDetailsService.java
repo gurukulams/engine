@@ -90,18 +90,18 @@ public class CustomUserDetailsService implements UserDetailsService {
     /**
      * load userdetails with username.
      *
-     * @param email email
+     * @param username username
      * @return UserDetails user detail
      * @throws UsernameNotFoundException exception
      */
     @Override
-    public UserDetails loadUserByUsername(final String email)
+    public UserDetails loadUserByUsername(final String username)
             throws UsernameNotFoundException {
         try {
-        final Learner user = learnerService.readByEmail(email)
+        final Learner user = learnerService.read(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
-                                "User not found with email : " + email)
+                                "User not found with username : " + username)
                 );
 
             return UserPrincipal.create(user,

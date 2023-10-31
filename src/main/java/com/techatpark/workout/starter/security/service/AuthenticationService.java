@@ -319,13 +319,13 @@ public class AuthenticationService {
     /**
      * refresh.
      * @param authHeader
-     * @param userName
+     * @param principal
      * @param registrationRequest
      * @return authenticationResponse
      */
     @Validated
     public AuthenticationResponse register(final String authHeader,
-                              final Principal userName,
+                              final Principal principal,
                               final RegistrationRequest registrationRequest)
             throws SQLException {
 
@@ -337,7 +337,7 @@ public class AuthenticationService {
         }
 
         String registrationToken = getBearer(authHeader);
-        String[] parts = userName.getName().split("@");
+        String[] parts = principal.getName().split("@");
         String userHandle = parts[0];
         LearnerProfile learnerProfile = new LearnerProfile();
         learnerProfile.setUserHandle(userHandle);
@@ -346,7 +346,7 @@ public class AuthenticationService {
         learnerProfileService.create(learnerProfile);
 
         authCache.evict(registrationToken);
-        return getAuthenticationResponse(userName.getName());
+        return getAuthenticationResponse(principal.getName());
     }
 
     /**

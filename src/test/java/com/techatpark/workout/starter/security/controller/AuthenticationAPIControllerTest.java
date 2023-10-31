@@ -81,7 +81,7 @@ class AuthenticationAPIControllerTest {
     public void basicLogin() throws Exception {
 
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getUserName(),
+                this.signupRequest.getEmail(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse authenticationResponse =
@@ -120,7 +120,7 @@ class AuthenticationAPIControllerTest {
     @Test
     void testSwapping() throws InterruptedException {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getUserName(),
+                this.signupRequest.getEmail(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse originalAuth = login(authenticationRequest);
@@ -141,7 +141,7 @@ class AuthenticationAPIControllerTest {
     @Test
     void testExpiredLogout() throws InterruptedException {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getUserName(),
+                this.signupRequest.getEmail(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse authenticationResponse =
@@ -162,7 +162,7 @@ class AuthenticationAPIControllerTest {
     @Test
     void testMultiRegistration() throws InterruptedException {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-                this.signupRequest.getUserName(),
+                this.signupRequest.getEmail(),
                 this.signupRequest.getPassword());
 
         AuthenticationResponse authenticationResponse =

@@ -66,11 +66,11 @@ public class LoginService {
                                 authenticationRequest) throws SQLException {
         // Then Sign Up
         SignupRequest signupRequest = new SignupRequest();
-        signupRequest.setEmail(authenticationRequest.getUserName());
+        signupRequest.setEmail(authenticationRequest.getEmail());
         signupRequest.setPassword(authenticationRequest.getPassword());
         signupRequest.setAuthProvider(AuthProvider.local);
         signupRequest.setImageUrl("/images/"
-                + authenticationRequest.getUserName().split("@")[0]
+                + authenticationRequest.getEmail().split("@")[0]
                 + ".png");
         learnerService.signUp(signupRequest,
                 passwordEncoder::encode);
@@ -89,12 +89,12 @@ public class LoginService {
                     this.authenticationManager
                     .authenticate(
                         new UsernamePasswordAuthenticationToken(
-                                authenticationRequest.getUserName(),
+                                authenticationRequest.getEmail().split("@")[0],
                                 authenticationRequest.getPassword())));
         } catch (final BadCredentialsException credentialsException) {
             // If New User
             if (learnerService.readByEmail(
-                    authenticationRequest.getUserName()).isEmpty()) {
+                    authenticationRequest.getEmail()).isEmpty()) {
                 // Then Sign Up
                 signUp(authenticationRequest);
                 return login(authenticationRequest);

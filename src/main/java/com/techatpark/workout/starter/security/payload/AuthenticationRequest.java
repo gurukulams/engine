@@ -11,7 +11,7 @@ public final class AuthenticationRequest {
     /**
      * declares variable.
      */
-    private final String userName;
+    private final String email;
     /**
      * declares variable.
      */
@@ -27,7 +27,7 @@ public final class AuthenticationRequest {
     public AuthenticationRequest(
             @JsonProperty("userName") final String anUserName,
             @JsonProperty("password") final String aPassword) {
-        this.userName = anUserName;
+        this.email = anUserName;
         this.password = aPassword;
     }
 
@@ -36,8 +36,8 @@ public final class AuthenticationRequest {
      *
      * @return username user name
      */
-    public String getUserName() {
-        return userName;
+    public String getEmail() {
+        return email;
     }
 
     /**
