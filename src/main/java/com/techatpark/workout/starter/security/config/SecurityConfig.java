@@ -172,10 +172,6 @@ public class SecurityConfig {
                         antMatcher("/swagger-ui/*"),
                         antMatcher("/v3/api-docs"),
                         antMatcher("/v3/api-docs/*"),
-                        antMatcher("/chat"),
-                        antMatcher("/chat/*"),
-                        antMatcher("/chat/*/*"),
-                        antMatcher("/chat/*/*/*"),
                         antMatcher("/api/auth/login"),
                         antMatcher("/welcome")
                 );
