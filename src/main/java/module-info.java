@@ -2,6 +2,7 @@ module gurukulams.engine {
     requires com.fasterxml.jackson.databind;
 
     requires gurukulams.core ;
+    requires gurukulams.notebook ;
     requires spring.context;
     requires spring.security.core;
     requires spring.security.config;

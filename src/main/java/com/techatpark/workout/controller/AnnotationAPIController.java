@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.gurukulams.core.model.Annotation;
-import com.gurukulams.core.service.AnnotationService;
+import com.gurukulams.notebook.model.Annotation;
+import com.gurukulams.notebook.service.AnnotationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

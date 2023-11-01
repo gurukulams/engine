@@ -2,7 +2,7 @@ package com.techatpark.workout.starter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.GurukulamsManager;
-import com.gurukulams.core.service.AnnotationService;
+import com.gurukulams.notebook.service.AnnotationService;
 import com.gurukulams.core.service.AnswerService;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.LearnerProfileService;
