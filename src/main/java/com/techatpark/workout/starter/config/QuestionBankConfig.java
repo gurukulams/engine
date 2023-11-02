@@ -11,7 +11,6 @@ import jakarta.validation.Validator;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,13 +28,12 @@ public class QuestionBankConfig {
      * @return questionBankManager
      */
     @Bean
-    @ConfigurationProperties(prefix = "spring.question-bank")
     QuestionBankManager questionBankManager(
             @Value("${spring.question-bank.url}")
             final String url,
-            @Value("${spring.question-bank.username}")
+            @Value("${spring.datasource.username}")
             final String username,
-            @Value("${spring.question-bank.password}")
+            @Value("${spring.datasource.password}")
             final String password,
             final Flyway flyway) {
         JdbcDataSource ds = new JdbcDataSource();
