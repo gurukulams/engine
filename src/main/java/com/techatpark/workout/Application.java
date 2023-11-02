@@ -43,7 +43,8 @@ public class Application {
             throws SQLException, IOException {
         logger.info("Application Started at {}", event.getTimestamp());
         QuestionsLoader questionsLoader
-                = event.getApplicationContext().getBean(QuestionsLoader.class);
+                = event.getApplicationContext()
+                .getBean(QuestionsLoader.class);
         questionsLoader.load();
 
     }
