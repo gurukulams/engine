@@ -335,17 +335,13 @@ public class AuthenticationService {
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
-
-        String registrationToken = getBearer(authHeader);
-        String[] parts = principal.getName().split("@");
-        String userHandle = parts[0];
         LearnerProfile learnerProfile = new LearnerProfile();
-        learnerProfile.setUserHandle(userHandle);
+        learnerProfile.setUserHandle(principal.getName());
         learnerProfile.setName(registrationRequest.getName());
         learnerProfile.setDob(registrationRequest.getDob());
         learnerProfileService.create(learnerProfile);
 
-        authCache.evict(registrationToken);
+        authCache.evict(getBearer(authHeader));
         return getAuthenticationResponse(principal.getName());
     }
 
