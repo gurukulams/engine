@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.gurukulams.core.model.QuestionChoice;
+import com.gurukulams.questionbank.model.QuestionChoice;
 import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;

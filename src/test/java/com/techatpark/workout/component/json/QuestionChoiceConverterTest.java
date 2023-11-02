@@ -2,7 +2,7 @@ package com.techatpark.workout.component.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurukulams.core.model.QuestionChoice;
+import com.gurukulams.questionbank.model.QuestionChoice;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

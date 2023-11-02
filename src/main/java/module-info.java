@@ -2,6 +2,7 @@ module gurukulams.engine {
     requires com.fasterxml.jackson.databind;
 
     requires gurukulams.core ;
+    requires gurukulams.questionbank ;
     requires gurukulams.notebook ;
     requires spring.context;
     requires spring.security.core;
@@ -25,6 +26,8 @@ module gurukulams.engine {
     requires spring.beans;
     requires org.apache.commons.lang3;
     requires org.apache.logging.log4j;
+    requires com.h2database;
+    requires org.flywaydb.core;
 
     opens com.techatpark.workout;
     opens com.techatpark.workout.starter.config;

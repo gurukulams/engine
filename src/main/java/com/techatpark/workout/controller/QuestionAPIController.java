@@ -1,9 +1,9 @@
 package com.techatpark.workout.controller;
 
-import com.gurukulams.core.payload.Question;
-import com.gurukulams.core.payload.QuestionType;
-import com.gurukulams.core.service.AnswerService;
-import com.gurukulams.core.service.QuestionService;
+import com.gurukulams.questionbank.payload.Question;
+import com.gurukulams.questionbank.payload.QuestionType;
+import com.gurukulams.questionbank.service.AnswerService;
+import com.gurukulams.questionbank.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

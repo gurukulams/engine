@@ -1,12 +1,12 @@
 package com.techatpark.workout.component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurukulams.core.model.Category;
-import com.gurukulams.core.model.QuestionChoice;
-import com.gurukulams.core.payload.Question;
-import com.gurukulams.core.payload.QuestionType;
-import com.gurukulams.core.service.CategoryService;
-import com.gurukulams.core.service.QuestionService;
+import com.gurukulams.questionbank.model.Category;
+import com.gurukulams.questionbank.model.QuestionChoice;
+import com.gurukulams.questionbank.payload.Question;
+import com.gurukulams.questionbank.payload.QuestionType;
+import com.gurukulams.questionbank.service.CategoryService;
+import com.gurukulams.questionbank.service.QuestionService;
 
 
 import java.io.File;
