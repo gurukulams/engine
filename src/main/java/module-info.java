@@ -28,6 +28,7 @@ module gurukulams.engine {
     requires org.apache.logging.log4j;
     requires com.h2database;
     requires org.flywaydb.core;
+    requires spring.webmvc;
 
     opens com.techatpark.workout;
     opens com.techatpark.workout.starter.config;
@@ -38,8 +39,10 @@ module gurukulams.engine {
     opens com.techatpark.workout.starter.security.controller;
     opens com.techatpark.workout.controller;
     opens com.techatpark.workout.starter.security.payload;
+    opens com.techatpark.workout.starter.exception;
 
     exports com.techatpark.workout.component.json;
     exports com.techatpark.workout.starter.security.service;
     exports com.techatpark.workout.starter.security.payload;
+    exports com.techatpark.workout.starter.exception;
 }
