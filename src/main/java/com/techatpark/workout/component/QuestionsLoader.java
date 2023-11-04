@@ -114,7 +114,8 @@ public class QuestionsLoader {
                                 categoryService.create(userName, null,
                                         categories);
                             } catch (SQLException e) {
-                                logger.debug("Category {} exists", categoryName);
+                                logger.debug("Category {} exists",
+                                        categoryName);
                             }
                         }
                     });
