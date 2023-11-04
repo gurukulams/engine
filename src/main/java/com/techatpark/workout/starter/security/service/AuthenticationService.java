@@ -2,7 +2,6 @@ package com.techatpark.workout.starter.security.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurukulams.core.model.LearnerProfile;
 import com.gurukulams.core.payload.RegistrationRequest;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.techatpark.workout.starter.security.config.AppProperties;
@@ -17,8 +16,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
@@ -37,7 +34,6 @@ import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -118,15 +114,11 @@ public class AuthenticationService {
                             final String jwt) {
         final String userName =
                 getUserNameFromToken(requestURI, jwt);
-
         final UserDetails userDetails =
                 userDetailsService.loadUserByUsername(userName);
-        final UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails, userDetails.getPassword(),
-                        userDetails.getAuthorities());
-
-        return authentication;
+        return new UsernamePasswordAuthenticationToken(
+                userDetails, userDetails.getPassword(),
+                userDetails.getAuthorities());
     }
 
 
@@ -329,17 +321,8 @@ public class AuthenticationService {
                               final RegistrationRequest registrationRequest)
             throws SQLException {
 
-        Set<ConstraintViolation<RegistrationRequest>> violations =
-                validator.validate(registrationRequest);
-
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-        LearnerProfile learnerProfile = new LearnerProfile();
-        learnerProfile.setUserHandle(principal.getName());
-        learnerProfile.setName(registrationRequest.getName());
-        learnerProfile.setDob(registrationRequest.getDob());
-        learnerProfileService.create(learnerProfile);
+        learnerProfileService.create(principal.getName(),
+                registrationRequest);
 
         authCache.evict(getBearer(authHeader));
         return getAuthenticationResponse(principal.getName());

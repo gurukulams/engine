@@ -38,12 +38,15 @@ public class GurukulamsConfig {
     /**
      * learnerProfileService.
      * @param gurukulamsManager
+     * @param validator
      * @return learnerProfileService
      */
     @Bean
     LearnerProfileService learnerProfileService(
-            final GurukulamsManager gurukulamsManager) {
-        return new LearnerProfileService(gurukulamsManager);
+            final GurukulamsManager gurukulamsManager,
+            final Validator validator) {
+        return new LearnerProfileService(gurukulamsManager,
+                validator);
     }
 
 
