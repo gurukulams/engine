@@ -1,6 +1,8 @@
 package com.techatpark.workout.starter.config;
 
 import com.gurukulams.core.GurukulamsManager;
+import com.gurukulams.core.service.CategoryService;
+import com.gurukulams.core.service.TagService;
 import com.gurukulams.notebook.service.AnnotationService;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.gurukulams.core.service.LearnerService;
@@ -47,6 +49,29 @@ public class GurukulamsConfig {
             final Validator validator) {
         return new LearnerProfileService(gurukulamsManager,
                 validator);
+    }
+
+    /**
+     * CategoryService.
+     * @param gurukulamsManager
+     * @return categoryService
+     */
+    @Bean
+    CategoryService categoryService(
+            final GurukulamsManager gurukulamsManager) {
+        return new CategoryService(gurukulamsManager);
+    }
+
+
+    /**
+     * TagService.
+     * @param gurukulamsManager
+     * @return tagService
+     */
+    @Bean
+    TagService tagService(
+            final GurukulamsManager gurukulamsManager) {
+        return new TagService(gurukulamsManager);
     }
 
 

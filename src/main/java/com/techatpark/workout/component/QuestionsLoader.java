@@ -1,12 +1,15 @@
 package com.techatpark.workout.component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurukulams.questionbank.model.Category;
+import com.gurukulams.core.model.Category;
 import com.gurukulams.questionbank.model.QuestionChoice;
 import com.gurukulams.questionbank.payload.Question;
 import com.gurukulams.questionbank.payload.QuestionType;
-import com.gurukulams.questionbank.service.CategoryService;
+import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.questionbank.service.QuestionService;
+import com.techatpark.workout.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.File;
@@ -21,6 +24,13 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class QuestionsLoader {
+
+    /**
+     * Logger.
+     */
+    private final Logger logger =
+            LoggerFactory.getLogger(Application.class);
+
     /**
      * Quetion Owner.
      */
@@ -95,21 +105,17 @@ public class QuestionsLoader {
                                     -> fileAttr.isDirectory())
                     .forEach(categoriesFolder -> {
                         if (!categoriesFolder.equals(questionsFolder)) {
+                            String categoryName = categoriesFolder
+                                    .getFileName().toString();
+                            Category categories = new Category();
+                            categories.setId(categoryName);
+                            categories.setTitle(categoryName);
                             try {
-                                Category categories = new Category();
-                                categories.setId(categoriesFolder
-                                        .getFileName().toString());
-                                categories.setTitle(categoriesFolder
-                                        .getFileName().toString());
-
                                 categoryService.create(userName, null,
                                         categories);
                             } catch (SQLException e) {
-                                System.out.println("Duplicate Category "
-                                        + categoriesFolder
-                                        .getFileName().toString());
+                                logger.debug("Category {} exists", categoryName);
                             }
-
                         }
                     });
         }

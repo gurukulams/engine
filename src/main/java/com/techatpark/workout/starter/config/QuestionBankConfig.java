@@ -1,11 +1,10 @@
 package com.techatpark.workout.starter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.questionbank.QuestionBankManager;
 import com.gurukulams.questionbank.service.AnswerService;
-import com.gurukulams.questionbank.service.CategoryService;
 import com.gurukulams.questionbank.service.QuestionService;
-import com.gurukulams.questionbank.service.TagService;
 import com.techatpark.workout.component.QuestionsLoader;
 import jakarta.validation.Validator;
 import org.flywaydb.core.Flyway;
@@ -50,40 +49,17 @@ public class QuestionBankConfig {
 
         return QuestionBankManager.getManager(ds);
     }
-    /**
-     * CategoryService.
-     * @param questionBankManagerr
-     * @return categoryService
-     */
-    @Bean
-    CategoryService categoryService(
-            final QuestionBankManager questionBankManagerr) {
-        return new CategoryService(questionBankManagerr);
-    }
 
-
-    /**
-     * TagService.
-     * @param questionBankManager
-     * @return tagService
-     */
-    @Bean
-    TagService tagService(
-            final QuestionBankManager questionBankManager) {
-        return new TagService(questionBankManager);
-    }
     /**
      * QuestionService.
-     * @param aCategoryService
      * @param aValidator
      * @param questionBankManager
      * @return questionService
      */
     @Bean
-    QuestionService questionService(final CategoryService aCategoryService,
-                            final Validator aValidator,
+    QuestionService questionService(final Validator aValidator,
                             final QuestionBankManager questionBankManager) {
-        return new QuestionService(aCategoryService,
+        return new QuestionService(
                 aValidator,
                 questionBankManager);
     }
@@ -100,19 +76,19 @@ public class QuestionBankConfig {
 
     /**
      * questionsLoader.
-     * @param tagService
+     * @param categoryService
      * @param objectMapper
      * @param seedFolder
      * @param questionService
      * @return questionsLoader
      */
     @Bean
-    QuestionsLoader questionsLoader(final CategoryService tagService,
+    QuestionsLoader questionsLoader(final CategoryService categoryService,
                         final ObjectMapper objectMapper,
                         @Value("${app.seed.folder:src/test/resources}")
                         final String seedFolder,
                         final QuestionService questionService) {
-        return new QuestionsLoader(tagService, objectMapper,
+        return new QuestionsLoader(categoryService, objectMapper,
                 seedFolder, questionService);
     }
 }

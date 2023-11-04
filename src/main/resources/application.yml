@@ -19,7 +19,7 @@ spring:
   jackson:
     default-property-inclusion: non_null
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:gurukulamsdb
     username: username
     password: password
   question-bank:
