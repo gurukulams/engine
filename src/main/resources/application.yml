@@ -24,6 +24,8 @@ spring:
     password: password
   question-bank:
     url: jdbc:h2:file:./data/questionbank
+  gurukulams-events:
+    url: jdbc:h2:file:./data/gurukulams-events
   h2:
     console.enabled: true
   security:

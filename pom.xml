@@ -109,6 +109,12 @@
 
 		<dependency>
 			<groupId>com.gurukulams</groupId>
+			<artifactId>event</artifactId>
+			<version>${gurukulams-core.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.gurukulams</groupId>
 			<artifactId>notebook</artifactId>
 			<version>${gurukulams-core.version}</version>
 		</dependency>

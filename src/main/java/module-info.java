@@ -3,6 +3,7 @@ module gurukulams.engine {
 
     requires gurukulams.core ;
     requires gurukulams.questionbank ;
+    requires gurukulams.event ;
     requires gurukulams.notebook ;
     requires spring.context;
     requires spring.security.core;

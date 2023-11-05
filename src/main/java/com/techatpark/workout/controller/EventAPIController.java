@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.gurukulams.core.model.Event;
-import com.gurukulams.core.service.EventService;
+import com.gurukulams.event.model.Event;
+import com.gurukulams.event.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -66,10 +66,10 @@ class EventAPIController {
     @PostMapping(value = "/**", produces = "application/json",
             consumes = "application/json")
     public final ResponseEntity<Event> create(final Principal principal,
-                                @RequestHeader(name = "Accept-Language",
+                                      @RequestHeader(name = "Accept-Language",
                                         required = false) final Locale locale,
-                                @RequestBody final Event event,
-                              final HttpServletRequest request)
+                                              @RequestBody final Event event,
+                                              final HttpServletRequest request)
             throws SQLException {
         Event created = eventService.create(
                 getCategories(request.getRequestURI()),

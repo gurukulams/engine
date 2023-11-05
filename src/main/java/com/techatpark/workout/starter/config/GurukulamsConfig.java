@@ -2,7 +2,6 @@ package com.techatpark.workout.starter.config;
 
 import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.service.CategoryService;
-import com.gurukulams.core.service.EventService;
 import com.gurukulams.core.service.TagService;
 import com.gurukulams.notebook.service.AnnotationService;
 import com.gurukulams.core.service.LearnerProfileService;
@@ -73,17 +72,6 @@ public class GurukulamsConfig {
     TagService tagService(
             final GurukulamsManager gurukulamsManager) {
         return new TagService(gurukulamsManager);
-    }
-
-    /**
-     * EventService.
-     * @param gurukulamsManager
-     * @return eventService
-     */
-    @Bean
-    EventService eventService(
-            final GurukulamsManager gurukulamsManager) {
-        return new EventService(gurukulamsManager);
     }
 
     /**
