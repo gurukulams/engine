@@ -24,10 +24,12 @@
 		<maven.checkstyle.version>3.3.0</maven.checkstyle.version>
 		<checkstyle.version>10.12.4</checkstyle.version>
 
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.compilerArgument>--enable-preview </maven.compiler.compilerArgument>
 
 		<jacoco.version>0.8.10</jacoco.version>
 		<maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
-		<maven.compiler.compilerArgument>-Xlint:-processing</maven.compiler.compilerArgument>
 		<maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
 
 		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
@@ -240,6 +242,14 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<compilerArgs>--enable-preview</compilerArgs>
+				</configuration>
 			</plugin>
 
 <!--			<plugin>-->
