@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -202,6 +203,57 @@ class EventAPIController {
         return tagList.isEmpty() ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(tagList);
     }
+
+    /**
+     * Register a Event.
+     *
+     * @param id
+     * @param principal
+     * @return event
+     */
+    @Operation(summary = "Registers the event by given id",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+            description = "event registered successfully"),
+            @ApiResponse(responseCode = "401",
+                    description = "invalid credentials"),
+            @ApiResponse(responseCode = "404",
+                    description = "event not found")})
+    @RequestMapping(method = RequestMethod.HEAD, value = "/{id}")
+    public final ResponseEntity<Void> isRegistered(@PathVariable final
+                                               UUID id,
+                                               final Principal principal)
+            throws SQLException {
+        return eventService.isRegistered(principal.getName(),
+                id) ? ResponseEntity.ok().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Register a Event.
+     *
+     * @param id
+     * @param principal
+     * @return event
+     */
+    @Operation(summary = "Registers the event by given id",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+            description = "event registered successfully"),
+            @ApiResponse(responseCode = "401",
+                    description = "invalid credentials"),
+            @ApiResponse(responseCode = "404",
+                    description = "event not found")})
+    @PostMapping("/{id}")
+    public final ResponseEntity<Void> register(@PathVariable final
+                                               UUID id,
+                                               final Principal principal)
+            throws SQLException {
+        return eventService.register(principal.getName(),
+                id) ? ResponseEntity.ok().build()
+                : ResponseEntity.notFound().build();
+    }
+
 
     private List<String> getCategories(final String requestURI) {
         return List.of(requestURI
