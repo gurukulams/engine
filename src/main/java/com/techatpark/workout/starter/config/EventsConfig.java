@@ -2,6 +2,7 @@ package com.techatpark.workout.starter.config;
 
 import com.gurukulams.event.EventManager;
 import com.gurukulams.event.service.EventService;
+import jakarta.validation.Validator;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,12 +46,14 @@ public class EventsConfig {
     /**
      * EventService.
      * @param eventManager
+     * @param validator
      * @return eventService
      */
     @Bean
     EventService eventService(
-            final EventManager eventManager) {
-        return new EventService(eventManager);
+            final EventManager eventManager,
+            final Validator validator) {
+        return new EventService(eventManager, validator);
     }
 
 

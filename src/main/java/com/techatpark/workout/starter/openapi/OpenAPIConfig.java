@@ -19,12 +19,12 @@ public class OpenAPIConfig {
     public OpenAPI apiDocConfig() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Communities API")
-                        .description("API for building communities and events")
+                        .title("Gurukulams API")
+                        .description("API for Gurukulams learning platform")
                         .version("0.0.1")
                         .contact(new Contact()
-                                .name("Tech@Park")
-                                .email("exaample@z.com")))
+                                .name("Gurukulams")
+                                .url("www.gurukulams.com")))
                 .externalDocs(new ExternalDocumentation()
                         .description("Documentation")
                         .url("https:/wiki...."));
