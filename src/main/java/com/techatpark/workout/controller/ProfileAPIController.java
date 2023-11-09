@@ -1,7 +1,7 @@
 package com.techatpark.workout.controller;
 
-import com.gurukulams.core.payload.Learner;
-import com.gurukulams.core.service.LearnerService;
+import com.gurukulams.core.payload.Profile;
+import com.gurukulams.core.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,7 +17,7 @@ import java.security.Principal;
 import java.sql.SQLException;
 
 /**
- * The type Learner api controller.
+ * The type Profile api controller.
  */
 @RestController
 @RequestMapping("/api/profiles")
@@ -27,17 +27,17 @@ class ProfileAPIController {
     /**
      * declare a learner service.
      */
-    private final LearnerService learnerService;
+    private final ProfileService profileService;
 
     /**
-     * @param alearnerService a learner service
+     * @param profileService1 a learner service
      */
-    ProfileAPIController(final LearnerService alearnerService) {
-        this.learnerService = alearnerService;
+    ProfileAPIController(final ProfileService profileService1) {
+        this.profileService = profileService1;
     }
 
 
-    @Operation(summary = "Get the Learner with given id",
+    @Operation(summary = "Get the Profile with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
             description = "getting learner successfully"),
@@ -46,10 +46,10 @@ class ProfileAPIController {
             @ApiResponse(responseCode = "404",
                     description = "learner not found")})
     @GetMapping(value = "/{id}", produces = "application/json")
-    public final ResponseEntity<Learner> read(final Principal principal,
+    public final ResponseEntity<Profile> read(final Principal principal,
                                         final @PathVariable String id)
             throws SQLException {
-        return ResponseEntity.of(learnerService.read(
+        return ResponseEntity.of(profileService.read(
                 id));
     }
 
