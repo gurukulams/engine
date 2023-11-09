@@ -254,6 +254,30 @@ class EventAPIController {
                 : ResponseEntity.notFound().build();
     }
 
+    /**
+     * Register a Event.
+     *
+     * @param id
+     * @param principal
+     * @return event
+     */
+    @Operation(summary = "Joins the event by given id",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+            description = "event registered successfully"),
+            @ApiResponse(responseCode = "401",
+                    description = "invalid credentials"),
+            @ApiResponse(responseCode = "404",
+                    description = "event not found")})
+    @PostMapping("/{id}/_join")
+    public final ResponseEntity<Void> join(@PathVariable final
+                                               UUID id,
+                                               final Principal principal)
+            throws SQLException {
+        String meetingUrl = eventService.join(principal.getName(), id);
+        return ResponseEntity.created(URI.create(meetingUrl)).build();
+    }
+
 
     private List<String> getCategories(final String requestURI) {
         return List.of(requestURI
