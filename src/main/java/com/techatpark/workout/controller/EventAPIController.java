@@ -22,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.List;
@@ -255,7 +258,35 @@ class EventAPIController {
     }
 
     /**
-     * Register a Event.
+     * Starts an Event.
+     *
+     * @param id
+     * @param url
+     * @param principal
+     * @return event
+     */
+    @Operation(summary = "Starts the event by given id",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+            description = "event registered successfully"),
+            @ApiResponse(responseCode = "401",
+                    description = "invalid credentials"),
+            @ApiResponse(responseCode = "404",
+                    description = "event not found")})
+    @PostMapping("/{id}/_start")
+    public final ResponseEntity<Void> start(@PathVariable final
+                                           UUID id,
+                                           final @RequestBody String url,
+                                           final Principal principal)
+            throws SQLException, URISyntaxException,
+            MalformedURLException {
+        return eventService.start(principal.getName(), id,new URL(url))
+                ? ResponseEntity.created(new URI(url)).build()
+                : ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Joins an Event.
      *
      * @param id
      * @param principal
