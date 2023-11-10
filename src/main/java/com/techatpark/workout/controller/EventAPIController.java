@@ -280,7 +280,7 @@ class EventAPIController {
                                            final Principal principal)
             throws SQLException, URISyntaxException,
             MalformedURLException {
-        return eventService.start(principal.getName(), id,new URL(url))
+        return eventService.start(principal.getName(), id, new URL(url))
                 ? ResponseEntity.created(new URI(url)).build()
                 : ResponseEntity.notFound().build();
     }
