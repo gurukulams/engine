@@ -181,6 +181,35 @@ class EventAPIController {
      *
      * @param principal
      * @param locale
+     * @return list of event
+     */
+    @Operation(summary = "lists the event of an user",
+            description = " Can be invoked by auth users only",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+            description = "Listing the event"),
+            @ApiResponse(responseCode = "204",
+                    description = "event are not available"),
+            @ApiResponse(responseCode = "401",
+                    description = "invalid credentials")})
+    @GetMapping(produces = "application/json")
+    public final ResponseEntity<List<Event>> list(final Principal
+                                  principal,
+                          @RequestHeader(name = "Accept-Language",
+                                  required = false) final Locale locale)
+            throws SQLException {
+        final List<Event> tagList = eventService.list(
+                principal.getName(), locale);
+        return tagList.isEmpty() ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(tagList);
+    }
+
+
+    /**
+     * List the Event.
+     *
+     * @param principal
+     * @param locale
      * @param request the request
      * @return list of event
      */
