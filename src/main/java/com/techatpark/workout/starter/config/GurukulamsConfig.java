@@ -2,6 +2,7 @@ package com.techatpark.workout.starter.config;
 
 import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.service.CategoryService;
+import com.gurukulams.core.service.OrgService;
 import com.gurukulams.core.service.ProfileService;
 import com.gurukulams.core.service.TagService;
 import com.gurukulams.notebook.service.AnnotationService;
@@ -63,6 +64,17 @@ public class GurukulamsConfig {
           final LearnerProfileService learnerProfileService) {
         return new ProfileService(learnerService,
                 learnerProfileService);
+    }
+
+    /**
+     * OrgService.
+     * @param gurukulamsManager
+     * @return orgService
+     */
+    @Bean
+    OrgService orgService(
+            final GurukulamsManager gurukulamsManager) {
+        return new OrgService(gurukulamsManager);
     }
 
     /**
