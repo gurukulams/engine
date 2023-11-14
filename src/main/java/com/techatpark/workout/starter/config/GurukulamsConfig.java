@@ -55,15 +55,21 @@ public class GurukulamsConfig {
 
     /**
      * Builds Profile Service.
+     * @param gurukulamsManager
      * @param learnerService
      * @param learnerProfileService
+     * @param orgService
      * @return profileService
      */
     @Bean
-    ProfileService profileService(final LearnerService learnerService,
-          final LearnerProfileService learnerProfileService) {
-        return new ProfileService(learnerService,
-                learnerProfileService);
+    ProfileService profileService(final GurukulamsManager gurukulamsManager,
+                                  final LearnerService learnerService,
+          final LearnerProfileService learnerProfileService,
+          final OrgService orgService) {
+        return new ProfileService(gurukulamsManager,
+                learnerService,
+                learnerProfileService,
+                orgService);
     }
 
     /**
