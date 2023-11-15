@@ -3,6 +3,8 @@ package com.techatpark.workout.starter.security.payload;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /**
  * The type Authentication response.
  */
@@ -37,6 +39,11 @@ public final class AuthenticationResponse {
     private final String profilePicture;
 
     /**
+     * declares variable profilePicture.
+     */
+    private final List<String> features;
+
+    /**
      * initializes the value for authToken,refresh_token,profile_pic.
      *
      * @param anUserName      the an user name
@@ -45,6 +52,7 @@ public final class AuthenticationResponse {
      * @param aRefreshToken   the a refresh token
      * @param aRegistrationToken the a registration token
      * @param aProfilePicture the a profile picture
+     * @param theFeatures the features of the user
      */
     @JsonCreator
     public AuthenticationResponse(
@@ -53,13 +61,15 @@ public final class AuthenticationResponse {
             @JsonProperty("expires_in") final Long anExpiresIn,
             @JsonProperty("refresh_token") final String aRefreshToken,
             @JsonProperty("registration_token") final String aRegistrationToken,
-            @JsonProperty("profile_pic") final String aProfilePicture) {
+            @JsonProperty("profile_pic") final String aProfilePicture,
+            @JsonProperty("features")  final List<String> theFeatures) {
         this.userName = anUserName;
         this.authToken = anAuthToken;
         this.expiresIn = anExpiresIn;
         this.refreshToken = aRefreshToken;
         this.registrationToken = aRegistrationToken;
         this.profilePicture = aProfilePicture;
+        this.features = theFeatures;
     }
     /**
      * gets the value for expiresIn.
@@ -113,5 +123,13 @@ public final class AuthenticationResponse {
      */
     public String getUserName() {
         return userName;
+    }
+
+    /**
+     * Gets Features of User.
+     * @return features
+     */
+    public List<String> getFeatures() {
+        return features;
     }
 }

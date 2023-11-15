@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -385,7 +386,13 @@ public class AuthenticationService {
                     appProperties.getAuth().getTokenExpirationMsec(),
                     this.generateRefreshToken(authToken),
                     null,
-                    userPrincipal.getProfilePicture());
+                    userPrincipal.getProfilePicture(),
+                    this.appProperties.getFeature()
+                        .entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue().contains(userName))
+                        .map(Map.Entry::getKey)
+                        .toList());
         }
 
         return new AuthenticationResponse(userName,
@@ -393,6 +400,7 @@ public class AuthenticationService {
                 null,
                 null,
                 generateToken(userName),
-                userPrincipal.getProfilePicture());
+                userPrincipal.getProfilePicture(),
+                null);
     }
 }

@@ -3,7 +3,9 @@ package com.techatpark.workout.starter.security.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The type App properties.
@@ -19,6 +21,18 @@ public class AppProperties {
      * declaring an OAuth2 variable final.
      */
     private final OAuth2 oauth2 = new OAuth2();
+    /**
+     * Feature of User.
+     */
+    private Map<String, List<String>> feature
+            = new HashMap<String, List<String>>();
+    /**
+     * Gets Feature of User.
+     * @return feature
+     */
+    public Map<String, List<String>> getFeature() {
+        return this.feature;
+    }
 
     /**
      * Gets auth.
