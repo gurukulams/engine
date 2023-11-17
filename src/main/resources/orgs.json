@@ -24,7 +24,7 @@
     "userHandle": "srkv",
     "title": "Ramakrishna Mission Vidyalaya",
     "description": "Ramakrishna Mission Vidyalaya, Coimbatore. (A Branch of Ramakrishna Math and Ramakrishna Mission, Belur Math, Howrah, West Bengal). Located at about 19 kms from the Coimbatore city on the highway to Ooty, the Vidyalaya is situated in a serene environment spread over nearly 300 acres.",
-    "orgType": "school",
+    "orgType": "college",
     "imageUrl": "https://srkv.org/wp-content/uploads/2019/11/cropped-logo4.png"
   },
   {
@@ -38,7 +38,7 @@
     "userHandle": "psg-arts",
     "title": "PSG College of Arts & Science",
     "description": "PSG College of Arts & Science was founded in the year 1947 before independence by the PSG & Sons’ Charities Trust with a mission to set education on a noble perch accessible to all in pursuit of knowledge and world class education. The founders envisioned charity through education and crested this zealous thought as the reason for having set up a premier grade institution, which still remains as an untarnished thought through the lineage of successors to this college. ",
-    "orgType": "school",
+    "orgType": "college",
     "imageUrl": "https://www.psgcas.ac.in/images/logo.png"
   },
   {
@@ -47,5 +47,19 @@
     "description": "FICO, originally Fair, Isaac and Company, is a data analytics company based in Bozeman, Montana, focused on credit scoring services. It was founded by Bill Fair and Earl Isaac in 1956. Its FICO score, a measure of consumer credit risk, has become a fixture of consumer lending in the United States",
     "orgType": "company",
     "imageUrl": "https://www.fico.com/themes/custom/fico_general/assets/icons/fico-logo-blue.svg"
+  },
+  {
+    "userHandle": "msec",
+    "title": "Mohamed Sathak Engineering College",
+    "description": "The strength of our college lies on the shoulders of our staff. Our staff are highly motivated and as a result, our students have been very well rightly guided to perform well in the Anna University examinations. In the last annual exam, out of 350 subjects, our staff produced 100% results of pass percentage in 72 Subjects and above 90% pass percentage in 180 subjects",
+    "orgType": "college",
+    "imageUrl": "https://www.msec.org.in/images/mlogo.png"
+  },
+  {
+    "userHandle": "iamneo",
+    "title": "iamneo",
+    "description": "At iamneo, our pivotal focus is to solve business bottlenecks rather than committing you to off-the-shelf products. Foreseeing the dynamic business requirements and rapid technology transitions in the future, it’s evident there isn’t a one-size-fits-all product you can bank on.",
+    "orgType": "institute",
+    "imageUrl": "https://iamneo.ai/wp-content/uploads/2023/05/iamneo.svg"
   }
 ]
