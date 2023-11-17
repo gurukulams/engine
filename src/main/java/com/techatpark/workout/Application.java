@@ -1,5 +1,6 @@
 package com.techatpark.workout;
 
+import com.techatpark.workout.component.OrgLoader;
 import com.techatpark.workout.component.QuestionsLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,12 @@ public class Application {
                 = event.getApplicationContext()
                 .getBean(QuestionsLoader.class);
         questionsLoader.load();
+
+        OrgLoader orgLoader
+                = event.getApplicationContext()
+                .getBean(OrgLoader.class);
+        orgLoader.load();
+
 
     }
 }

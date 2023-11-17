@@ -41,8 +41,10 @@ module gurukulams.engine {
     opens com.techatpark.workout.controller;
     opens com.techatpark.workout.starter.security.payload;
     opens com.techatpark.workout.starter.exception;
+    opens com.techatpark.workout.component;
     opens com.techatpark.workout.component.json;
 
+    exports com.techatpark.workout.component;
     exports com.techatpark.workout.component.json;
     exports com.techatpark.workout.starter.security.service;
     exports com.techatpark.workout.starter.security.payload;

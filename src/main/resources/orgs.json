@@ -1,0 +1,51 @@
+[
+  {
+    "userHandle": "techatpark",
+    "title": "Tech@Park",
+    "description": "TECH@PARK is a volunteer organization that helps underprivileged freshers find software jobs. The organization has a unique approach to training that sets it apart from others. ",
+    "orgType": "community",
+    "imageUrl": "https://techatpark.com/images/logo_full.svg"
+  },
+  {
+    "userHandle": "ourkadai",
+    "title": "Ourkadai Technologies",
+    "description": "OurKadai Technologies is a consortium of highly dedicated and passionate professionals with a focus on open-source software development. We strive to contribute meaningfully to the technology and the community through superior quality software solutions.",
+    "orgType": "company",
+    "imageUrl": "https://ourkadai.com/images/logo.png"
+  },
+  {
+    "userHandle": "dell-corp",
+    "title": "DELL Corporation",
+    "description": "We are a diverse team with unique perspectives. United in our purpose, our strategy and our culture. Driven by our ambition and the power of technology to drive human progress. Unwavering in our commitment to equality, trust and advocacy for one another.",
+    "orgType": "company",
+    "imageUrl": "https://i.dell.com/images/global/brand/ui/logo-wt-bl.png"
+  },
+  {
+    "userHandle": "srkv",
+    "title": "Ramakrishna Mission Vidyalaya",
+    "description": "Ramakrishna Mission Vidyalaya, Coimbatore. (A Branch of Ramakrishna Math and Ramakrishna Mission, Belur Math, Howrah, West Bengal). Located at about 19 kms from the Coimbatore city on the highway to Ooty, the Vidyalaya is situated in a serene environment spread over nearly 300 acres.",
+    "orgType": "school",
+    "imageUrl": "https://srkv.org/wp-content/uploads/2019/11/cropped-logo4.png"
+  },
+  {
+    "userHandle": "usis",
+    "title": "uSiS Technologies",
+    "description": "uSiS Technologies is a global IT consultancy & solutions provider based out of Coimbatore in the state of Tamil Nadu, India. Aligned to the clients’ requirements, our smart solutions are engineered to implement and expedite their digital communications and transactions with precision.",
+    "orgType": "company",
+    "imageUrl": "https://media.licdn.com/dms/image/C510BAQHaHUV0ZPCZlQ/company-logo_200_200/0/1631386461711?e=1707955200&v=beta&t=i-k1_pl-wds4RtR2snfu_JFF9bod6AlqNIw3Awq2W-Q"
+  },
+  {
+    "userHandle": "psg-arts",
+    "title": "PSG College of Arts & Science",
+    "description": "PSG College of Arts & Science was founded in the year 1947 before independence by the PSG & Sons’ Charities Trust with a mission to set education on a noble perch accessible to all in pursuit of knowledge and world class education. The founders envisioned charity through education and crested this zealous thought as the reason for having set up a premier grade institution, which still remains as an untarnished thought through the lineage of successors to this college. ",
+    "orgType": "school",
+    "imageUrl": "https://www.psgcas.ac.in/images/logo.png"
+  },
+  {
+    "userHandle": "fico",
+    "title": "FICO Corp",
+    "description": "FICO, originally Fair, Isaac and Company, is a data analytics company based in Bozeman, Montana, focused on credit scoring services. It was founded by Bill Fair and Earl Isaac in 1956. Its FICO score, a measure of consumer credit risk, has become a fixture of consumer lending in the United States",
+    "orgType": "company",
+    "imageUrl": "https://www.fico.com/themes/custom/fico_general/assets/icons/fico-logo-blue.svg"
+  }
+]

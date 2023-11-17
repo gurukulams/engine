@@ -1,5 +1,6 @@
 package com.techatpark.workout.starter.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.GurukulamsManager;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.OrgService;
@@ -8,6 +9,7 @@ import com.gurukulams.core.service.TagService;
 import com.gurukulams.notebook.service.AnnotationService;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.gurukulams.core.service.LearnerService;
+import com.techatpark.workout.component.OrgLoader;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -115,4 +117,16 @@ public class GurukulamsConfig {
         return new AnnotationService();
     }
 
+    /**
+     * OrgLoader.
+     * @param objectMapper
+     * @param orgService
+     * @return orgLoader
+     */
+    @Bean
+    OrgLoader orgLoader(
+                        final ObjectMapper objectMapper,
+                        final OrgService orgService) {
+        return new OrgLoader(orgService, objectMapper);
+    }
 }
