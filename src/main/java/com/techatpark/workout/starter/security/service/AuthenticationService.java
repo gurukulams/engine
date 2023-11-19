@@ -382,10 +382,10 @@ public class AuthenticationService {
 
         if (userPrincipal.isRegistered()) {
             return new AuthenticationResponse(userName,
+                    userPrincipal.getDisplayName(),
                     authToken,
                     appProperties.getAuth().getTokenExpirationMsec(),
                     this.generateRefreshToken(authToken),
-                    null,
                     userPrincipal.getProfilePicture(),
                     this.appProperties.getFeature()
                         .entrySet()
@@ -396,11 +396,7 @@ public class AuthenticationService {
         }
 
         return new AuthenticationResponse(userName,
-                null,
-                null,
-                null,
                 generateToken(userName),
-                userPrincipal.getProfilePicture(),
-                null);
+                userPrincipal.getProfilePicture());
     }
 }

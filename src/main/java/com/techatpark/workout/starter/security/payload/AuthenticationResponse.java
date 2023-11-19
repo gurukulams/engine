@@ -13,6 +13,12 @@ public final class AuthenticationResponse {
      * declares variable userName.
      */
     private final String userName;
+
+    /**
+     * declares variable displayName.
+     */
+    private final String displayName;
+
     /**
      * declares variable authToken.
      */
@@ -44,33 +50,61 @@ public final class AuthenticationResponse {
     private final List<String> features;
 
     /**
-     * initializes the value for authToken,refresh_token,profile_pic.
+     * initializes the value for registered user.
      *
      * @param anUserName      the an user name
+     * @param theDisplayName the Display Name
      * @param anAuthToken     the an auth token
      * @param anExpiresIn       the anExpiresIn
      * @param aRefreshToken   the a refresh token
-     * @param aRegistrationToken the a registration token
      * @param aProfilePicture the a profile picture
      * @param theFeatures the features of the user
      */
     @JsonCreator
     public AuthenticationResponse(
             @JsonProperty("userName") final String anUserName,
+            @JsonProperty("displayName") final String theDisplayName,
             @JsonProperty("authToken") final String anAuthToken,
             @JsonProperty("expires_in") final Long anExpiresIn,
             @JsonProperty("refresh_token") final String aRefreshToken,
-            @JsonProperty("registration_token") final String aRegistrationToken,
             @JsonProperty("profile_pic") final String aProfilePicture,
             @JsonProperty("features")  final List<String> theFeatures) {
         this.userName = anUserName;
+        this.displayName = theDisplayName;
         this.authToken = anAuthToken;
         this.expiresIn = anExpiresIn;
         this.refreshToken = aRefreshToken;
-        this.registrationToken = aRegistrationToken;
         this.profilePicture = aProfilePicture;
         this.features = theFeatures;
+
+        this.registrationToken = null;
     }
+
+    /**
+     * initializes the value for non registered user.
+     *
+     * @param anUserName      the an user name
+     * @param aRegistrationToken aRegistrationToken
+     * @param aProfilePicture the a profile picture
+     */
+    @JsonCreator
+    public AuthenticationResponse(
+            @JsonProperty("userName") final String anUserName,
+            @JsonProperty("registration_token") final String aRegistrationToken,
+            @JsonProperty("profile_pic") final String aProfilePicture) {
+        this.userName = anUserName;
+        this.registrationToken = aRegistrationToken;
+        this.profilePicture = aProfilePicture;
+
+        this.displayName = null;
+        this.authToken = null;
+        this.expiresIn = null;
+        this.refreshToken = null;
+        this.features = null;
+
+
+    }
+
     /**
      * gets the value for expiresIn.
      *
@@ -123,6 +157,15 @@ public final class AuthenticationResponse {
      */
     public String getUserName() {
         return userName;
+    }
+
+    /**
+     * gets the value for display Name.
+     *
+     * @return displayName
+     */
+    public String getDisplayName() {
+        return displayName;
     }
 
     /**

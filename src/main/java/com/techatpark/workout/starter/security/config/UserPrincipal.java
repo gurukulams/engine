@@ -27,6 +27,10 @@ public class UserPrincipal implements OAuth2User, UserDetails {
      */
     private String password;
 
+    /**
+     * declares variable displayName.
+     */
+    private String displayName;
 
     /**
      * declares variable profilePicture.
@@ -51,12 +55,14 @@ public class UserPrincipal implements OAuth2User, UserDetails {
      * Instantiates a new User principal.
      *
      * @param theName        the name
+     * @param theDisplayName the Display Name
      * @param thePassword    the password
      * @param theProfilePicture
      * @param registered
      * @param theAuthorities the authorities
      */
     public UserPrincipal(final String theName,
+                         final String theDisplayName,
                          final String thePassword,
                          final String theProfilePicture,
                          final boolean registered,
@@ -64,6 +70,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                                  theAuthorities) {
 
         this.name = theName;
+        this.displayName = theDisplayName;
         this.password = thePassword;
         this.profilePicture = theProfilePicture;
         this.isRegistered = registered;
@@ -82,13 +89,21 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         final List<GrantedAuthority> authorities = Collections.
                 singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
-        return new UserPrincipal(
+        return profile.map(learnerProfile -> new UserPrincipal(
                 user.userHandle(),
+                learnerProfile.getName(),
                 user.password(),
                 user.imageUrl(),
-                profile.isPresent(),
+                true,
                 authorities
-        );
+        )).orElseGet(() -> new UserPrincipal(
+                user.userHandle(),
+                null,
+                user.password(),
+                user.imageUrl(),
+                false,
+                authorities
+        ));
     }
 
     /**
@@ -222,4 +237,14 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public String getName() {
         return name;
     }
+
+    /**
+     * gets the value for display Name.
+     *
+     * @return displayName
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
 }
