@@ -1,7 +1,5 @@
 package com.techatpark.workout.starter.security.payload;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -17,12 +15,12 @@ import java.util.List;
  * @param features the features of the user
  */
 public record AuthenticationResponse(
-            @JsonProperty("userName")  String userName,
-            @JsonProperty("displayName")  String displayName,
-            @JsonProperty("authToken")  String authToken,
-            @JsonProperty("expires_in")  Long expiresIn,
-            @JsonProperty("refresh_token")  String refreshToken,
-            @JsonProperty("registration_token")  String registrationToken,
-            @JsonProperty("profile_pic")  String profilePicture,
-            @JsonProperty("features")   List<String> features) {
+            String userName,
+            String displayName,
+            String authToken,
+            Long expiresIn,
+            String refreshToken,
+            String registrationToken,
+            String profilePicture,
+            List<String> features) {
 }
