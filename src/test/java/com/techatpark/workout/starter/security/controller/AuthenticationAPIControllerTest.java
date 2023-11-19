@@ -94,15 +94,15 @@ class AuthenticationAPIControllerTest {
 
         getMe(authenticationResponse).isEqualTo(HttpStatus.OK.value());
 
-        refresh(authenticationResponse.getAuthToken(),
-                authenticationResponse.getRefreshToken()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        refresh(authenticationResponse.authToken(),
+                authenticationResponse.refreshToken()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
         // Wait for Token Expiry
         TimeUnit.MILLISECONDS.sleep(appProperties.getAuth().getTokenExpirationMsec());
 
         AuthenticationResponse refreshedResponse = refresh(
-                authenticationResponse.getAuthToken(),
-                authenticationResponse.getRefreshToken())
+                authenticationResponse.authToken(),
+                authenticationResponse.refreshToken())
                 .isEqualTo(HttpStatus.OK.value())
                 .expectBody(AuthenticationResponse.class)
                 .returnResult().getResponseBody();
@@ -133,8 +133,8 @@ class AuthenticationAPIControllerTest {
 
         AuthenticationResponse anotherAuth = login(authenticationRequest);
 
-        refresh(anotherAuth.getAuthToken(),
-                originalAuth.getRefreshToken()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        refresh(anotherAuth.authToken(),
+                originalAuth.refreshToken()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 
     }
 
@@ -210,7 +210,7 @@ class AuthenticationAPIControllerTest {
                 .uri("/api/auth/register")
                 .body(Mono.just(registrationRequest), RegistrationRequest.class)
                 .header("Authorization",
-                        "Bearer " + authenticationResponse.getRegistrationToken())
+                        "Bearer " + authenticationResponse.registrationToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
@@ -239,7 +239,7 @@ class AuthenticationAPIControllerTest {
                 .body(Mono.just(authenticationRequest),
                         AuthenticationRequest.class)
                 .header("Authorization",
-                        "Bearer " + authenticationResponse.getAuthToken())
+                        "Bearer " + authenticationResponse.authToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus();
@@ -250,7 +250,7 @@ class AuthenticationAPIControllerTest {
                 .get()
                 .uri("/api/auth/me")
                 .header("Authorization",
-                        "Bearer " + authenticationResponse.getAuthToken())
+                        "Bearer " + authenticationResponse.authToken())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus();

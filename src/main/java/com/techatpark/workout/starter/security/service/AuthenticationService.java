@@ -386,6 +386,7 @@ public class AuthenticationService {
                     authToken,
                     appProperties.getAuth().getTokenExpirationMsec(),
                     this.generateRefreshToken(authToken),
+                    null,
                     userPrincipal.getProfilePicture(),
                     this.appProperties.getFeature()
                         .entrySet()
@@ -396,7 +397,12 @@ public class AuthenticationService {
         }
 
         return new AuthenticationResponse(userName,
+                null,
+                null,
+                null,
+                null,
                 generateToken(userName),
-                userPrincipal.getProfilePicture());
+                userPrincipal.getProfilePicture(),
+                null);
     }
 }
