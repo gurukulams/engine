@@ -61,5 +61,12 @@
     "description": "At iamneo, our pivotal focus is to solve business bottlenecks rather than committing you to off-the-shelf products. Foreseeing the dynamic business requirements and rapid technology transitions in the future, it’s evident there isn’t a one-size-fits-all product you can bank on.",
     "orgType": "institute",
     "imageUrl": "https://iamneo.ai/wp-content/uploads/2023/05/iamneo.svg"
+  },
+  {
+    "userHandle": "amrita",
+    "title": "Amrita Vishwa Vidyapeetham",
+    "description": "Amrita Vishwa Vidyapeetham is a multi-disciplinary, research-intensive, private university, educating a vibrant student population of over 24,000 by 1700+ strong faculty.",
+    "orgType": "college",
+    "imageUrl": "https://yt3.googleusercontent.com/ytc/APkrFKbHTcu0i2-htbzClUzFKc2LvwFOWzRDU9t2MnbUcw=s176-c-k-c0x00ffffff-no-rj"
   }
 ]

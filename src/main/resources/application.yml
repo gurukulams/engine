@@ -1,7 +1,5 @@
 app:
   feature:
-    MANAGE_ORG:
-      - tom
     MANAGE_QUESTION:
       - jerry
   auth:

@@ -52,7 +52,7 @@ public class OrgLoader {
      * Loads Orgs.
      */
     public void load() throws IOException, SQLException {
-        orgService.delete();
+//        orgService.delete();
         InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("orgs.json");
         BufferedReader reader
@@ -61,12 +61,14 @@ public class OrgLoader {
                 new TypeReference<List<Org>>() { });
 
         for (Org org : orgs) {
-            orgService.create(USER_NAME, null, org);
+            org.setUserHandle("org-" + org.getUserHandle());
+            if (orgService.read(USER_NAME, org.getUserHandle(), null)
+                    .isEmpty()) {
+                orgService.create(USER_NAME, null, org);
+            } else {
+                orgService.update(org.getUserHandle(),
+                        USER_NAME, null, org);
+            }
         }
     }
-
-
-
-
-
 }
