@@ -61,11 +61,12 @@ public class OrgLoader {
                 new TypeReference<List<Org>>() { });
 
         for (Org org : orgs) {
-            org.setUserHandle("org-" + org.getUserHandle());
-            if (orgService.read(USER_NAME, org.getUserHandle(), null)
+
+            if (orgService.read(USER_NAME, "org-" + org.getUserHandle(), null)
                     .isEmpty()) {
                 orgService.create(USER_NAME, null, org);
             } else {
+                org.setUserHandle("org-" + org.getUserHandle());
                 orgService.update(org.getUserHandle(),
                         USER_NAME, null, org);
             }
