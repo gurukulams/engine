@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 21
       - name: Build
-        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B clean jacoco:prepare-agent install jacoco:report --file pom.xml
+        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B jacoco:prepare-agent install jacoco:report --file pom.xml
         env:
           USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
           ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
