@@ -38,12 +38,12 @@
 		<crac.version>1.4.0</crac.version>
 	</properties>
 	<dependencies>
-		<!-- https://github.com/spring-projects/spring-boot/issues/38186 -->
-		<dependency>
-			<groupId>org.crac</groupId>
-			<artifactId>crac</artifactId>
-			<version>${crac.version}</version>
-		</dependency>
+<!--		&lt;!&ndash; https://github.com/spring-projects/spring-boot/issues/38186 &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.crac</groupId>-->
+<!--			<artifactId>crac</artifactId>-->
+<!--			<version>${crac.version}</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
