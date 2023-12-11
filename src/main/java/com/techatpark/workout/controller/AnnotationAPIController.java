@@ -156,7 +156,7 @@ class AnnotationAPIController {
             throws SQLException, IOException {
         final Optional<Annotation> updatednote = annotationService.update(
                 principal.getName(),
-                id, onType, onInstance, locale, annotation);
+                "#" + id, onType, onInstance, locale, annotation);
         return updatednote == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatednote);
     }
