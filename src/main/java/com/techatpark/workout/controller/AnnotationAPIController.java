@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/annotations/{onType}")
@@ -79,10 +78,10 @@ class AnnotationAPIController {
             throws SQLException, IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 annotationService.create(principal.getName(),
+                        onType,
                         onInstance,
                         annotation,
-                        locale,
-                        onType
+                        locale
                 ));
     }
 
@@ -128,6 +127,7 @@ class AnnotationAPIController {
      * @param id         the id
      * @param annotation the annotation
      * @param onType
+     * @param onInstance
      * @param locale
      * @return the response entity
      */
@@ -143,19 +143,20 @@ class AnnotationAPIController {
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
                     description = "note not found")})
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/{*onInstance}")
     public final ResponseEntity<Optional<Annotation>> update(
             final Principal principal,
             final @PathVariable String onType,
+            final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
-            final @PathVariable UUID id,
+            final @PathVariable String id,
             final @RequestBody Annotation annotation)
             throws SQLException, IOException {
         final Optional<Annotation> updatednote = annotationService.update(
                 principal.getName(),
-                id, locale, annotation);
+                id, onType, onInstance, locale, annotation);
         return updatednote == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatednote);
     }
@@ -183,7 +184,7 @@ class AnnotationAPIController {
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
-            final @PathVariable UUID id)
+            final @PathVariable String id)
             throws SQLException, IOException {
         return annotationService.delete(
                 principal.getName(), id, locale)
