@@ -177,17 +177,19 @@ class AnnotationAPIController {
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
                     description = "note not found")})
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/{*onInstance}")
     public final ResponseEntity<Void> delete(
             final Principal principal,
             final @PathVariable String onType,
+            final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale,
             final @PathVariable String id)
             throws SQLException, IOException {
         return annotationService.delete(
-                principal.getName(), id, locale)
+                principal.getName(), "#" + id,
+                onType, onInstance, locale)
                 ?
                 ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();
