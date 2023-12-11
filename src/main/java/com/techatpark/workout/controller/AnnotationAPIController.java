@@ -166,6 +166,7 @@ class AnnotationAPIController {
      * @param principal
      * @param id     the id
      * @param onType
+     * @param onInstance
      * @param locale
      * @return the response entity
      */
