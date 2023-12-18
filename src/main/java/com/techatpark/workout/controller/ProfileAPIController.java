@@ -68,7 +68,33 @@ class ProfileAPIController {
         return ResponseEntity.of(profileService.read(
                 id));
     }
-
+    /**
+     * List the Org.
+     *
+     * @param principal
+     * @param locale
+     * @return list of org
+     */
+    @Operation(summary = "lists the org of an user",
+            description = " Can be invoked by auth users only",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+            description = "Listing the org"),
+            @ApiResponse(responseCode = "204",
+                    description = "org are not available"),
+            @ApiResponse(responseCode = "401",
+                    description = "invalid credentials")})
+    @GetMapping(produces = "application/json")
+    public final ResponseEntity<List<Profile>> list(final Principal
+                                                        principal,
+                @RequestHeader(name = "Accept-Language",
+                        required = false) final Locale locale)
+            throws SQLException {
+        final List<Profile> profiles = profileService.list(
+                principal.getName(), locale);
+        return profiles.isEmpty() ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(profiles);
+    }
     @Operation(summary = "Get the Profile with given id",
             security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {@ApiResponse(responseCode = "200",
