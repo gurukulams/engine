@@ -91,6 +91,7 @@ class AnnotationAPIController {
      * @param principal  the principal
      * @param onType     the book name
      * @param onInstance the annotation
+     * @param buddy
      * @param locale
      * @return the response entity
      */
@@ -112,11 +113,16 @@ class AnnotationAPIController {
             final @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
+                    name = "X-Forwarded-For",
+                    required = false)
+            final String buddy,
+            @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale)
             throws SQLException, IOException {
         return ResponseEntity.status(HttpStatus.OK).body(
-                annotationService.list(principal.getName(), locale,
+                annotationService.list(buddy == null
+                                ? principal.getName() : buddy, locale,
                         onType,
                         onInstance));
     }
