@@ -128,11 +128,12 @@ class AnnotationAPIController {
                     name = "Accept-Language",
                     required = false) final Locale locale)
             throws SQLException, IOException {
-        logger.info("Listing Annotations for type {} at {}",
-                onType, onInstance);
+        String notesOfUser = buddy == null
+                ? principal.getName() : buddy;
+        logger.info("Listing Annotations for type {} at {} for the user {}",
+                onType, onInstance, notesOfUser);
         return ResponseEntity.status(HttpStatus.OK).body(
-                annotationService.list(buddy == null
-                                ? principal.getName() : buddy, locale,
+                annotationService.list(notesOfUser, locale,
                         onType,
                         onInstance));
     }
