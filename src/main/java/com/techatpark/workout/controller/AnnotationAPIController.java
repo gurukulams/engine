@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +33,11 @@ import java.util.Optional;
 @RequestMapping("/api/annotations/{onType}")
 @Tag(name = "Annotation", description = "Resource to manage Annotation")
 class AnnotationAPIController {
-
+    /**
+     * Logger.
+     */
+    private final Logger logger =
+            LoggerFactory.getLogger(AnnotationAPIController.class);
     /**
      * declare a bookservice.
      */
@@ -76,6 +82,8 @@ class AnnotationAPIController {
                     required = false) final Locale locale,
             final @RequestBody Annotation annotation)
             throws SQLException, IOException {
+        logger.info("Create a new Annotation for type {} at {}",
+                onType, onInstance);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 annotationService.create(principal.getName(),
                         onType,
@@ -113,16 +121,19 @@ class AnnotationAPIController {
             final @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
-                    name = "X-Forwarded-For",
+                    name = "X-Buddy-For",
                     required = false)
             final String buddy,
             @RequestHeader(
                     name = "Accept-Language",
                     required = false) final Locale locale)
             throws SQLException, IOException {
+        String notesOfUser = buddy == null
+                ? principal.getName() : buddy;
+        logger.info("Listing Annotations for type {} at {} for the user {}",
+                onType, onInstance, notesOfUser);
         return ResponseEntity.status(HttpStatus.OK).body(
-                annotationService.list(buddy == null
-                                ? principal.getName() : buddy, locale,
+                annotationService.list(notesOfUser, locale,
                         onType,
                         onInstance));
     }
