@@ -121,7 +121,7 @@ class AnnotationAPIController {
             final @PathVariable String onType,
             final @NotBlank @PathVariable String onInstance,
             @RequestHeader(
-                    name = "X-Forwarded-For",
+                    name = "X-Buddy-For",
                     required = false)
             final String buddy,
             @RequestHeader(
