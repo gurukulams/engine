@@ -23,7 +23,7 @@ import java.sql.SQLException;
 @RequestMapping("/api/payments")
 @Tag(name = "Payments",
         description = "Resource to manage Payments")
-public class PaymentAPIController {
+class PaymentAPIController {
 
     /**
      * Create response entity.
