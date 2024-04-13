@@ -47,5 +47,4 @@ jobs:
         host: ${{ secrets.GURUKULAMS_HOST }}
         username: ${{ secrets.GURUKULAMS_USER }}
         key: ${{ secrets.GURUKULAMS_KEY }}
-        target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
-        script: sh deploy.sh
+        script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
