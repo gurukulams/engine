@@ -8,7 +8,7 @@ public class HomeAPIController {
 
     @GetMapping("/api")
     public String index() {
-        return "Greetings 2!";
+        return "Greetings !";
     }
 
 }
