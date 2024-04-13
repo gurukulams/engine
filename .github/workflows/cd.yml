@@ -47,7 +47,4 @@ jobs:
         host: ${{ secrets.GURUKULAMS_HOST }}
         username: ${{ secrets.GURUKULAMS_USER }}
         key: ${{ secrets.GURUKULAMS_KEY }}
-        script: |
-          cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} 
-          pkill -9 -f engine || true
-          nohup ${{ secrets.GURUKULAMS_PLATFORM_DIR }}/jre/bin/java -jar engine-*.jar 2>/dev/null &
+        script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && pkill -9 -f engine || true && nohup ${{ secrets.GURUKULAMS_PLATFORM_DIR }}/jre/bin/java -jar engine-*.jar 2>/dev/null &
