@@ -27,7 +27,7 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-        
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
@@ -40,3 +40,13 @@ jobs:
         target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
         source: "target/*.jar"
         strip_components: 1
+
+    - name: Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.GURUKULAMS_HOST }}
+        username: ${{ secrets.GURUKULAMS_USER }}
+        key: ${{ secrets.GURUKULAMS_KEY }}
+        target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
+        script:
+          pkill -9 -f engine || true && nohup /home/opc/platform/jre/bin/java -jar engine-*.jar &
