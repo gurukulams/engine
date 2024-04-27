@@ -5,7 +5,7 @@
 	<name>Workout engine</name>
 	<description>Workout engine</description>
 	<groupId>com.techatpark.workout</groupId>
-	<artifactId>demo</artifactId>
+	<artifactId>engine</artifactId>
 	<version>${gurukulams-core.version}</version>
 
 	<parent>
