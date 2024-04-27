@@ -81,7 +81,7 @@ public class QuestionsLoader {
             questionService.delete();
             createAllCategory(USER_NAME);
             File questionsFolder = new File(seedFolder, "questions");
-
+            questionsFolder.mkdirs();
             for (Path path:Files.find(Path.of(questionsFolder.getPath()),
                                     Integer.MAX_VALUE,
                                     (filePath, fileAttr)
