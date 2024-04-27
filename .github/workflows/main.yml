@@ -19,7 +19,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 21
-          
+
       - name: Build
         run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B jacoco:prepare-agent install jacoco:report --file pom.xml
         env:
@@ -35,3 +35,11 @@ jobs:
           target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
           source: "target/*.jar"
           strip_components: 1
+
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GURUKULAMS_HOST }}
+          username: ${{ secrets.GURUKULAMS_USER }}
+          key: ${{ secrets.GURUKULAMS_KEY }}
+          script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
