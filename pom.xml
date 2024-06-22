@@ -38,12 +38,7 @@
 		<crac.version>1.4.0</crac.version>
 	</properties>
 	<dependencies>
-<!--		&lt;!&ndash; https://github.com/spring-projects/spring-boot/issues/38186 &ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>org.crac</groupId>-->
-<!--			<artifactId>crac</artifactId>-->
-<!--			<version>${crac.version}</version>-->
-<!--		</dependency>-->
+
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -244,26 +239,7 @@
 				</executions>
 			</plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<compilerArgs>--enable-preview</compilerArgs>
-				</configuration>
-			</plugin>
 
-<!--			<plugin>-->
-<!--				<groupId>org.owasp</groupId>-->
-<!--				<artifactId>dependency-check-maven</artifactId>-->
-<!--				<version>${owasp-dependency-check-maven.version}</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<goals>-->
-<!--							<goal>check</goal>-->
-<!--						</goals>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
 
 		</plugins>
 	</build>
