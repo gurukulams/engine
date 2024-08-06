@@ -36,6 +36,7 @@
 		<gurukulams-core.version>0.0.1-SNAPSHOT</gurukulams-core.version>
 		<archunit.version>1.1.0</archunit.version>
 		<crac.version>1.4.0</crac.version>
+		<maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
 	</properties>
 	<dependencies>
 
@@ -239,7 +240,30 @@
 				</executions>
 			</plugin>
 
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>${maven-enforcer-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>enforce-dont-exist</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireFilesDontExist>
+									<message>Pleas check if you have any older dependencies.</message>
+									<files>
+										<file>${project.basedir}/pom.xml.versionsBackup</file>
+									</files>
+								</requireFilesDontExist>
+							</rules>
+							<fail>true</fail>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
 		</plugins>
 	</build>
