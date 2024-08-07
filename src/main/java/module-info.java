@@ -15,7 +15,6 @@ module gurukulams.engine {
     requires org.slf4j;
     requires spring.boot;
     requires spring.boot.autoconfigure;
-    requires org.apache.tomcat.embed.core;
     requires spring.security.web;
     requires oauth2.oidc.sdk;
     requires spring.security.oauth2.client;
@@ -28,8 +27,9 @@ module gurukulams.engine {
     requires org.apache.commons.lang3;
     requires org.apache.logging.log4j;
     requires com.h2database;
-    requires org.flywaydb.core;
     requires spring.webmvc;
+    requires tomcat.embed.core;
+    requires flyway.core;
 
     opens com.techatpark.workout;
     opens com.techatpark.workout.starter.config;
