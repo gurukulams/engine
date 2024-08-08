@@ -8,12 +8,13 @@ import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
+//import io.jsonwebtoken.*;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Validator;
@@ -28,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Base64;
@@ -191,7 +192,7 @@ public class AuthenticationService {
     }
 
 
-    private Key getSignInKey() {
+    private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(appProperties.getAuth()
                 .getTokenSecret());
         return Keys.hmacShaKeyFor(keyBytes);
@@ -219,10 +220,11 @@ public class AuthenticationService {
 
 
         try {
-            final Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getSignInKey())
+            final Claims claims = Jwts.parser()
+//                    parserBuilder()
+                    .verifyWith(getSignInKey())
                     .build()
-                    .parseClaimsJws(jwtToken)
+                    .parseSignedClaims(jwtToken)
                     .getBody();
             return claims.getSubject();
         } catch (final MalformedJwtException | UnsupportedJwtException
@@ -268,9 +270,9 @@ public class AuthenticationService {
      */
     private boolean isExpired(final String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSignInKey()).build()
-                    .parseClaimsJws(token);
+            Jwts.parser()
+                    .verifyWith(getSignInKey()).build()
+                    .parseSignedClaims(token);
         } catch (final MalformedJwtException | UnsupportedJwtException
                        | IllegalArgumentException ex) {
             throw new BadCredentialsException("Invalid Token", ex);

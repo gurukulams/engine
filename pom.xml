@@ -20,7 +20,7 @@
 
 		<!-- Version of Dependencies -->
 		<springdoc.version>2.6.0</springdoc.version>
-		<jsonwebtoken.version>0.11.5</jsonwebtoken.version>
+		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
 		<maven.checkstyle.version>3.4.0</maven.checkstyle.version>
 		<checkstyle.version>10.17.0</checkstyle.version>
 
@@ -43,13 +43,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>4.0.1</version>
-			<scope>compile</scope>
 		</dependency>
 
 
