@@ -253,7 +253,7 @@
 						<configuration>
 							<rules>
 								<requireFilesDontExist>
-									<message>Pleas check if you have any older dependencies.</message>
+									<message>please update the dependencies to the latest version.</message>
 									<files>
 										<file>${project.basedir}/pom.xml.versionsBackup</file>
 									</files>
