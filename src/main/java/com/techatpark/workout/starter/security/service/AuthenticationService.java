@@ -1,6 +1,6 @@
 package com.techatpark.workout.starter.security.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.payload.RegistrationRequest;
 import com.gurukulams.core.service.LearnerProfileService;
@@ -8,13 +8,6 @@ import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
-//import io.jsonwebtoken.*;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
@@ -29,14 +22,12 @@ import org.springframework.validation.annotation.Validated;
 
 import java.security.Principal;
 import java.sql.SQLException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.techatpark.workout.starter.security.util.JWTGenerator.getSignInKey;
-
+import static com.techatpark.workout.starter.security.util.JWTGenerator.getUserNameFromToken;
+import static com.techatpark.workout.starter.security.util.JWTGenerator.getJWTCompact;
+import static com.techatpark.workout.starter.security.util.JWTGenerator.isExpired;
 /**
  * The type Token provider.
  */
@@ -114,7 +105,9 @@ public class AuthenticationService {
                             final String requestURI,
                             final String jwt) {
         final String userName =
-                getUserNameFromToken(requestURI, jwt);
+                getUserNameFromToken(requestURI, jwt,
+                        appProperties.getAuth().getTokenSecret(),
+                        authCache, this.objectMapper);
         final UserDetails userDetails =
                 userDetailsService.loadUserByUsername(userName);
         return new UsernamePasswordAuthenticationToken(
@@ -173,112 +166,10 @@ public class AuthenticationService {
     private String generateToken(final String userName) {
         String token = UUID.randomUUID().toString();
         this.authCache.put(token, getJWTCompact(userName,
-                appProperties.getAuth().getTokenExpirationMsec()));
+                appProperties.getAuth().getTokenExpirationMsec(),
+                appProperties.getAuth().getTokenSecret()));
         return token;
 
-    }
-
-    private String getJWTCompact(final String userName,
-                                 final long expiration) {
-        long now = System.currentTimeMillis();
-        return Jwts.builder()
-                .setClaims(new HashMap<>())
-                .setSubject(userName)
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now
-                        + expiration))
-                .signWith(getSignInKey(appProperties.getAuth()
-                                .getTokenSecret()),
-                        SignatureAlgorithm.HS256).compact();
-    }
-
-
-
-    /**
-     * gg.
-     *
-     * @param token the token
-     * @param requestURI
-     * @return token. user name from token
-     */
-    public String getUserNameFromToken(final String requestURI,
-                                       final String token) {
-
-
-        Cache.ValueWrapper valueWrapper = authCache.get(token);
-
-        if (valueWrapper == null) {
-            throw new BadCredentialsException("Invalid Token");
-        }
-
-        String jwtToken = valueWrapper.get().toString();
-
-
-
-        try {
-            final Claims claims = Jwts.parser()
-//                    parserBuilder()
-                    .verifyWith(getSignInKey(appProperties
-                            .getAuth().getTokenSecret()))
-                    .build()
-                    .parseSignedClaims(jwtToken)
-                    .getBody();
-            return claims.getSubject();
-        } catch (final MalformedJwtException | UnsupportedJwtException
-                       | IllegalArgumentException ex) {
-            throw new BadCredentialsException("Invalid Token", ex);
-        } catch (final ExpiredJwtException ex) {
-            if (requestURI.equals("/api/auth/logout")
-                   || requestURI.equals("/api/auth/refresh")) {
-                return getUserNameFromExpiredToken(jwtToken);
-            } else {
-                throw new BadCredentialsException("Expired Token", ex);
-            }
-        }
-
-    }
-
-    /**
-     * Gets Username from Expired Token.
-     * @param token
-     * @return userName
-     */
-    public String getUserNameFromExpiredToken(final String token)  {
-
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-        // Splitting header, payload and signature
-        String[] parts = token.split("\\.");
-        // String headers = new String(decoder.decode(parts[0]));
-        String payload =
-                new String(decoder.decode(parts[1])); // Payload
-        String userName;
-        try {
-            userName = this.objectMapper.readTree(payload).get("sub").asText();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return userName;
-    }
-
-    /**
-     * ddd.
-     * @param token the auth token
-     * @return dd. boolean
-     */
-    private boolean isExpired(final String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getSignInKey(
-                            appProperties.getAuth().getTokenSecret()))
-                    .build()
-                    .parseSignedClaims(token);
-        } catch (final MalformedJwtException | UnsupportedJwtException
-                       | IllegalArgumentException ex) {
-            throw new BadCredentialsException("Invalid Token", ex);
-        } catch (final ExpiredJwtException ex) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -358,7 +249,8 @@ public class AuthenticationService {
                 throw new BadCredentialsException("Invalid Token");
             }
 
-            if (!isExpired(authTokenCache.get().toString())) {
+            if (!isExpired(authTokenCache.get().toString(),
+                    appProperties.getAuth().getTokenSecret())) {
                 throw new BadCredentialsException("Token is not Expired Yet");
             }
 
