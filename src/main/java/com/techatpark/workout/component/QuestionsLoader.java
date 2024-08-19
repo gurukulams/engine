@@ -143,7 +143,7 @@ public class QuestionsLoader {
 
         QuestionType questionType = null;
 
-        if(question.getMatches() != null)  {
+        if (question.getMatches() != null)  {
             questionType = QuestionType.MATCH_THE_FOLLOWING;
         } else {
             Stream<QuestionChoice> rightAnswers = question.getChoices()
