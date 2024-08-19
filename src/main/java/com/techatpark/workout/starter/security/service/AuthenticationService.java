@@ -8,8 +8,6 @@ import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
-import jakarta.validation.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -47,13 +45,6 @@ public class AuthenticationService {
      * Object Mapper.
      */
     private final ObjectMapper objectMapper;
-
-    /**
-     * Validator.
-     */
-    @Autowired
-    private Validator validator;
-
     /**
      * Cache to hold auth tokens.
      */
@@ -61,7 +52,7 @@ public class AuthenticationService {
     /***
      * hhh.
      */
-    private AppProperties appProperties;
+    private final AppProperties appProperties;
 
     /**
      * UserDetailsService.
