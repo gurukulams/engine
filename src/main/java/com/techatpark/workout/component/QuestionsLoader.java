@@ -141,16 +141,22 @@ public class QuestionsLoader {
 
         tokens.remove(tokens.size() - 1);
 
+        QuestionType questionType = null;
 
-        Stream<QuestionChoice> rightAnswers = question.getChoices()
-                .stream()
-                .filter(choice
-                        -> choice.getIsAnswer() != null
-                        && choice.getIsAnswer());
+        if(question.getMatches() != null)  {
+            questionType = QuestionType.MATCH_THE_FOLLOWING;
+        } else {
+            Stream<QuestionChoice> rightAnswers = question.getChoices()
+                    .stream()
+                    .filter(choice
+                            -> choice.getIsAnswer() != null
+                            && choice.getIsAnswer());
 
-        QuestionType questionType = rightAnswers.count() == 1
-                ? QuestionType.CHOOSE_THE_BEST
-                : QuestionType.MULTI_CHOICE;
+            questionType = rightAnswers.count() == 1
+                    ? QuestionType.CHOOSE_THE_BEST
+                    : QuestionType.MULTI_CHOICE;
+        }
+
 
         Question createdQuestion = questionService.create(tokens,
                 null,
