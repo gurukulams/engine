@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -55,13 +54,13 @@ public final class JWTGenerator {
                                  final String tokenSecret) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
-                .setClaims(new HashMap<>())
-                .setSubject(userName)
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now
+                .claims(new HashMap<>())
+                .subject(userName)
+                .issuedAt(new Date(now))
+                .expiration(new Date(now
                         + expiration))
                 .signWith(getSignInKey(tokenSecret),
-                        SignatureAlgorithm.HS256).compact();
+                        Jwts.SIG.HS256).compact();
     }
 
     /**
@@ -91,11 +90,10 @@ public final class JWTGenerator {
 
         try {
             final Claims claims = Jwts.parser()
-//                    parserBuilder()
                     .verifyWith(getSignInKey(tokenSecret))
                     .build()
                     .parseSignedClaims(jwtToken)
-                    .getBody();
+                    .getPayload();
             return claims.getSubject();
         } catch (final MalformedJwtException | UnsupportedJwtException
                        | IllegalArgumentException ex) {

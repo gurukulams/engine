@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.List;
@@ -309,7 +308,8 @@ class EventAPIController {
                                            final Principal principal)
             throws SQLException, URISyntaxException,
             MalformedURLException {
-        return eventService.start(principal.getName(), id, new URL(url))
+        return eventService.start(principal.getName(), id,
+                (new URI(url)).toURL())
                 ? ResponseEntity.created(new URI(url)).build()
                 : ResponseEntity.notFound().build();
     }
