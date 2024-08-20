@@ -80,16 +80,24 @@ public class AuthenticationService {
     /**
      * Gets Authentication.
      * @param requestURI
-     * @param jwt
+     * @param token
      * @return authentication
      */
     public UsernamePasswordAuthenticationToken getAuthentication(
                             final String requestURI,
-                            final String jwt) {
+                            final String token) {
+        Cache.ValueWrapper valueWrapper = authCache.get(token);
+
+        if (valueWrapper == null) {
+            throw new IllegalArgumentException("Invalid Token");
+        }
+
+        String jwtToken = valueWrapper.get().toString();
+
+
         final String userName =
-                getUserNameFromToken(requestURI, jwt,
-                        appProperties.getAuth().getTokenSecret(),
-                        authCache);
+                getUserNameFromToken(requestURI, jwtToken,
+                        appProperties.getAuth().getTokenSecret());
         final UserDetails userDetails =
                 userDetailsService.loadUserByUsername(userName);
         return new UsernamePasswordAuthenticationToken(

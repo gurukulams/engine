@@ -7,7 +7,6 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.cache.Cache;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -65,25 +64,15 @@ public final class JWTGenerator {
     /**
      * gg.
      *
-     * @param token the token
      * @param requestURI
+     * @param jwtToken
      * @param tokenSecret
-     * @param authCache
      * @return token. user name from token
      */
     public static String getUserNameFromToken(final String requestURI,
-                   final String token,
-                   final String tokenSecret,
-                   final Cache authCache) {
+                   final String jwtToken,
+                   final String tokenSecret) {
 
-
-        Cache.ValueWrapper valueWrapper = authCache.get(token);
-
-        if (valueWrapper == null) {
-            throw new IllegalArgumentException("Invalid Token");
-        }
-
-        String jwtToken = valueWrapper.get().toString();
 
 
 
