@@ -8,7 +8,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.cache.Cache;
-import org.springframework.security.authentication.BadCredentialsException;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -35,7 +34,7 @@ public final class JWTGenerator {
                     .parseSignedClaims(token);
         } catch (final MalformedJwtException | UnsupportedJwtException
                        | IllegalArgumentException ex) {
-            throw new BadCredentialsException("Invalid Token", ex);
+            throw ex;
         } catch (final ExpiredJwtException ex) {
             return true;
         }
@@ -81,7 +80,7 @@ public final class JWTGenerator {
         Cache.ValueWrapper valueWrapper = authCache.get(token);
 
         if (valueWrapper == null) {
-            throw new BadCredentialsException("Invalid Token");
+            throw new IllegalArgumentException("Invalid Token");
         }
 
         String jwtToken = valueWrapper.get().toString();
@@ -97,13 +96,13 @@ public final class JWTGenerator {
             return claims.getSubject();
         } catch (final MalformedJwtException | UnsupportedJwtException
                        | IllegalArgumentException ex) {
-            throw new BadCredentialsException("Invalid Token", ex);
+            throw ex;
         } catch (final ExpiredJwtException ex) {
             if (requestURI.equals("/api/auth/logout")
                     || requestURI.equals("/api/auth/refresh")) {
                 return ex.getClaims().getSubject();
             } else {
-                throw new BadCredentialsException("Expired Token", ex);
+                throw ex;
             }
         }
 
