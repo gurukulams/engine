@@ -1,7 +1,5 @@
 package com.techatpark.workout.starter.security.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -14,7 +12,6 @@ import org.springframework.cache.Cache;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -74,14 +71,12 @@ public final class JWTGenerator {
      * @param requestURI
      * @param tokenSecret
      * @param authCache
-     * @param objectMapper
      * @return token. user name from token
      */
     public static String getUserNameFromToken(final String requestURI,
                    final String token,
                    final String tokenSecret,
-                   final Cache authCache,
-                   final ObjectMapper objectMapper) {
+                   final Cache authCache) {
 
 
         Cache.ValueWrapper valueWrapper = authCache.get(token);
@@ -108,35 +103,12 @@ public final class JWTGenerator {
         } catch (final ExpiredJwtException ex) {
             if (requestURI.equals("/api/auth/logout")
                     || requestURI.equals("/api/auth/refresh")) {
-                return getUserNameFromExpiredToken(jwtToken, objectMapper);
+                return ex.getClaims().getSubject();
             } else {
                 throw new BadCredentialsException("Expired Token", ex);
             }
         }
 
-    }
-     /**
-     * Gets Username from Expired Token.
-     * @param token
-     * @param objectMapper
-     * @return userName
-     */
-    public static String getUserNameFromExpiredToken(final String token,
-                  final ObjectMapper objectMapper)  {
-
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-        // Splitting header, payload and signature
-        String[] parts = token.split("\\.");
-        // String headers = new String(decoder.decode(parts[0]));
-        String payload =
-                new String(decoder.decode(parts[1])); // Payload
-        String userName;
-        try {
-            userName = objectMapper.readTree(payload).get("sub").asText();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return userName;
     }
 
     /**

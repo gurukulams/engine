@@ -1,7 +1,5 @@
 package com.techatpark.workout.starter.security.service;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.payload.RegistrationRequest;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.techatpark.workout.starter.security.config.AppProperties;
@@ -42,10 +40,6 @@ public class AuthenticationService {
     private final CacheManager cacheManager;
 
     /**
-     * Object Mapper.
-     */
-    private final ObjectMapper objectMapper;
-    /**
      * Cache to hold auth tokens.
      */
     private final Cache authCache;
@@ -69,16 +63,13 @@ public class AuthenticationService {
      *
      * @param appPropertie           the app propertie
      * @param acacheManager
-     * @param aobjectMapper
      * @param auserDetailsService
      * @param alearnerProfileService
      */
     public AuthenticationService(final AppProperties appPropertie,
                      final CacheManager acacheManager,
-                     final ObjectMapper aobjectMapper,
                      final UserDetailsService auserDetailsService,
                      final LearnerProfileService alearnerProfileService) {
-        this.objectMapper = aobjectMapper;
         this.appProperties = appPropertie;
         this.cacheManager = acacheManager;
         this.userDetailsService = auserDetailsService;
@@ -98,7 +89,7 @@ public class AuthenticationService {
         final String userName =
                 getUserNameFromToken(requestURI, jwt,
                         appProperties.getAuth().getTokenSecret(),
-                        authCache, this.objectMapper);
+                        authCache);
         final UserDetails userDetails =
                 userDetailsService.loadUserByUsername(userName);
         return new UsernamePasswordAuthenticationToken(

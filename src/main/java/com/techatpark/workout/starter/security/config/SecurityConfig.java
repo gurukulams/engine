@@ -122,7 +122,7 @@ public class SecurityConfig {
 
         userDetailsService = auserDetailsService;
         authenticationService = new AuthenticationService(appProperties,
-                aCacheManager, objectMapper, userDetailsService,
+                aCacheManager, userDetailsService,
                 learnerProfileService);
 
 
