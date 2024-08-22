@@ -2,12 +2,10 @@ package com.techatpark.workout.starter.security.service;
 
 import com.gurukulams.core.payload.RegistrationRequest;
 import com.gurukulams.core.service.LearnerProfileService;
-import com.techatpark.workout.starter.security.config.AppProperties;
 import com.techatpark.workout.starter.security.config.UserPrincipal;
 import com.techatpark.workout.starter.security.payload.AuthenticationResponse;
 import com.techatpark.workout.starter.security.payload.RefreshToken;
 import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,18 +34,24 @@ public class AuthenticationService {
     private static final int VALUE = 7;
 
     /**
-     * Cache Manager.
+     * Cache to hold token Secret.
      */
-    private final CacheManager cacheManager;
+    private final String tokenSecret;
 
     /**
      * Cache to hold auth tokens.
      */
     private final Cache authCache;
-    /***
-     * hhh.
+
+    /**
+     * Cache to hold auth tokens.
      */
-    private final AppProperties appProperties;
+    private final long tokenExpirationMsec;
+
+    /**
+     * Features of the User.
+     */
+    private final Map<String, List<String>> features;
 
     /**
      * UserDetailsService.
@@ -60,20 +65,24 @@ public class AuthenticationService {
 
     /**
      * gg.
-     *
-     * @param appPropertie           the app propertie
-     * @param acacheManager
+     * @param aTokenSecret
+     * @param aTokenExpirationMsec
+     * @param theFeatures
+     * @param aAuthCache
      * @param auserDetailsService
      * @param alearnerProfileService
      */
-    public AuthenticationService(final AppProperties appPropertie,
-                     final CacheManager acacheManager,
+    public AuthenticationService(final String aTokenSecret,
+                     final long aTokenExpirationMsec,
+                     final Map<String, List<String>> theFeatures,
+                     final Cache aAuthCache,
                      final UserDetailsService auserDetailsService,
                      final LearnerProfileService alearnerProfileService) {
-        this.appProperties = appPropertie;
-        this.cacheManager = acacheManager;
+        this.tokenSecret = aTokenSecret;
+        this.tokenExpirationMsec = aTokenExpirationMsec;
+        this.features = theFeatures;
         this.userDetailsService = auserDetailsService;
-        this.authCache = cacheManager.getCache("Auth");
+        this.authCache = aAuthCache;
         this.learnerProfileService = alearnerProfileService;
     }
 
@@ -97,7 +106,7 @@ public class AuthenticationService {
 
         final String userName =
                 getUserNameFromToken(requestURI, jwtToken,
-                        appProperties.getAuth().getTokenSecret());
+                        tokenSecret);
         final UserDetails userDetails =
                 userDetailsService.loadUserByUsername(userName);
         return new UsernamePasswordAuthenticationToken(
@@ -156,8 +165,8 @@ public class AuthenticationService {
     private String generateToken(final String userName) {
         String token = UUID.randomUUID().toString();
         this.authCache.put(token, getJWTCompact(userName,
-                appProperties.getAuth().getTokenExpirationMsec(),
-                appProperties.getAuth().getTokenSecret()));
+                tokenExpirationMsec,
+                tokenSecret));
         return token;
 
     }
@@ -240,7 +249,7 @@ public class AuthenticationService {
             }
 
             if (!isExpired(authTokenCache.get().toString(),
-                    appProperties.getAuth().getTokenSecret())) {
+                    tokenSecret)) {
                 throw new BadCredentialsException("Token is not Expired Yet");
             }
 
@@ -267,11 +276,11 @@ public class AuthenticationService {
             return new AuthenticationResponse(userName,
                     userPrincipal.getDisplayName(),
                     authToken,
-                    appProperties.getAuth().getTokenExpirationMsec(),
+                    tokenExpirationMsec,
                     this.generateRefreshToken(authToken),
                     null,
                     userPrincipal.getProfilePicture(),
-                    this.appProperties.getFeature()
+                    this.features
                         .entrySet()
                         .stream()
                         .filter(entry -> entry.getValue().contains(userName))

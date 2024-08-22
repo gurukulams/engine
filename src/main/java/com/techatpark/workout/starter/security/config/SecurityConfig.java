@@ -121,8 +121,11 @@ public class SecurityConfig {
         this.learnerProfileService = alearnerProfileService;
 
         userDetailsService = auserDetailsService;
-        authenticationService = new AuthenticationService(appProperties,
-                aCacheManager, userDetailsService,
+        authenticationService = new AuthenticationService(
+                appProperties.getAuth().getTokenSecret(),
+                appProperties.getAuth().getTokenExpirationMsec(),
+                appProperties.getFeature(),
+                aCacheManager.getCache("Auth"), userDetailsService,
                 learnerProfileService);
 
 
