@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
 import java.security.Principal;
@@ -182,8 +181,8 @@ public class AuthenticationService {
 
 
     private String getBearer(final String authHeader) {
-        if (StringUtils.hasText(authHeader) && authHeader
-                .startsWith("Bearer ")) {
+        if (authHeader != null && !authHeader.isBlank()
+                && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(VALUE);
         }
         throw new BadCredentialsException("Invalid Token");

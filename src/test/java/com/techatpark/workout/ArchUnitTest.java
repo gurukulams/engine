@@ -48,6 +48,15 @@ public class ArchUnitTest {
                 .check(allClasses);
     }
 
+    @Test
+    public void serviceLayerIsolcation() {
+//        noClasses()
+//                .that().resideInAPackage("..service..")
+//                .should().dependOnClassesThat().belongToAnyOf(org.springframework.util.StringUtils.class);
+        noClasses().that().resideInAPackage("..service..")
+                .and().haveSimpleNameEndingWith("Service").should()
+                .dependOnClassesThat().resideInAPackage("..org.springframework.util..").check(allClasses);
+    }
 
     @Test
     public void controllersAreSecureByDesign() {
@@ -72,7 +81,6 @@ public class ArchUnitTest {
         layeredArchitecture()
                 .consideringAllDependencies()
                 .layer("Controller").definedBy("..controller..")
-                .layer("Service").definedBy("..service..")
                 .layer("Service").definedBy("..service..")
                 .layer("Util").definedBy("..util..")
                 .layer("Component").definedBy("..component..")

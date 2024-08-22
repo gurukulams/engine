@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -79,7 +78,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         final OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory
                 .getOAuth2UserInfo(oAuth2UserRequest.getClientRegistration()
                         .getRegistrationId(), oAuth2User.getAttributes());
-        if (!StringUtils.hasLength(oAuth2UserInfo.getEmail())) {
+        if (oAuth2UserInfo.getEmail() == null
+                || oAuth2UserInfo.getEmail().isBlank()) {
             throw new OAuth2AuthenticationProcessingException(
                     "Email not found from OAuth2 provider");
         }
