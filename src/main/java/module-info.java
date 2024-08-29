@@ -28,8 +28,8 @@ module gurukulams.engine {
     requires org.apache.logging.log4j;
     requires com.h2database;
     requires spring.webmvc;
-    requires tomcat.embed.core;
     requires flyway.core;
+    requires org.apache.tomcat.embed.core;
 
     opens com.techatpark.workout;
     opens com.techatpark.workout.starter.config;
