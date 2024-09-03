@@ -7,12 +7,18 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 
 public final class JWTGenerator {
+
+    /**
+     * value.
+     */
+    private static final int VALUE = 7;
 
     private JWTGenerator() {
     }
@@ -105,6 +111,19 @@ public final class JWTGenerator {
     private static SecretKey getSignInKey(final String tokenSecret) {
         byte[] keyBytes = Decoders.BASE64.decode(tokenSecret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * Gets Bearer token from Header.
+     * @param authHeader
+     * @return token
+     */
+    public static String getBearer(final String authHeader) {
+        if (authHeader != null && !authHeader.isBlank()
+                && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(VALUE);
+        }
+        throw new BadCredentialsException("Invalid Token");
     }
 
 }

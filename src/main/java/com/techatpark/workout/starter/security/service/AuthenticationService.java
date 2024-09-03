@@ -8,10 +8,8 @@ import com.techatpark.workout.starter.security.payload.RefreshToken;
 import org.springframework.cache.Cache;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.validation.annotation.Validated;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -19,18 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.techatpark.workout.starter.security.util.JWTGenerator.getUserNameFromToken;
-import static com.techatpark.workout.starter.security.util.JWTGenerator.getJWTCompact;
+import static com.techatpark.workout.starter.security.util.JWTGenerator.getBearer;
 import static com.techatpark.workout.starter.security.util.JWTGenerator.isExpired;
+import static com.techatpark.workout.starter.security.util.JWTGenerator.getJWTCompact;
+import static com.techatpark.workout.starter.security.util.JWTGenerator.getUserNameFromToken;
+
 /**
  * The type Token provider.
  */
 public class AuthenticationService {
-
-    /**
-     * value.
-     */
-    private static final int VALUE = 7;
 
     /**
      * Cache to hold token Secret.
@@ -55,12 +50,12 @@ public class AuthenticationService {
     /**
      * UserDetailsService.
      */
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     /**
      * LearnerProfileService.
      */
-    private LearnerProfileService learnerProfileService;
+    private final LearnerProfileService learnerProfileService;
 
     /**
      * gg.
@@ -117,12 +112,12 @@ public class AuthenticationService {
     /**
      * generate AuthenticationResponse.
      *
-     * @param authentication the authentication
+     * @param principal the principal
      * @return token string
      */
     public AuthenticationResponse getAuthenticationResponse(
-            final Authentication authentication) {
-        return getAuthenticationResponse(authentication.getName());
+            final Principal principal) {
+        return getAuthenticationResponse(principal.getName());
     }
     /**
      * generate AuthenticationResponse.
@@ -180,13 +175,7 @@ public class AuthenticationService {
     }
 
 
-    private String getBearer(final String authHeader) {
-        if (authHeader != null && !authHeader.isBlank()
-                && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(VALUE);
-        }
-        throw new BadCredentialsException("Invalid Token");
-    }
+
 
     /**
      * Generates Refresh Token.
@@ -206,7 +195,6 @@ public class AuthenticationService {
      * @param registrationRequest
      * @return authenticationResponse
      */
-    @Validated
     public AuthenticationResponse register(final String authHeader,
                               final Principal principal,
                               final RegistrationRequest registrationRequest)
