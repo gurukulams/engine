@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.3</version>
+		<version>3.3.4</version>
 		<relativePath/>
 	</parent>
 
@@ -22,7 +22,7 @@
 		<springdoc.version>2.6.0</springdoc.version>
 		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
 		<maven.checkstyle.version>3.5.0</maven.checkstyle.version>
-		<checkstyle.version>10.18.0</checkstyle.version>
+		<checkstyle.version>10.18.2</checkstyle.version>
 
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
