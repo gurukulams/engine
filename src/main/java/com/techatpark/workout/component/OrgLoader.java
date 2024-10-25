@@ -62,12 +62,12 @@ public class OrgLoader {
 
         for (Org org : orgs) {
 
-            if (orgService.read(USER_NAME, "org-" + org.getUserHandle(), null)
+            if (orgService.read(USER_NAME, "org-" + org.userHandle(), null)
                     .isEmpty()) {
                 orgService.create(USER_NAME, null, org);
             } else {
-                org.setUserHandle("org-" + org.getUserHandle());
-                orgService.update(org.getUserHandle(),
+                org = org.withUserHandle("org-" + org.userHandle());
+                orgService.update(org.userHandle(),
                         USER_NAME, null, org);
             }
         }

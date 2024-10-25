@@ -1,7 +1,7 @@
 package com.techatpark.workout.starter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurukulams.core.GurukulamsManager;
+import com.gurukulams.core.DataManager;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.OrgService;
 import com.gurukulams.core.service.ProfileService;
@@ -25,50 +25,50 @@ public class GurukulamsConfig {
      * @return orgService
      */
     @Bean
-    GurukulamsManager gurukulamsManager(final DataSource dataSource) {
-        return GurukulamsManager.getManager(dataSource);
+    DataManager dataManager(final DataSource dataSource) {
+        return DataManager.getManager(dataSource);
     }
 
     /**
      * learnerService.
-     * @param gurukulamsManager
+     * @param dataManager
      * @param validator
      * @return learnerService
      */
     @Bean
-    LearnerService learnerService(final GurukulamsManager gurukulamsManager,
+    LearnerService learnerService(final DataManager dataManager,
                                   final Validator validator) {
-        return new LearnerService(gurukulamsManager, validator);
+        return new LearnerService(dataManager, validator);
     }
 
     /**
      * learnerProfileService.
-     * @param gurukulamsManager
+     * @param dataManager
      * @param validator
      * @return learnerProfileService
      */
     @Bean
     LearnerProfileService learnerProfileService(
-            final GurukulamsManager gurukulamsManager,
+            final DataManager dataManager,
             final Validator validator) {
-        return new LearnerProfileService(gurukulamsManager,
+        return new LearnerProfileService(dataManager,
                 validator);
     }
 
     /**
      * Builds Profile Service.
-     * @param gurukulamsManager
+     * @param dataManager
      * @param learnerService
      * @param learnerProfileService
      * @param orgService
      * @return profileService
      */
     @Bean
-    ProfileService profileService(final GurukulamsManager gurukulamsManager,
+    ProfileService profileService(final DataManager dataManager,
                                   final LearnerService learnerService,
           final LearnerProfileService learnerProfileService,
           final OrgService orgService) {
-        return new ProfileService(gurukulamsManager,
+        return new ProfileService(dataManager,
                 learnerService,
                 learnerProfileService,
                 orgService);
@@ -76,36 +76,36 @@ public class GurukulamsConfig {
 
     /**
      * OrgService.
-     * @param gurukulamsManager
+     * @param dataManager
      * @return orgService
      */
     @Bean
     OrgService orgService(
-            final GurukulamsManager gurukulamsManager) {
-        return new OrgService(gurukulamsManager);
+            final DataManager dataManager) {
+        return new OrgService(dataManager);
     }
 
     /**
      * CategoryService.
-     * @param gurukulamsManager
+     * @param dataManager
      * @return categoryService
      */
     @Bean
     CategoryService categoryService(
-            final GurukulamsManager gurukulamsManager) {
-        return new CategoryService(gurukulamsManager);
+            final DataManager dataManager) {
+        return new CategoryService(dataManager);
     }
 
 
     /**
      * TagService.
-     * @param gurukulamsManager
+     * @param dataManager
      * @return tagService
      */
     @Bean
     TagService tagService(
-            final GurukulamsManager gurukulamsManager) {
-        return new TagService(gurukulamsManager);
+            final DataManager dataManager) {
+        return new TagService(dataManager);
     }
 
     /**
