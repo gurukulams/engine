@@ -107,9 +107,10 @@ public class QuestionsLoader {
                         if (!categoriesFolder.equals(questionsFolder)) {
                             String categoryName = categoriesFolder
                                     .getFileName().toString();
-                            Category categories = new Category();
-                            categories.setId(categoryName);
-                            categories.setTitle(categoryName);
+                            Category categories = new Category(
+                                    categoryName, categoryName,
+                                    null, null,
+                                    null, null, null);
                             try {
                                 categoryService.create(userName, null,
                                         categories);

@@ -70,7 +70,7 @@ class OrgAPIController {
             throws SQLException {
         Org created = orgService.create(principal.getName(), locale, org);
         return ResponseEntity.created(URI.create("/api/org"
-                        + created.getUserHandle()))
+                        + created.userHandle()))
                 .body(created);
     }
 

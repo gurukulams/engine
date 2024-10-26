@@ -91,7 +91,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
         return profile.map(learnerProfile -> new UserPrincipal(
                 user.userHandle(),
-                learnerProfile.getName(),
+                learnerProfile.name(),
                 user.password(),
                 user.imageUrl(),
                 true,
