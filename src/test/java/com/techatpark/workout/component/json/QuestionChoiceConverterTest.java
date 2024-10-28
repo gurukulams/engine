@@ -24,9 +24,9 @@ class QuestionChoiceConverterTest {
         QuestionChoice questionChoice = objectMapper.readValue(questionChoice(), QuestionChoice.class);
 
         Assertions.assertEquals("A",
-                questionChoice.getCValue());
+                questionChoice.cValue());
         Assertions.assertTrue(
-                questionChoice.getIsAnswer());
+                questionChoice.isAnswer());
 
     }
 
@@ -36,6 +36,6 @@ class QuestionChoiceConverterTest {
                  "value" : "A",
                  "answer" : true
                }
-                """;
+            """;
     }
 }

@@ -34,15 +34,15 @@ public class QuestionChoiceConverter {
                 jsonGenerator.writeNull();
             } else {
                 jsonGenerator.writeStartObject();
-                if (questionChoice.getId() != null) {
+                if (questionChoice.id() != null) {
                     jsonGenerator.writeStringField("id",
-                            questionChoice.getId().toString());
+                            questionChoice.id().toString());
                 }
                 jsonGenerator.writeStringField("value",
-                        questionChoice.getCValue());
-                if (questionChoice.getIsAnswer() != null) {
+                        questionChoice.cValue());
+                if (questionChoice.isAnswer() != null) {
                     jsonGenerator.writeBooleanField("answer",
-                            questionChoice.getIsAnswer());
+                            questionChoice.isAnswer());
                 }
                 jsonGenerator.writeEndObject();
             }
@@ -67,18 +67,22 @@ public class QuestionChoiceConverter {
             if (theValue == null) {
                 return null;
             } else {
-                QuestionChoice questionChoice = new QuestionChoice();
+                QuestionChoice questionChoice
+                        = new QuestionChoice(null, null, null, null);
                 JsonNode jsonNode = theValue.path("id");
                 if (jsonNode != null && jsonNode.textValue() != null) {
-                    questionChoice.setId(UUID.fromString(jsonNode.textValue()));
+                    questionChoice = questionChoice
+                            .withId(UUID.fromString(jsonNode.textValue()));
                 }
                 jsonNode = theValue.path("value");
                 if (jsonNode != null) {
-                    questionChoice.setCValue(jsonNode.textValue());
+                    questionChoice = questionChoice
+                            .withCValue(jsonNode.textValue());
                 }
                 jsonNode = theValue.path("answer");
                 if (jsonNode != null) {
-                    questionChoice.setIsAnswer(jsonNode.booleanValue());
+                    questionChoice = questionChoice
+                            .withIsAnswer(jsonNode.booleanValue());
                 }
 
                 return questionChoice;

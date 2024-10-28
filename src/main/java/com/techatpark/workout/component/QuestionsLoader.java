@@ -150,8 +150,8 @@ public class QuestionsLoader {
             Stream<QuestionChoice> rightAnswers = question.getChoices()
                     .stream()
                     .filter(choice
-                            -> choice.getIsAnswer() != null
-                            && choice.getIsAnswer());
+                            -> choice.isAnswer() != null
+                            && choice.isAnswer());
 
             questionType = rightAnswers.count() == 1
                     ? QuestionType.CHOOSE_THE_BEST
@@ -177,11 +177,15 @@ public class QuestionsLoader {
                     getObject(questionLocalizedFile, Question.class);
             questionLocalized.setId(createdQuestion.getId());
             for (int i = 0; i < createdQuestion.getChoices().size(); i++) {
-                questionLocalized.getChoices().get(i)
-                        .setId(createdQuestion.getChoices().get(i).getId());
-                questionLocalized.getChoices().get(i)
-                        .setIsAnswer(
-                            createdQuestion.getChoices().get(i).getIsAnswer());
+
+                questionLocalized.getChoices()
+                        .set(i, questionLocalized.getChoices().get(i)
+                        .withId(createdQuestion.getChoices().get(i).id()));
+
+                questionLocalized.getChoices()
+                        .set(i, questionLocalized.getChoices().get(i)
+                        .withIsAnswer(
+                            createdQuestion.getChoices().get(i).isAnswer()));
             }
 
             questionService.update(
