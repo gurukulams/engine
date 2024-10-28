@@ -2,7 +2,7 @@ package com.techatpark.workout.starter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.service.CategoryService;
-import com.gurukulams.questionbank.QuestionBankManager;
+import com.gurukulams.questionbank.DataManager;
 import com.gurukulams.questionbank.service.AnswerService;
 import com.gurukulams.questionbank.service.QuestionService;
 import com.techatpark.workout.component.QuestionsLoader;
@@ -27,7 +27,7 @@ public class QuestionBankConfig {
      * @return questionBankManager
      */
     @Bean
-    QuestionBankManager questionBankManager(
+    DataManager questionBankManager(
             @Value("${spring.question-bank.url}")
             final String url,
             @Value("${spring.datasource.username}")
@@ -47,7 +47,7 @@ public class QuestionBankConfig {
                 .load()
                 .migrate();
 
-        return QuestionBankManager.getManager(ds);
+        return DataManager.getManager(ds);
     }
 
     /**
@@ -58,7 +58,7 @@ public class QuestionBankConfig {
      */
     @Bean
     QuestionService questionService(final Validator aValidator,
-                            final QuestionBankManager questionBankManager) {
+                            final DataManager questionBankManager) {
         return new QuestionService(
                 aValidator,
                 questionBankManager);

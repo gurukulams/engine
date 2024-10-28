@@ -81,7 +81,7 @@ class EventAPIController {
                 locale,
                 event);
         return ResponseEntity.created(URI.create("/api/event"
-                        + created.getId()))
+                        + created.id()))
                 .body(created);
     }
 
