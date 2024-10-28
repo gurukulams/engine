@@ -1,6 +1,6 @@
 package com.techatpark.workout.starter.config;
 
-import com.gurukulams.event.EventManager;
+import com.gurukulams.event.DataManager;
 import com.gurukulams.event.service.EventService;
 import jakarta.validation.Validator;
 import org.flywaydb.core.Flyway;
@@ -21,7 +21,7 @@ public class EventsConfig {
      * @return EventManager
      */
     @Bean
-    EventManager eventManager(
+    DataManager eventManager(
             @Value("${spring.gurukulams-events.url}")
             final String url,
             @Value("${spring.datasource.username}")
@@ -41,7 +41,7 @@ public class EventsConfig {
                 .load()
                 .migrate();
 
-        return EventManager.getManager(ds);
+        return DataManager.getManager(ds);
     }
     /**
      * EventService.
@@ -51,7 +51,7 @@ public class EventsConfig {
      */
     @Bean
     EventService eventService(
-            final EventManager eventManager,
+            final DataManager eventManager,
             final Validator validator) {
         return new EventService(eventManager, validator);
     }
