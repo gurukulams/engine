@@ -6,7 +6,6 @@ import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.OrgService;
 import com.gurukulams.core.service.ProfileService;
 import com.gurukulams.core.service.TagService;
-import com.gurukulams.notebook.service.AnnotationService;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.gurukulams.core.service.LearnerService;
 import com.techatpark.workout.component.OrgLoader;
@@ -21,42 +20,48 @@ public class GurukulamsConfig {
 
     /**
      * Provides Org Service Instalnce.
-     * @param dataSource
      * @return orgService
      */
     @Bean
-    DataManager dataManager(final DataSource dataSource) {
-        return DataManager.getManager(dataSource);
+    DataManager dataManager() {
+        return DataManager.getManager();
     }
 
     /**
      * learnerService.
+     * @param dataSource
      * @param dataManager
      * @param validator
      * @return learnerService
      */
     @Bean
-    LearnerService learnerService(final DataManager dataManager,
+    LearnerService learnerService(final DataSource dataSource,
+                                  final DataManager dataManager,
                                   final Validator validator) {
-        return new LearnerService(dataManager, validator);
+        return new LearnerService(dataSource,
+                dataManager, validator);
     }
 
     /**
      * learnerProfileService.
+     * @param dataSource
      * @param dataManager
      * @param validator
      * @return learnerProfileService
      */
     @Bean
     LearnerProfileService learnerProfileService(
+            final DataSource dataSource,
             final DataManager dataManager,
             final Validator validator) {
-        return new LearnerProfileService(dataManager,
+        return new LearnerProfileService(dataSource,
+                dataManager,
                 validator);
     }
 
     /**
      * Builds Profile Service.
+     * @param dataSource
      * @param dataManager
      * @param learnerService
      * @param learnerProfileService
@@ -64,11 +69,13 @@ public class GurukulamsConfig {
      * @return profileService
      */
     @Bean
-    ProfileService profileService(final DataManager dataManager,
+    ProfileService profileService(final DataSource dataSource,
+                                  final DataManager dataManager,
                                   final LearnerService learnerService,
           final LearnerProfileService learnerProfileService,
           final OrgService orgService) {
-        return new ProfileService(dataManager,
+        return new ProfileService(dataSource,
+                dataManager,
                 learnerService,
                 learnerProfileService,
                 orgService);
@@ -76,45 +83,39 @@ public class GurukulamsConfig {
 
     /**
      * OrgService.
+     * @param dataSource
      * @param dataManager
      * @return orgService
      */
     @Bean
-    OrgService orgService(
+    OrgService orgService(final DataSource dataSource,
             final DataManager dataManager) {
-        return new OrgService(dataManager);
+        return new OrgService(dataSource, dataManager);
     }
 
     /**
      * CategoryService.
+     * @param dataSource
      * @param dataManager
      * @return categoryService
      */
     @Bean
-    CategoryService categoryService(
+    CategoryService categoryService(final DataSource dataSource,
             final DataManager dataManager) {
-        return new CategoryService(dataManager);
+        return new CategoryService(dataSource, dataManager);
     }
 
 
     /**
      * TagService.
+     * @param dataSource
      * @param dataManager
      * @return tagService
      */
     @Bean
-    TagService tagService(
+    TagService tagService(final DataSource dataSource,
             final DataManager dataManager) {
-        return new TagService(dataManager);
-    }
-
-    /**
-     * AnnotationService.
-     * @return annotationService
-     */
-    @Bean
-    AnnotationService annotationService() {
-        return new AnnotationService();
+        return new TagService(dataSource, dataManager);
     }
 
     /**

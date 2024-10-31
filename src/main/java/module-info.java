@@ -2,9 +2,6 @@ module gurukulams.engine {
     requires com.fasterxml.jackson.databind;
 
     requires gurukulams.core ;
-    requires gurukulams.questionbank ;
-    requires gurukulams.event ;
-    requires gurukulams.notebook ;
     requires spring.context;
     requires spring.security.core;
     requires spring.security.config;
@@ -42,10 +39,8 @@ module gurukulams.engine {
     opens com.techatpark.workout.starter.security.payload;
     opens com.techatpark.workout.starter.exception;
     opens com.techatpark.workout.component;
-    opens com.techatpark.workout.component.json;
 
     exports com.techatpark.workout.component;
-    exports com.techatpark.workout.component.json;
     exports com.techatpark.workout.starter.security.service;
     exports com.techatpark.workout.starter.security.payload;
     exports com.techatpark.workout.starter.exception;

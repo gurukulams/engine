@@ -1,7 +1,6 @@
 package com.techatpark.workout;
 
 import com.techatpark.workout.component.OrgLoader;
-import com.techatpark.workout.component.QuestionsLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -43,16 +42,11 @@ public class Application {
     public void onApplicationEvent(final ContextRefreshedEvent event)
             throws SQLException, IOException {
         logger.info("Application Started at {}", event.getTimestamp());
-        QuestionsLoader questionsLoader
-                = event.getApplicationContext()
-                .getBean(QuestionsLoader.class);
-        questionsLoader.load();
 
         OrgLoader orgLoader
                 = event.getApplicationContext()
                 .getBean(OrgLoader.class);
         orgLoader.load();
-
 
     }
 }

@@ -6,7 +6,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -32,20 +32,20 @@ jobs:
           USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
           ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
 
-      - name: Copy Artifacts
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.GURUKULAMS_HOST }}
-          username: ${{ secrets.GURUKULAMS_USER }}
-          key: ${{ secrets.GURUKULAMS_KEY }}
-          target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
-          source: "target/*.jar"
-          strip_components: 1
-
-      - name: Deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.GURUKULAMS_HOST }}
-          username: ${{ secrets.GURUKULAMS_USER }}
-          key: ${{ secrets.GURUKULAMS_KEY }}
-          script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
+#      - name: Copy Artifacts
+#        uses: appleboy/scp-action@master
+#        with:
+#          host: ${{ secrets.GURUKULAMS_HOST }}
+#          username: ${{ secrets.GURUKULAMS_USER }}
+#          key: ${{ secrets.GURUKULAMS_KEY }}
+#          target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
+#          source: "target/*.jar"
+#          strip_components: 1
+#
+#      - name: Deploy
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.GURUKULAMS_HOST }}
+#          username: ${{ secrets.GURUKULAMS_USER }}
+#          key: ${{ secrets.GURUKULAMS_KEY }}
+#          script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
