@@ -23,5 +23,5 @@ Set JAVA_HOME variable pointing to [JDK 21 or higher](https://jdk.java.net/).
 We need dependencies to be excluded at `.mvn/jvm.config`
 
 ```shell
--Dexcludes=org.springframework.*
+-Dexcludes=org.springframework:*
 ```
