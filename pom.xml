@@ -18,6 +18,8 @@
 	<properties>
 		<java.version>21</java.version>
 
+		<gurukulams-core.version>0.0.1-SNAPSHOT</gurukulams-core.version>
+
 		<!-- Version of Dependencies -->
 		<springdoc.version>2.7.0</springdoc.version>
 		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
@@ -26,17 +28,17 @@
 
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.compilerArgument>--enable-preview </maven.compiler.compilerArgument>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
 		<maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
 
-		<jacoco.version>0.8.12</jacoco.version>
+
 		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-		<maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
-		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
-		<gurukulams-core.version>0.0.1-SNAPSHOT</gurukulams-core.version>
-		<archunit.version>1.3.0</archunit.version>
 		<maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
+
+		<archunit.version>1.3.0</archunit.version>
+		<jacoco.version>0.8.12</jacoco.version>
+
 	</properties>
 	<dependencies>
 
@@ -234,14 +236,12 @@
 						</goals>
 						<configuration>
 							<rules>
-
 								<requireFilesDontExist>
 									<message>please update the dependencies to the latest version.</message>
 									<files>
 										<file>${project.basedir}/pom.xml.versionsBackup</file>
 									</files>
 								</requireFilesDontExist>
-
 							</rules>
 							<fail>true</fail>
 						</configuration>
