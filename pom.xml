@@ -24,7 +24,7 @@
 		<springdoc.version>2.7.0</springdoc.version>
 		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
 		<maven.checkstyle.version>3.6.0</maven.checkstyle.version>
-		<checkstyle.version>10.20.2</checkstyle.version>
+		<checkstyle.version>10.21.0</checkstyle.version>
 
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
