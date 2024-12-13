@@ -1,6 +1,6 @@
-# Gurukulams API
+# Gurukulams Engine
 
-Core Engine for Workout
+Core Engine for Gurukulams
 
 ## Development
 
