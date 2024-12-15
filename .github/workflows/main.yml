@@ -2,7 +2,7 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 # mvn clean jacoco:prepare-agent install jacoco:report
-name: Java CI with Maven
+name: Release
 
 on:
   push:
@@ -20,54 +20,26 @@ jobs:
           distribution: 'zulu'
           java-version: 21
 
-      - name: Quality Check
-        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B versions:update-parent versions:update-properties compile --file pom.xml
-        env:
-          USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
-          ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
-
       - name: Build
-        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B jacoco:prepare-agent install jacoco:report --file pom.xml
+        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B package -P production --file pom.xml
         env:
           USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
           ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
 
-      # - name: Copy Artifacts
-      #   uses: appleboy/scp-action@master
-      #   with:
-      #     host: ${{ secrets.GURUKULAMS_HOST }}
-      #     username: ${{ secrets.GURUKULAMS_USER }}
-      #     key: ${{ secrets.GURUKULAMS_KEY }}
-      #     target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
-      #     source: "target/*.jar"
-      #     strip_components: 1
-
-      # - name: Deploy
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.GURUKULAMS_HOST }}
-      #     username: ${{ secrets.GURUKULAMS_USER }}
-      #     key: ${{ secrets.GURUKULAMS_KEY }}
-      #     script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+      - name: Copy Artifacts
+        uses: appleboy/scp-action@master
         with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
-          draft: false
-          prerelease: false
+           host: ${{ secrets.GURUKULAMS_HOST }}
+           username: ${{ secrets.GURUKULAMS_USER }}
+           key: ${{ secrets.GURUKULAMS_KEY }}
+           target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
+           source: "target/*.jar"
+           strip_components: 1
 
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+      - name: Deploy
+        uses: appleboy/ssh-action@master
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./target/engine-0.0.1-SNAPSHOT.jar
-          asset_name: engine-0.0.1-SNAPSHOT.jar
-          asset_content_type: application/jar
+           host: ${{ secrets.GURUKULAMS_HOST }}
+           username: ${{ secrets.GURUKULAMS_USER }}
+           key: ${{ secrets.GURUKULAMS_KEY }}
+           script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
