@@ -32,23 +32,23 @@ jobs:
           USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
           ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
 
-      - name: Copy Artifacts
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.GURUKULAMS_HOST }}
-          username: ${{ secrets.GURUKULAMS_USER }}
-          key: ${{ secrets.GURUKULAMS_KEY }}
-          target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
-          source: "target/*.jar"
-          strip_components: 1
+      # - name: Copy Artifacts
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.GURUKULAMS_HOST }}
+      #     username: ${{ secrets.GURUKULAMS_USER }}
+      #     key: ${{ secrets.GURUKULAMS_KEY }}
+      #     target: ${{ secrets.GURUKULAMS_ENGINE_DIR }}
+      #     source: "target/*.jar"
+      #     strip_components: 1
 
-      - name: Deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.GURUKULAMS_HOST }}
-          username: ${{ secrets.GURUKULAMS_USER }}
-          key: ${{ secrets.GURUKULAMS_KEY }}
-          script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
+      # - name: Deploy
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.GURUKULAMS_HOST }}
+      #     username: ${{ secrets.GURUKULAMS_USER }}
+      #     key: ${{ secrets.GURUKULAMS_KEY }}
+      #     script: cd ${{ secrets.GURUKULAMS_ENGINE_DIR }} && sh deploy.sh
 
       - name: Create Release
         id: create_release
@@ -56,8 +56,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: v1.0.0
+          release_name: Release v1.0.0
           draft: false
           prerelease: false
 
