@@ -2,7 +2,6 @@ package com.gurukulams.starter.security.config;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.service.LearnerProfileService;
 import com.gurukulams.core.service.LearnerService;
 import com.gurukulams.starter.security.filter.TokenAuthenticationFilter;
@@ -107,15 +106,13 @@ public class SecurityConfig {
      * @param alearnerService
      * @param alearnerProfileService
      * @param appProperties          properties
-     * @param aCacheManager          aCacheManager
-     * @param objectMapper
+     * @param aCacheManager
      * @param auserDetailsService
      */
     public SecurityConfig(final LearnerService alearnerService,
                           final LearnerProfileService alearnerProfileService,
                           final AppProperties appProperties,
                           final CacheManager aCacheManager,
-                          final ObjectMapper objectMapper,
                           final UserDetailsService auserDetailsService) {
         this.learnerService = alearnerService;
         this.learnerProfileService = alearnerProfileService;
