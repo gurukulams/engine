@@ -190,7 +190,6 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(antMatcher("/api/auth/login"),
-                                antMatcher("/api/auth/signup"),
                                 antMatcher("/api/auth/welcome"),
                                 antMatcher("/favicon.ico"),
                                 antMatcher("/error"),
