@@ -29,7 +29,7 @@ Set JAVA_HOME variable pointing to [JDK 23 or higher](https://jdk.java.net/).
 ~~~
 
 ### Exclude Upgrades
-
+    
 We need dependencies to be excluded at `.mvn/jvm.config`
 
 ```shell

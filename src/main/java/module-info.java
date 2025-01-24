@@ -28,20 +28,20 @@ module gurukulams.engine {
     requires flyway.core;
     requires org.apache.tomcat.embed.core;
 
-    opens com.techatpark.workout;
-    opens com.techatpark.workout.starter.config;
-    opens com.techatpark.workout.starter.openapi;
-    opens com.techatpark.workout.starter.security.config;
-    opens com.techatpark.workout.starter.security.cache;
-    opens com.techatpark.workout.starter.security.service;
-    opens com.techatpark.workout.starter.security.controller;
-    opens com.techatpark.workout.controller;
-    opens com.techatpark.workout.starter.security.payload;
-    opens com.techatpark.workout.starter.exception;
-    opens com.techatpark.workout.component;
+    opens com.gurukulams;
+    opens com.gurukulams.starter.config;
+    opens com.gurukulams.starter.openapi;
+    opens com.gurukulams.starter.security.config;
+    opens com.gurukulams.starter.security.cache;
+    opens com.gurukulams.starter.security.service;
+    opens com.gurukulams.starter.security.controller;
+    opens com.gurukulams.controller;
+    opens com.gurukulams.starter.security.payload;
+    opens com.gurukulams.starter.exception;
+    opens com.gurukulams.component;
 
-    exports com.techatpark.workout.component;
-    exports com.techatpark.workout.starter.security.service;
-    exports com.techatpark.workout.starter.security.payload;
-    exports com.techatpark.workout.starter.exception;
+    exports com.gurukulams.component;
+    exports com.gurukulams.starter.security.service;
+    exports com.gurukulams.starter.security.payload;
+    exports com.gurukulams.starter.exception;
 }
