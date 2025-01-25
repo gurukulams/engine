@@ -148,6 +148,25 @@
 					<version>${oraclepki.version}</version>
 				</dependency>
 			</dependencies>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>3.3.0</version>
+						<configuration>
+							<excludes>
+								<!-- Exclude specific Java files -->
+								<exclude>**/LoginController.class</exclude>
+								<!-- Exclude all files in a specific package -->
+<!--								<exclude>com/example/excludedpackage/**</exclude>-->
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+
 		</profile>
 	</profiles>
 
