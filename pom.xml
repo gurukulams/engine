@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.4</version>
 		<relativePath/>
 	</parent>
 
@@ -21,25 +21,26 @@
 		<gurukulams-core.version>0.0.1-SNAPSHOT</gurukulams-core.version>
 
 		<!-- Version of Dependencies -->
-		<springdoc.version>2.8.4</springdoc.version>
+		<springdoc.version>2.8.6</springdoc.version>
 		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
 		<maven.checkstyle.version>3.6.0</maven.checkstyle.version>
-		<checkstyle.version>10.21.2</checkstyle.version>
+		<checkstyle.version>10.23.0</checkstyle.version>
 
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
 		<maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
 
-		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+		<maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
 		<maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
 		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
 
 		<archunit.version>1.4.0</archunit.version>
-		<jacoco.version>0.8.12</jacoco.version>
+		<jacoco.version>0.8.13</jacoco.version>
 
 		<ojdbc8.version>23.6.0.24.10</ojdbc8.version>
 		<oraclepki.version>23.6.0.24.10</oraclepki.version>
+		<maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
 	</properties>
 	<dependencies>
 
@@ -154,7 +155,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-jar-plugin</artifactId>
-						<version>3.3.0</version>
+						<version>${maven-jar-plugin.version}</version>
 						<configuration>
 							<excludes>
 								<!-- Exclude specific Java files -->
