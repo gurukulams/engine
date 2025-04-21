@@ -69,7 +69,7 @@ public class LoginService {
         signupRequest.setEmail(authenticationRequest.getEmail());
         signupRequest.setPassword(authenticationRequest.getPassword());
         signupRequest.setAuthProvider(AuthProvider.local);
-        signupRequest.setImageUrl("/images/users/"
+        signupRequest.setImageUrl("/img/users/"
                 + authenticationRequest.getEmail().split("@")[0]
                 + ".png");
         learnerService.signUp(signupRequest,

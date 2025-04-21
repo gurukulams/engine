@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.4</version>
 		<relativePath/>
 	</parent>
 
@@ -21,25 +21,26 @@
 		<gurukulams-core.version>0.0.1-SNAPSHOT</gurukulams-core.version>
 
 		<!-- Version of Dependencies -->
-		<springdoc.version>2.8.3</springdoc.version>
+		<springdoc.version>2.8.6</springdoc.version>
 		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
 		<maven.checkstyle.version>3.6.0</maven.checkstyle.version>
-		<checkstyle.version>10.21.1</checkstyle.version>
+		<checkstyle.version>10.23.0</checkstyle.version>
 
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
 		<maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
 
-		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+		<maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
 		<maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
 		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
 
-		<archunit.version>1.3.0</archunit.version>
-		<jacoco.version>0.8.12</jacoco.version>
+		<archunit.version>1.4.0</archunit.version>
+		<jacoco.version>0.8.13</jacoco.version>
 
 		<ojdbc8.version>23.6.0.24.10</ojdbc8.version>
 		<oraclepki.version>23.6.0.24.10</oraclepki.version>
+		<maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
 	</properties>
 	<dependencies>
 
@@ -112,6 +113,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.gurukulams</groupId>
+			<artifactId>notebook</artifactId>
+			<version>${gurukulams-core.version}</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -148,6 +156,25 @@
 					<version>${oraclepki.version}</version>
 				</dependency>
 			</dependencies>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>${maven-jar-plugin.version}</version>
+						<configuration>
+							<excludes>
+								<!-- Exclude specific Java files -->
+								<exclude>**/LoginController.class</exclude>
+								<!-- Exclude all files in a specific package -->
+<!--								<exclude>com/example/excludedpackage/**</exclude>-->
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+
 		</profile>
 	</profiles>
 
