@@ -1,5 +1,4 @@
 module gurukulams.engine {
-    requires com.fasterxml.jackson.databind;
 
     requires gurukulams.core ;
     requires spring.context;
@@ -8,7 +7,6 @@ module gurukulams.engine {
     requires spring.security.crypto;
     requires io.swagger.v3.oas.annotations;
     requires spring.web;
-    requires java.sql;
     requires org.slf4j;
     requires spring.boot;
     requires spring.boot.autoconfigure;
@@ -19,14 +17,15 @@ module gurukulams.engine {
     requires io.swagger.v3.oas.models;
     requires spring.core;
     requires jjwt.api;
-    requires jakarta.validation;
     requires spring.beans;
     requires org.apache.commons.lang3;
     requires org.apache.logging.log4j;
-    requires com.h2database;
     requires spring.webmvc;
     requires flyway.core;
     requires org.apache.tomcat.embed.core;
+    requires gurukulams.notebook;
+    requires jakarta.validation;
+    requires com.fasterxml.jackson.databind;
 
     opens com.gurukulams;
     opens com.gurukulams.starter.config;

@@ -113,6 +113,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.gurukulams</groupId>
+			<artifactId>notebook</artifactId>
+			<version>${gurukulams-core.version}</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
