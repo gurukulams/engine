@@ -2,14 +2,14 @@
   "question" : "Multi C?",
   "explanation" : "",
   "choices" : [ {
-    "value" : "A",
-    "answer" : true
+    "cValue" : "A",
+    "isAnswer" : true
   }, {
-    "value" : "B"
+    "cValue" : "B"
   }, {
-    "value" : "C",
-    "answer" : true
+    "cValue" : "C",
+    "isAnswer" : true
   }, {
-    "value" : "D"
+    "cValue" : "D"
   } ]
 }

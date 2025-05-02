@@ -24,8 +24,10 @@ module gurukulams.engine {
     requires flyway.core;
     requires org.apache.tomcat.embed.core;
     requires gurukulams.notebook;
-    requires jakarta.validation;
     requires com.fasterxml.jackson.databind;
+    requires gurukulams.questionbank;
+    requires jakarta.validation;
+    requires com.h2database;
 
     opens com.gurukulams;
     opens com.gurukulams.starter.config;
