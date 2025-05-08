@@ -35,7 +35,7 @@
 		<maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
 		<owasp-dependency-check-maven.version>8.3.1</owasp-dependency-check-maven.version>
 
-		<archunit.version>1.4.0</archunit.version>
+		<archunit.version>1.4.1</archunit.version>
 		<jacoco.version>0.8.13</jacoco.version>
 
 		<ojdbc8.version>23.6.0.24.10</ojdbc8.version>
@@ -120,6 +120,11 @@
 		<dependency>
 			<groupId>com.gurukulams</groupId>
 			<artifactId>questions-service</artifactId>
+			<version>${gurukulams-core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.gurukulams</groupId>
+			<artifactId>event</artifactId>
 			<version>${gurukulams-core.version}</version>
 		</dependency>
 
