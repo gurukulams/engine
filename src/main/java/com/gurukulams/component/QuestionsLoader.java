@@ -182,7 +182,7 @@ public class QuestionsLoader {
                         .getChoices().get(i);
 
                 QuestionChoice questionChoice1 = new QuestionChoice(
-                        questionChoice.id(),
+                        createdQuestion.getChoices().get(i).id(),
                         questionChoice.questionId(),
                         questionChoice.cValue(),
                         questionChoice.isAnswer());

@@ -28,6 +28,7 @@ module gurukulams.engine {
     requires gurukulams.questionbank;
     requires jakarta.validation;
     requires com.h2database;
+    requires gurukulams.event;
 
     opens com.gurukulams;
     opens com.gurukulams.starter.config;
