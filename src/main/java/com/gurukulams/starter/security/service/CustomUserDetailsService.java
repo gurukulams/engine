@@ -82,8 +82,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider
-                = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(this);
+                = new DaoAuthenticationProvider(this);
         authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
