@@ -28,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -164,16 +165,17 @@ public class SecurityConfig {
      */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
+        PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
         return (web) -> web.ignoring()
-                .requestMatchers(antMatcher("/api/metrics/**"),
-                        antMatcher("/h2-console"),
-                        antMatcher("/h2-console/**"),
-                        antMatcher("/swagger-ui.html"),
-                        antMatcher("/swagger-ui/*"),
-                        antMatcher("/v3/api-docs"),
-                        antMatcher("/v3/api-docs/*"),
-                        antMatcher("/api/auth/login"),
-                        antMatcher("/welcome")
+                .requestMatchers(builder.matcher("/api/metrics/**"),
+                        builder.matcher("/h2-console"),
+                        builder.matcher("/h2-console/**"),
+                        builder.matcher("/swagger-ui.html"),
+                        builder.matcher("/swagger-ui/*"),
+                        builder.matcher("/v3/api-docs"),
+                        builder.matcher("/v3/api-docs/*"),
+                        builder.matcher("/api/auth/login"),
+                        builder.matcher("/welcome")
                 );
     }
 
