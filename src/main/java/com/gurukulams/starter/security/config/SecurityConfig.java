@@ -26,8 +26,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -165,7 +163,8 @@ public class SecurityConfig {
      */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
+        PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher
+                .withDefaults();
         return (web) -> web.ignoring()
                 .requestMatchers(builder.matcher("/api/metrics/**"),
                         builder.matcher("/h2-console"),
@@ -189,22 +188,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(
             final HttpSecurity http) throws Exception {
+        PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher
+                .withDefaults();
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(antMatcher("/api/auth/login"),
-                                antMatcher("/api/auth/welcome"),
-                                antMatcher("/favicon.ico"),
-                                antMatcher("/error"),
-                                antMatcher("/h2-console"),
-                                antMatcher("/h2-console/**"),
-                                antMatcher("/events"),
-                                antMatcher("/events/**"),
-                                antMatcher("/ta/events"),
-                                antMatcher("/ta/events/**"),
-                                antMatcher("/v3/api-docs"),
-                                antMatcher("/welcome"),
-                                antMatcher("/oauth2/**"),
-                                antMatcher("/oauth2/**/**")
+                        .requestMatchers(builder.matcher("/api/auth/login"),
+                                builder.matcher("/api/auth/welcome"),
+                                builder.matcher("/favicon.ico"),
+                                builder.matcher("/error"),
+                                builder.matcher("/h2-console"),
+                                builder.matcher("/h2-console/**"),
+                                builder.matcher("/events"),
+                                builder.matcher("/events/**"),
+                                builder.matcher("/ta/events"),
+                                builder.matcher("/ta/events/**"),
+                                builder.matcher("/oauth2/**")
                         )
                         .permitAll()
                         .requestMatchers(toH2Console()).permitAll()
