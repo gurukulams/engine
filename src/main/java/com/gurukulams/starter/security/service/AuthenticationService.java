@@ -151,17 +151,17 @@ public class AuthenticationService {
     }
 
     /**
-     * generate token after login.
-     *
+     * generate opaque token after login.
+     * @see <a href="https://shorturl.at/uWlRE">Opaque Token</a>
      * @param userName the userName
      * @return token string
      */
     private String generateToken(final String userName) {
-        String token = UUID.randomUUID().toString();
-        this.authCache.put(token, getJWTCompact(userName,
+        String opaqueToken = UUID.randomUUID().toString();
+        this.authCache.put(opaqueToken, getJWTCompact(userName,
                 tokenExpirationMsec,
                 tokenSecret));
-        return token;
+        return opaqueToken;
 
     }
 
