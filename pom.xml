@@ -96,11 +96,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-database-oracle</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc.version}</version>
@@ -163,6 +158,11 @@
 					<groupId>com.oracle.database.security</groupId>
 					<artifactId>oraclepki</artifactId>
 					<version>${oraclepki.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.flywaydb</groupId>
+					<artifactId>flyway-database-oracle</artifactId>
 				</dependency>
 			</dependencies>
 
@@ -231,7 +231,7 @@
 				<version>${jacoco.version}</version>
 				<configuration>
 					<includes>
-						<include>com/gurukulams/component/json/*</include>
+						<include>com/gurukulams/starter/security/service/*</include>
 					</includes>
 				</configuration>
 				<executions>
@@ -267,7 +267,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.5</minimum>
+											<minimum>0.8</minimum>
 										</limit>
 									</limits>
 								</rule>
