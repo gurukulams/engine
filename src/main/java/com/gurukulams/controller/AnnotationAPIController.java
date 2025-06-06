@@ -174,7 +174,7 @@ class AnnotationAPIController {
         final Optional<Annotation> updatednote = annotationService.update(
                 principal.getName(),
                 "#" + id, onType, onInstance, locale, annotation);
-        return updatednote == null ? ResponseEntity.notFound().build()
+        return updatednote.isEmpty() ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updatednote);
     }
 
