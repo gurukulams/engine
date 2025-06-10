@@ -172,6 +172,7 @@ public class SecurityConfig {
                         builder.matcher("/v3/api-docs"),
                         builder.matcher("/v3/api-docs/*"),
                         builder.matcher("/api/auth/login"),
+                        builder.matcher("/api/auth/welcome"),
                         builder.matcher("/welcome")
                 );
     }
