@@ -14,13 +14,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
@@ -166,7 +164,7 @@ public class SecurityConfig {
         PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher
                 .withDefaults();
         return (web) -> web.ignoring()
-                .requestMatchers(builder.matcher("/api/metrics/**"),
+                .requestMatchers(
                         builder.matcher("/h2-console"),
                         builder.matcher("/h2-console/**"),
                         builder.matcher("/swagger-ui.html"),
@@ -174,6 +172,7 @@ public class SecurityConfig {
                         builder.matcher("/v3/api-docs"),
                         builder.matcher("/v3/api-docs/*"),
                         builder.matcher("/api/auth/login"),
+                        builder.matcher("/api/auth/welcome"),
                         builder.matcher("/welcome")
                 );
     }
@@ -192,12 +191,7 @@ public class SecurityConfig {
                 .withDefaults();
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(builder.matcher("/api/auth/login"),
-                                builder.matcher("/api/auth/welcome"),
-                                builder.matcher("/favicon.ico"),
-                                builder.matcher("/error"),
-                                builder.matcher("/h2-console"),
-                                builder.matcher("/h2-console/**"),
+                        .requestMatchers(
                                 builder.matcher("/events"),
                                 builder.matcher("/events/**"),
                                 builder.matcher("/ta/events"),
@@ -222,34 +216,28 @@ public class SecurityConfig {
                 .headers(config -> config
                         .frameOptions(
                                 HeadersConfigurer.FrameOptionsConfig::disable));
-        http.oauth2Login(new Customizer<OAuth2LoginConfigurer<HttpSecurity>>() {
-            @Override
-            public void customize(
-                    final OAuth2LoginConfigurer<HttpSecurity>
-                            httpSecurityOAuth2LoginConfigurer) {
+        http.oauth2Login(httpSecurityOAuth2LoginConfigurer ->
                 httpSecurityOAuth2LoginConfigurer
-                        .authorizationEndpoint(
-                                authorizationEndpointConfig -> {
-                                    authorizationEndpointConfig
-                                            .baseUri("/oauth2/authorize")
-                                            .authorizationRequestRepository(
-                                                    cookieAuthRepo);
-                                })
-                        .redirectionEndpoint(
-                                redirectionEndpointConfig -> {
-                                    redirectionEndpointConfig
-                                            .baseUri("/oauth2/callback/*");
-                                })
-                        .userInfoEndpoint(userInfoEndpointConfig -> {
-                            userInfoEndpointConfig
-                                    .userService(customOAuth2UserService);
+                .authorizationEndpoint(
+                        authorizationEndpointConfig -> {
+                            authorizationEndpointConfig
+                                    .baseUri("/oauth2/authorize")
+                                    .authorizationRequestRepository(
+                                            cookieAuthRepo);
                         })
-                        .successHandler(
-                                oAuth2AuthenticationSuccessHandler)
-                        .failureHandler(
-                                oAuth2AuthenticationFailureHandler);
-            }
-        });
+                .redirectionEndpoint(
+                        redirectionEndpointConfig -> {
+                            redirectionEndpointConfig
+                                    .baseUri("/oauth2/callback/*");
+                        })
+                .userInfoEndpoint(userInfoEndpointConfig -> {
+                    userInfoEndpointConfig
+                            .userService(customOAuth2UserService);
+                })
+                .successHandler(
+                        oAuth2AuthenticationSuccessHandler)
+                .failureHandler(
+                        oAuth2AuthenticationFailureHandler));
 
         // Add our custom Token based authentication filter
         http.addFilterBefore(tokenAuthenticationFilter,

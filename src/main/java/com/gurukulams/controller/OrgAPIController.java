@@ -91,7 +91,6 @@ class OrgAPIController {
                     description = "invalid credentials"),
             @ApiResponse(responseCode = "404",
                     description = "syllabus not found")})
-
     @GetMapping("/{id}")
     public final ResponseEntity<Org> read(@PathVariable final String id,
                       @RequestHeader(name = "Accept-Language",
