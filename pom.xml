@@ -21,7 +21,7 @@
 		<gurukulams-core.version>0.0.1-SNAPSHOT</gurukulams-core.version>
 
 		<!-- Version of Dependencies -->
-		<springdoc.version>2.8.8</springdoc.version>
+		<springdoc.version>2.8.9</springdoc.version>
 		<jsonwebtoken.version>0.12.6</jsonwebtoken.version>
 		<maven.checkstyle.version>3.6.0</maven.checkstyle.version>
 		<checkstyle.version>10.25.0</checkstyle.version>
