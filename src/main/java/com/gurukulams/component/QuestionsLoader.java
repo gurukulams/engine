@@ -89,7 +89,11 @@ public class QuestionsLoader {
                                 -> fileAttr.isRegularFile()
                                 && !filePath.toFile().getName().contains("-"))
                     .toList()) {
-                createQuestion(USER_NAME, path.toFile());
+                try {
+                    createQuestion(USER_NAME, path.toFile());
+                } catch (Exception e) {
+                    logger.error("Question can not be created for " + path, e);
+                }
             }
 
         }
