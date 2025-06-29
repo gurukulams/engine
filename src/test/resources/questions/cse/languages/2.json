@@ -3,12 +3,12 @@
   "explanation" : "",
   "choices" : [ {
     "cValue" : "A",
-    "isAnswer" : true
+    "answer" : true
   }, {
     "cValue" : "B"
   }, {
     "cValue" : "C",
-    "isAnswer" : true
+    "answer" : true
   }, {
     "cValue" : "D"
   } ]

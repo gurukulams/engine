@@ -156,8 +156,8 @@ public class QuestionsLoader {
             Stream<QuestionChoice> rightAnswers = question.getChoices()
                     .stream()
                     .filter(choice
-                            -> choice.isAnswer() != null
-                            && choice.isAnswer());
+                            -> choice.answer() != null
+                            && choice.answer());
 
             questionType = rightAnswers.count() == 1
                     ? QuestionType.CHOOSE_THE_BEST
@@ -188,8 +188,8 @@ public class QuestionsLoader {
                 QuestionChoice questionChoice1 = new QuestionChoice(
                         createdQuestion.getChoices().get(i).id(),
                         questionChoice.questionId(),
-                        questionChoice.cValue(),
-                        questionChoice.isAnswer());
+                        questionChoice.label(),
+                        questionChoice.answer());
 
                 questionLocalized.getChoices().set(i, questionChoice1);
             }
