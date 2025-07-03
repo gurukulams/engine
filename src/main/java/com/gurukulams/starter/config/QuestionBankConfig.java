@@ -78,7 +78,7 @@ public class QuestionBankConfig {
     @Bean
     QuestionsLoader questionsLoader(final CategoryService categoryService,
                                 final ObjectMapper objectMapper,
-                                @Value("${app.seed.folder:src/test/resources}")
+                                @Value("${app.seed.folder:../gurukulam}")
                                 final String seedFolder,
                                 final QuestionService questionService) {
         return new QuestionsLoader(categoryService, objectMapper,

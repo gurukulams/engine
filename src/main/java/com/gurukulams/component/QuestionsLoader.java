@@ -101,9 +101,9 @@ public class QuestionsLoader {
 
     private void createAllCategory(final String userName)
             throws IOException, SQLException {
-        if (seedFolder != null) {
+        File questionsFolder = new File(seedFolder, "questions");
+        if (seedFolder != null && questionsFolder.exists()) {
             questionService.delete();
-            File questionsFolder = new File(seedFolder, "questions");
             Files.find(Path.of(questionsFolder.getPath()),
                             Integer.MAX_VALUE,
                             (filePath, fileAttr)
@@ -126,6 +126,8 @@ public class QuestionsLoader {
                             }
                         }
                     });
+        } else {
+            logger.error("Questions can not be loaded from {}", seedFolder);
         }
     }
 
