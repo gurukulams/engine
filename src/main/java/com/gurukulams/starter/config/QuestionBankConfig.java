@@ -12,7 +12,6 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 
 /**
  * Configurations for Question Bank.
@@ -77,7 +76,6 @@ public class QuestionBankConfig {
      * @return questionsLoader
      */
     @Bean
-    @Lazy
     QuestionsLoader questionsLoader(final CategoryService categoryService,
                                 final ObjectMapper objectMapper,
                                 @Value("${app.seed.folder:../gurukulam}")
