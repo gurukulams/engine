@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The type Question api controller.
@@ -207,9 +209,20 @@ class QuestionAPIController {
                            final HttpServletRequest request)
             throws SQLException {
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(questionService.list(principal.getName(),
-                        locale, getCategories(request.getRequestURI())));
+        List<Question> questions = questionService.list(
+                principal.getName(),
+                locale,
+                getCategories(request.getRequestURI())
+        );
+
+        if (questions.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)
+                        .cachePublic())
+                .body(questions);
     }
 
     /**
