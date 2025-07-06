@@ -7,7 +7,6 @@ import com.gurukulams.questionbank.payload.Question;
 import com.gurukulams.questionbank.payload.QuestionType;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.questionbank.service.QuestionService;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public class QuestionsLoader {
@@ -71,12 +71,20 @@ public class QuestionsLoader {
         this.objectMapper = theObjectMapper;
         this.seedFolder = theSeedFolder;
         this.questionService = theQuestionService;
+
+        // In your main method or another class:
+        CompletableFuture.runAsync(() -> {
+            try {
+                this.load();
+            } catch (IOException | SQLException e) {
+                logger.error("Question can not be loaded ", e);
+            }
+        });
     }
 
     /**
      * Loads Questions.
      */
-    @PostConstruct
     public void load() throws IOException, SQLException {
         if (seedFolder != null) {
             questionService.delete();
