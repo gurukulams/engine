@@ -44,3 +44,7 @@ spring:
             scope:
               - email
               - profile
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterAccess=3600s
