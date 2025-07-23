@@ -1,8 +1,5 @@
 package com.gurukulams.starter.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gurukulams.component.QuestionsLoader;
-import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.questionbank.DataManager;
 import com.gurukulams.questionbank.service.AnswerService;
 import com.gurukulams.questionbank.service.QuestionService;
@@ -67,21 +64,4 @@ public class QuestionBankConfig {
         return new AnswerService(questionService);
     }
 
-    /**
-     * questionsLoader.
-     * @param categoryService
-     * @param objectMapper
-     * @param seedFolder
-     * @param questionService
-     * @return questionsLoader
-     */
-    @Bean
-    QuestionsLoader questionsLoader(final CategoryService categoryService,
-                                final ObjectMapper objectMapper,
-                                @Value("${app.seed.folder:../gurukulam}")
-                                final String seedFolder,
-                                final QuestionService questionService) {
-        return new QuestionsLoader(categoryService, objectMapper,
-                seedFolder, questionService);
-    }
 }
