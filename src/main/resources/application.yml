@@ -1,8 +1,4 @@
 app:
-  feature:
-    MANAGE_QUESTION:
-      - jerry
-      - tom
   auth:
     tokenSecret: 926D96C90030DD58429D2751926D96C90030DD58429D2751AC1BDBBC926D96C90030DD58429D2751AC1BDBBC926D96C90030DD58429D2751AC1BDBBC926D96C90030DD58429D2751AC1BDBBC926D96C90030DD58429D2751AC1BDBBC926D96C90030DD58429D2751AC1BDBBC926D96C90030DD58429D2751AC1BDBBCAC1BDBBC
     tokenExpirationMsec: 150000
@@ -15,9 +11,6 @@ app:
       - http://localhost:3000/welcome
       - myandroidapp://oauth/redirect
       - myiosapp://oauth/redirect
-openapi: 3.0.1
-info:
-  title: Petstore
 
 spring:
   jackson:
