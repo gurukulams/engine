@@ -15,6 +15,10 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.List;
 public class OrgLoader {
+    /**
+     * Quetion Owner.
+     */
+    public static final String USER_NAME = "tom@email.com";
 
     /**
      * Logger.
@@ -22,10 +26,6 @@ public class OrgLoader {
     private final Logger logger =
             LoggerFactory.getLogger(Application.class);
 
-    /**
-     * Quetion Owner.
-     */
-    public static final String USER_NAME = "tom@email.com";
     /**
      * Org Service.
      */
