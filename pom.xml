@@ -175,21 +175,23 @@
 			</dependencies>
 
 			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-						<version>${maven-jar-plugin.version}</version>
-						<configuration>
-							<excludes>
-								<!-- Exclude specific Java files -->
-								<exclude>**/LoginController.class</exclude>
-								<!-- Exclude all files in a specific package -->
-<!--								<exclude>com/example/excludedpackage/**</exclude>-->
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
+
+<!--				<plugins>-->
+<!--					<plugin>-->
+<!--						<groupId>org.apache.maven.plugins</groupId>-->
+<!--						<artifactId>maven-jar-plugin</artifactId>-->
+<!--						<version>${maven-jar-plugin.version}</version>-->
+<!--						<configuration>-->
+<!--							<excludes>-->
+<!--								&lt;!&ndash; Exclude specific Java files &ndash;&gt;-->
+<!--								<exclude>**/LoginController.class</exclude>-->
+<!--								&lt;!&ndash; Exclude all files in a specific package &ndash;&gt;-->
+<!--&lt;!&ndash;								<exclude>com/example/excludedpackage/**</exclude>&ndash;&gt;-->
+<!--							</excludes>-->
+<!--						</configuration>-->
+<!--					</plugin>-->
+<!--				</plugins>-->
+
 			</build>
 
 		</profile>
