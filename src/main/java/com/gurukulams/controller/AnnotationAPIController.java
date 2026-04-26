@@ -133,11 +133,10 @@ class AnnotationAPIController {
                 ? principal.getName() : buddy;
         logger.info("Listing Annotations for type {} at {} for the user {}",
                 onType, onInstance, notesOfUser);
-//        return ResponseEntity.status(HttpStatus.OK).body(
-//                annotationService.list(notesOfUser, locale,
-//                        onType,
-//                        onInstance));
-        return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                annotationService.list(notesOfUser, locale,
+                        onType,
+                        onInstance));
     }
 
     /**
