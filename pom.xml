@@ -40,7 +40,7 @@
 
 		<ojdbc8.version>23.6.0.24.10</ojdbc8.version>
 		<oraclepki.version>23.6.0.24.10</oraclepki.version>
-		<maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+<!--		<maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>-->
 	</properties>
 	<dependencies>
 
