@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 21
+          java-version: 24
 
       - name: Build
         run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B package -P production --file pom.xml

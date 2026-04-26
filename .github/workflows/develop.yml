@@ -14,10 +14,10 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 21
+          java-version: 24
 
       - name: Quality Check
-        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B versions:update-parent versions:update-properties compile --file pom.xml
+        run: mvn -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B versions:update-properties compile --file pom.xml # versions:update-parent
         env:
           USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
           ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}

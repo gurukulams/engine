@@ -27,15 +27,15 @@ public class OAuth2AuthenticationSuccessHandler
         extends SimpleUrlAuthenticationSuccessHandler {
 
     /**
-     * declare a TokenProvider.
-     */
-    private final AuthenticationService authenticationService;
-
-    /**
      * logger.
      */
     private static final Logger LOG =
             LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
+
+    /**
+     * declare a TokenProvider.
+     */
+    private final AuthenticationService authenticationService;
 
     /**
      * declare a AppProperties.
