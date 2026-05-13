@@ -29,6 +29,9 @@ module gurukulams.engine {
     requires jakarta.validation;
     requires com.h2database;
     requires gurukulams.event;
+    requires spring.boot.security;
+    requires tools.jackson.core;
+    requires tools.jackson.databind;
 
     opens com.gurukulams;
     opens com.gurukulams.starter.config;
