@@ -25,7 +25,7 @@ public final class AuthenticationRequest {
      */
     @JsonCreator
     public AuthenticationRequest(
-            @JsonProperty("userName") final String anUserName,
+            @JsonProperty("email") final String anUserName,
             @JsonProperty("password") final String aPassword) {
         this.email = anUserName;
         this.password = aPassword;
