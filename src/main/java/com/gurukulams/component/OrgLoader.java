@@ -1,12 +1,11 @@
 package com.gurukulams.component;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.model.Org;
 import com.gurukulams.core.service.OrgService;
-import com.gurukulams.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class OrgLoader {
      * Logger.
      */
     private final Logger logger =
-            LoggerFactory.getLogger(Application.class);
+            LoggerFactory.getLogger(OrgLoader.class);
 
     /**
      * Org Service.
@@ -34,18 +33,18 @@ public class OrgLoader {
     /**
      * Json Mapper.
      */
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     /**
      * OrgsLoader.
      *
      * @param theOrgService
-     * @param theObjectMapper
+     * @param theJsonMapper
      */
     public OrgLoader(final OrgService theOrgService,
-                     final ObjectMapper theObjectMapper) {
+                     final JsonMapper theJsonMapper) {
         this.orgService = theOrgService;
-        this.objectMapper = theObjectMapper;
+        this.jsonMapper = theJsonMapper;
     }
 
     /**
@@ -57,7 +56,7 @@ public class OrgLoader {
                 .getResourceAsStream("orgs.json");
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(is));
-        List<Org> orgs = objectMapper.readValue(reader,
+        List<Org> orgs = jsonMapper.readValue(reader,
                 new TypeReference<List<Org>>() { });
 
         for (Org org : orgs) {
