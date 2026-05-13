@@ -32,6 +32,7 @@ module gurukulams.engine {
     requires spring.boot.security;
     requires tools.jackson.core;
     requires tools.jackson.databind;
+    requires org.jspecify;
 
     opens com.gurukulams;
     opens com.gurukulams.starter.config;
