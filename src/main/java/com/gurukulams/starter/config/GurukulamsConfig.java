@@ -1,6 +1,5 @@
 package com.gurukulams.starter.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.core.DataManager;
 import com.gurukulams.core.service.CategoryService;
 import com.gurukulams.core.service.OrgService;
@@ -12,6 +11,7 @@ import com.gurukulams.component.OrgLoader;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.sql.DataSource;
 
@@ -120,14 +120,14 @@ public class GurukulamsConfig {
 
     /**
      * OrgLoader.
-     * @param objectMapper
+     * @param jsonMapper
      * @param orgService
      * @return orgLoader
      */
     @Bean
     OrgLoader orgLoader(
-                        final ObjectMapper objectMapper,
+                        final JsonMapper jsonMapper,
                         final OrgService orgService) {
-        return new OrgLoader(orgService, objectMapper);
+        return new OrgLoader(orgService, jsonMapper);
     }
 }
